@@ -1,0 +1,9 @@
+/data1/xushuangfei5/work/V1.0.0_ES10_CBOX/Module/third_party/freetype/builds/CMakeFiles/install/strip.dir
+/data1/xushuangfei5/work/V1.0.0_ES10_CBOX/Module/third_party/freetype/builds/CMakeFiles/install/local.dir
+/data1/xushuangfei5/work/V1.0.0_ES10_CBOX/Module/third_party/freetype/builds/CMakeFiles/install.dir
+/data1/xushuangfei5/work/V1.0.0_ES10_CBOX/Module/third_party/freetype/builds/CMakeFiles/list_install_components.dir
+/data1/xushuangfei5/work/V1.0.0_ES10_CBOX/Module/third_party/freetype/builds/CMakeFiles/edit_cache.dir
+/data1/xushuangfei5/work/V1.0.0_ES10_CBOX/Module/third_party/freetype/builds/CMakeFiles/package.dir
+/data1/xushuangfei5/work/V1.0.0_ES10_CBOX/Module/third_party/freetype/builds/CMakeFiles/freetype.dir
+/data1/xushuangfei5/work/V1.0.0_ES10_CBOX/Module/third_party/freetype/builds/CMakeFiles/package_source.dir
+/data1/xushuangfei5/work/V1.0.0_ES10_CBOX/Module/third_party/freetype/builds/CMakeFiles/rebuild_cache.dir

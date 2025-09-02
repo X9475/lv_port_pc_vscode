@@ -42,8 +42,8 @@ include_directories(${PROJECT_SOURCE_DIR}/main/inc)
 option(LV_USE_DRAW_SDL "Use SDL draw unit" OFF)
 option(LV_USE_LIBPNG "Use libpng to decode PNG" OFF)
 option(LV_USE_LIBJPEG_TURBO "Use libjpeg turbo to decode JPEG" OFF)
-option(LV_USE_FFMPEG "Use libffmpeg to display video using lv_ffmpeg" OFF)
-option(LV_USE_FREETYPE "Use freetype library" OFF)
+option(LV_USE_FFMPEG "Use libffmpeg to display video using lv_ffmpeg" ON)
+option(LV_USE_FREETYPE "Use freetype library" ON)
 
 # Set C and C++ standards
 set(CMAKE_C_STANDARD 99)
@@ -58,8 +58,8 @@ set(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 find_package(SDL2 REQUIRED)
 
 # Remove ARM-specific compile and linker options
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -g")
 
 # Add compile definitions based on the selected options
 add_compile_definitions($<$<BOOL:${LV_USE_DRAW_SDL}>:LV_USE_DRAW_SDL=1>)
@@ -67,9 +67,13 @@ add_compile_definitions($<$<BOOL:${LV_USE_LIBPNG}>:LV_USE_LIBPNG=1>)
 add_compile_definitions($<$<BOOL:${LV_USE_LIBJPEG_TURBO}>:LV_USE_LIBJPEG_TURBO=1>)
 add_compile_definitions($<$<BOOL:${LV_USE_FFMPEG}>:LV_USE_FFMPEG=1>)
 
+set(FREETYPE_DIR "${PROJECT_SOURCE_DIR}/freetype")
+
 # Add LVGL subdirectory
 add_subdirectory(lvgl)
-target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS})
+target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS} ${FREETYPE_DIR}/include)
+# Add freetype subdirectory
+# add_subdirectory(freetype)
 
 # Create the main executable, depending on the FreeRTOS option
 if(USE_FREERTOS)
@@ -91,7 +95,8 @@ endif()
 
 # Define LVGL configuration as a simple include
 target_compile_definitions(main PRIVATE LV_CONF_INCLUDE_SIMPLE)
-target_link_libraries(main lvgl lvgl::examples lvgl::demos lvgl::thorvg ${SDL2_LIBRARIES} m pthread)
+target_link_libraries(main lvgl lvgl::examples lvgl::demos lvgl::robot lvgl::thorvg ${SDL2_LIBRARIES} m pthread)
+target_link_libraries(main curl)
 
 # Only link freertos_config if the FreeRTOS directory exists
 if(USE_FREERTOS)

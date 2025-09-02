@@ -15,11 +15,13 @@
 #include "lvgl/lvgl.h"
 #include "lvgl/examples/lv_examples.h"
 #include "lvgl/demos/lv_demos.h"
-#include "glob.h"
+#include "lvgl/robot/main/lv_robot_main_ui.h"
 
 /*********************
  *      DEFINES
  *********************/
+#define LV_HAL_WIDTH  502
+#define LV_HAL_HEIGHT 410
 
 /**********************
  *      TYPEDEFS
@@ -73,11 +75,13 @@ int main(int argc, char **argv)
   lv_init();
 
   /*Initialize the HAL (display, input devices, tick) for LVGL*/
-  hal_init(320, 480);
+  hal_init(LV_HAL_WIDTH, LV_HAL_HEIGHT);
 
   #if LV_USE_OS == LV_OS_NONE
- 
-  lv_demo_widgets();
+
+  lv_manager_init();
+
+  lv_robot_main();
 
   while(1) {
     /* Periodically call the lv_task handler.
@@ -85,6 +89,8 @@ int main(int argc, char **argv)
     lv_timer_handler();
     usleep(5 * 1000);
   }
+
+  lv_manager_deinit();
 
   #elif LV_USE_OS == LV_OS_FREERTOS
 
