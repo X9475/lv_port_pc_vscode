@@ -71,9 +71,9 @@ set(FREETYPE_DIR "${PROJECT_SOURCE_DIR}/freetype")
 
 # Add LVGL subdirectory
 add_subdirectory(lvgl)
-target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS} ${FREETYPE_DIR}/include)
-# Add freetype subdirectory
-# add_subdirectory(freetype)
+target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/freetype/include)
+# Add libpng subdirectory
+add_subdirectory(libpng)
 
 # Create the main executable, depending on the FreeRTOS option
 if(USE_FREERTOS)
@@ -97,6 +97,9 @@ endif()
 target_compile_definitions(main PRIVATE LV_CONF_INCLUDE_SIMPLE)
 target_link_libraries(main lvgl lvgl::examples lvgl::demos lvgl::robot lvgl::thorvg ${SDL2_LIBRARIES} m pthread)
 target_link_libraries(main curl)
+# 配置 libpng
+find_library(PNG_LIB NAMES libpng.so HINTS ${CMAKE_CURRENT_BINARY_DIR}/libpng)
+target_link_libraries(main ${PNG_LIB})
 
 # Only link freertos_config if the FreeRTOS directory exists
 if(USE_FREERTOS)

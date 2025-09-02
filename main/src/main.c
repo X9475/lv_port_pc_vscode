@@ -82,6 +82,9 @@ int main(int argc, char **argv)
   lv_manager_init();
 
   lv_robot_main();
+  // lv_example_qrcode_1();
+  // lv_example_libpng_1();
+  // lv_example_ffmpeg_2();
 
   while(1) {
     /* Periodically call the lv_task handler.
