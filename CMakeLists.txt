@@ -75,6 +75,7 @@ target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS
 # 100ask.net ex
 add_subdirectory(lv_lib_100ask)
 add_subdirectory(lv_100ask_generic_ui)
+add_subdirectory(lv_child_camera)
 # Add libpng subdirectory
 add_subdirectory(libpng)
 
@@ -104,7 +105,8 @@ target_link_libraries(main
                       lvgl::demos 
                       lvgl::robot 
                       lvgl::thorvg 
-                      lv_100ask_generic_ui  
+                      lv_100ask_generic_ui 
+                      lv_child_camera 
                       ${SDL2_LIBRARIES} m pthread)
 target_link_libraries(main curl)
 # 配置 libpng

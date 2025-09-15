@@ -17,13 +17,14 @@
 #include "lvgl/demos/lv_demos.h"
 #include "lvgl/robot/main/lv_robot_main_ui.h"
 #include "../lv_100ask_generic_ui/src/main/lv_100ask_generic_ui_main.h"
+#include "../lv_child_camera/src/lv_child_camera_ui.h"
 
 /*********************
  *      DEFINES
  *********************/
-// 502 410
-#define LV_HAL_WIDTH  480
-#define LV_HAL_HEIGHT 480
+
+#define LV_HAL_WIDTH  502
+#define LV_HAL_HEIGHT 410
 
 /**********************
  *      TYPEDEFS
@@ -83,11 +84,12 @@ int main(int argc, char **argv)
 
   lv_manager_init();
 
+  lv_child_camera();
   // lv_robot_main();
   // lv_example_qrcode_1();
   // lv_example_libpng_1();
   // lv_example_ffmpeg_2();
-  lv_100ask_generic_ui();
+  // lv_100ask_generic_ui();
 
   while(1) {
     /* Periodically call the lv_task handler.
