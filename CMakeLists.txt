@@ -58,8 +58,8 @@ set(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 find_package(SDL2 REQUIRED)
 
 # Remove ARM-specific compile and linker options
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -g")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 
 # Add compile definitions based on the selected options
 add_compile_definitions($<$<BOOL:${LV_USE_DRAW_SDL}>:LV_USE_DRAW_SDL=1>)
@@ -72,6 +72,9 @@ set(FREETYPE_DIR "${PROJECT_SOURCE_DIR}/freetype")
 # Add LVGL subdirectory
 add_subdirectory(lvgl)
 target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR} ${SDL2_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/freetype/include)
+# 100ask.net ex
+add_subdirectory(lv_lib_100ask)
+add_subdirectory(lv_100ask_generic_ui)
 # Add libpng subdirectory
 add_subdirectory(libpng)
 
@@ -95,7 +98,14 @@ endif()
 
 # Define LVGL configuration as a simple include
 target_compile_definitions(main PRIVATE LV_CONF_INCLUDE_SIMPLE)
-target_link_libraries(main lvgl lvgl::examples lvgl::demos lvgl::robot lvgl::thorvg ${SDL2_LIBRARIES} m pthread)
+target_link_libraries(main 
+                      lvgl 
+                      lvgl::examples 
+                      lvgl::demos 
+                      lvgl::robot 
+                      lvgl::thorvg 
+                      lv_100ask_generic_ui  
+                      ${SDL2_LIBRARIES} m pthread)
 target_link_libraries(main curl)
 # 配置 libpng
 find_library(PNG_LIB NAMES libpng.so HINTS ${CMAKE_CURRENT_BINARY_DIR}/libpng)
