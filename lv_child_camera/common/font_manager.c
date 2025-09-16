@@ -47,8 +47,8 @@ void lv_font_init()
 {
     g_font_manager = lv_font_manager_create(2);
 
-    lv_font_manager_add_src_static(g_font_manager, "fzlthr", FZLTH_GB18030L2_B_DIR, &lv_freetype_font_class);
-    lv_font_manager_add_src_static(g_font_manager, "fzlthb", FZLTH_GB18030L2_R_DIR, &lv_freetype_font_class);
+    lv_font_manager_add_src_static(g_font_manager, "fzlthr", FZLTH_GB18030L2_R_DIR, &lv_freetype_font_class);
+    lv_font_manager_add_src_static(g_font_manager, "fzlthb", FZLTH_GB18030L2_B_DIR, &lv_freetype_font_class);
 
     return;
 }
