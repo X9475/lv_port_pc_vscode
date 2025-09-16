@@ -1139,7 +1139,7 @@
 #endif
 
 /** 1: Enable Font manager */
-#define LV_USE_FONT_MANAGER                     0
+#define LV_USE_FONT_MANAGER                     1
 #if LV_USE_FONT_MANAGER
 
 /**Font manager name max length*/

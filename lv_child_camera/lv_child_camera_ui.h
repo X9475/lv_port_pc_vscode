@@ -20,9 +20,8 @@ extern "C" {
  *      INCLUDES
  *********************/
 
-#include "../lvgl/lvgl.h"
-
-#include "../lv_child_camera_ui_conf.h"
+// #include "../lvgl/lvgl.h"
+#include "common/font_manager.h"
 
 #include "src/lv_startup_dev/lv_startup_dev.h"
 #include "src/lv_setting_dev/lv_setting_dev.h"
