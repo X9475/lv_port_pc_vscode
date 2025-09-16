@@ -65,7 +65,7 @@ const lv_font_t *font_get_bold(uint32_t size)
 
 void lv_font_manager_del_font(lv_font_t *font)
 {
-    if (NULL == g_font_manager) return;
+    if (NULL == g_font_manager || NULL == font) return;
 
     lv_font_manager_delete_font(g_font_manager, font);
 }
