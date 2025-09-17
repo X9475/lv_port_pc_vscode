@@ -35,9 +35,11 @@ static void lv_startup_login_success(lv_obj_t *cont);
 static void lv_startup_login_failed(lv_obj_t *cont);
 static void lv_startup_neterror(lv_obj_t *cont);
 static void lv_startup_first_user(lv_obj_t *cont);
+static void lv_startup_start_agent(lv_obj_t *cont);
 static void login_success_timer_callback(lv_timer_t *timer);
 static void lv_long_pressed_event(lv_event_t *e);
-static void set_arc_value(void* obj, int32_t v);
+static void lv_start_agent_slider_event(lv_event_t *e);
+static void set_arc_value(void *obj, int32_t v);
 static void anim_finish_callback(lv_anim_t *anim);
 
 /**********************
@@ -45,6 +47,8 @@ static void anim_finish_callback(lv_anim_t *anim);
  **********************/
 static lv_obj_t *startup_page;
 static lv_obj_t *arc;
+static lv_obj_t *slider_agent;
+static lv_obj_t *label_agent;
 static lv_style_t style;
 static lv_style_t indc_style;
 static lv_style_t main_style;
@@ -56,6 +60,7 @@ static lv_timer_t *timer;
 static lv_anim_t arc_anim;
 /// @brief 业务相关变量
 static uint32_t tick_sec = 5;
+static int32_t label_opa = 0;//透明度
 
 /**********************
  *      MACROS
@@ -116,7 +121,9 @@ static void lv_page_open()
         //登录失败页面
         // lv_startup_login_failed(startup_page);
         //登录成功后第一次使用召唤智能体
-        lv_startup_first_user(startup_page);
+        // lv_startup_first_user(startup_page);
+        //登录成功后启动智能体
+        lv_startup_start_agent(startup_page);
     }
 
     return;
@@ -216,7 +223,8 @@ static void login_success_timer_callback(lv_timer_t *timer)
     {
         tick_sec = 5;
         lv_obj_clean(startup_page);
-        //TODO: 执行页面跳转
+        startup_page = NULL;
+        //TODO: 跳转到开启探索新世界
     }
     tick_sec--;
 }
@@ -383,6 +391,55 @@ static void lv_startup_first_user(lv_obj_t *cont)
     return;
 }
 
+static void lv_startup_start_agent(lv_obj_t *cont)
+{
+    //背景图
+    lv_obj_t *agent_bg = lv_img_create(cont);
+    lv_img_set_src(agent_bg, "V:tk1/icon/start_agent_2x.png");
+    lv_img_set_zoom(agent_bg, 128);
+    lv_obj_align(agent_bg, LV_ALIGN_CENTER, 0, 0);
+
+    //创建滑动条
+    slider_agent = lv_slider_create(cont);
+    lv_obj_set_size(slider_agent, 442, 100);
+    lv_slider_set_range(slider_agent, 0, 442);
+    lv_obj_set_style_bg_opa(slider_agent, LV_OPA_80, 0);
+    lv_obj_set_style_bg_color(slider_agent, lv_color_hex(0x9FE5FF), 0);
+    lv_obj_set_style_bg_grad_color(slider_agent, lv_color_hex(0x494949), 0);
+    lv_obj_set_style_bg_grad_dir(slider_agent, LV_GRAD_DIR_HOR, 0);
+    lv_obj_align(slider_agent, LV_ALIGN_TOP_MID, 0, 290);
+    lv_obj_remove_style(slider_agent, NULL, LV_PART_KNOB);
+    lv_obj_remove_style(slider_agent, NULL, LV_PART_INDICATOR);
+
+    lv_obj_t *label = lv_label_create(cont);
+    lv_obj_set_size(label, 86, 86);
+    lv_obj_set_pos(label, 41, 297);
+    lv_obj_set_style_text_opa(label, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(label, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_bg_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(label, lv_color_hex(0xAFF99C), 0);
+    lv_obj_set_style_bg_grad_color(label, lv_color_hex(0x79FFF5), 0);
+    lv_obj_set_style_bg_grad_dir(label, LV_GRAD_DIR_HOR, 0);
+    lv_obj_t *door = lv_img_create(label);
+    lv_img_set_src(door, "V:tk1/icon/door_icon_two.png");
+    lv_obj_align(door, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(slider_agent, lv_start_agent_slider_event, LV_EVENT_VALUE_CHANGED, label);
+
+    //文字
+    label_opa = LV_OPA_90;
+    if (NULL == font_30) font_30 = font_get_regular(30);
+    label_agent = lv_label_create(slider_agent);
+    lv_label_set_text(label_agent, "开启探索世界");
+    lv_obj_set_style_text_opa(label_agent, label_opa, 0);
+    lv_obj_set_style_text_font(label_agent, font_30, 0);
+    lv_obj_set_style_text_color(label_agent, lv_color_white(), 0);
+    lv_obj_set_style_text_align(label_agent, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label_agent, slider_agent, LV_ALIGN_CENTER, 0, 0);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
 static void lv_long_pressed_event(lv_event_t *e)
 {
     static bool long_flag = false;
@@ -424,20 +481,48 @@ static void lv_long_pressed_event(lv_event_t *e)
     }
 }
 
-static void set_arc_value(void* obj, int32_t v)
+static void set_arc_value(void *obj, int32_t v)
 {
-    lv_arc_set_value((lv_obj_t*)obj, v);
+    lv_arc_set_value((lv_obj_t *)obj, v);
 }
 
 static void anim_finish_callback(lv_anim_t *anim)
 {
-    printf("====长按完成\n");
     lv_anim_del_all();
-
     lv_obj_clean(startup_page);
     startup_page = NULL;
     //TODO: 触发召唤出智能体
 
+}
+
+static void lv_start_agent_slider_event(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *label = lv_event_get_user_data(e);
+
+    if (LV_EVENT_VALUE_CHANGED == code)
+    {
+        int32_t value = lv_slider_get_value(slider_agent);
+        // printf("==== value: %d\n", value);
+
+        if (value < 41) lv_slider_set_value(slider_agent, 41, LV_ANIM_ON);//最小值限制
+        if (value > 378) lv_slider_set_value(slider_agent, 378, LV_ANIM_ON);//最大值限制
+
+        if (value < 378 && value > 41)
+        {
+            uint16_t new_opa = (label_opa -= 4) <= 0? 0 : label_opa;
+
+            lv_obj_set_x(label, value);//设置标签坐标
+            lv_obj_set_style_text_opa(label_agent, new_opa, 0);
+        }
+        if (value == 378)
+        {
+            lv_obj_clean(startup_page);
+            startup_page = NULL;
+            //TODO: 触发召唤出智能体
+
+        }
+    }
 }
 
 #endif
