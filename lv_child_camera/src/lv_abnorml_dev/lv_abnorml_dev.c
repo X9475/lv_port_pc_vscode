@@ -31,11 +31,14 @@ static void style_init();
 static void lv_page_open();
 static void lv_page_close();
 static void lv_abnorml_low_battery(lv_obj_t *cont);
+static void lv_low_battery_event(lv_event_t *e);
 static void lv_abnorml_minute_battery(lv_obj_t *cont);
+static void lv_minute_battery_event(lv_event_t *e);
 static void lv_abnorml_high_temperature(lv_obj_t *cont);
 static void lv_abnorml_low_temperature(lv_obj_t *cont);
 static void lv_abnorml_storage_exhausted(lv_obj_t *cont);
 static void lv_abnorml_storage_exhausted_toast(lv_obj_t *cont);
+static void lv_storage_exhausted_click_event(lv_event_t *e);
 static void lv_abnorml_storage_updating(lv_obj_t *cont);
 static void lv_abnorml_transmit_usb(lv_obj_t *cont);
 static void lv_usb_back_click_event(lv_event_t *e);
@@ -96,7 +99,7 @@ static void lv_page_open()
     // TODO: 根据业务区分调用
     {
         //电量小于20%
-        // lv_abnorml_low_battery(abnormal_page);
+        lv_abnorml_low_battery(abnormal_page);
         //电量小于3%
         // lv_abnorml_minute_battery(abnormal_page);
         //高温异常
@@ -110,7 +113,7 @@ static void lv_page_open()
         //升级中
         // lv_abnorml_storage_updating(abnormal_page);
         //USB传输
-        lv_abnorml_transmit_usb(abnormal_page);
+        // lv_abnorml_transmit_usb(abnormal_page);
     }
 
     return;
@@ -129,11 +132,16 @@ static void lv_page_close()
 static void lv_abnorml_low_battery(lv_obj_t *cont)
 {
     //背景图
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "V:tk1/icon/battery_20.png");
+    lv_img_set_zoom(photo, 128);
+    lv_obj_set_size(photo, 380, 210);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 25);
 
-    //文字提示：设备电量较低，请及时充电
+    //文字提示：电量较低请及时充电
     if (NULL == font_26) font_26 = font_get_regular(26);
     lv_obj_t *tip1_label = lv_label_create(cont);
-    lv_label_set_text(tip1_label, "设备电量较低，请及时充电");
+    lv_label_set_text(tip1_label, "电量较低请及时充电");
     lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
     lv_obj_set_style_text_font(tip1_label, font_26, 0);
     lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
@@ -156,19 +164,33 @@ static void lv_abnorml_low_battery(lv_obj_t *cont)
     lv_obj_set_style_text_color(tip2_label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(tip2_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(btn, lv_low_battery_event, LV_EVENT_CLICKED, NULL);
 
     lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
     return;
+}
+
+static void lv_low_battery_event(lv_event_t *e)
+{
+    //TODO: 回到当前页面
+    lv_obj_clean(abnormal_page);
+    abnormal_page = NULL;
+
 }
 
 static void lv_abnorml_minute_battery(lv_obj_t *cont)
 {
     //背景图
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "V:tk1/icon/battery_3.png");
+    lv_img_set_zoom(photo, 128);
+    lv_obj_set_size(photo, 380, 210);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 25);
 
-    //文字提示：设备电量较低，请及时充电
+    //文字提示：电量较低即将关机
     if (NULL == font_26) font_26 = font_get_regular(26);
     lv_obj_t *tip1_label = lv_label_create(cont);
-    lv_label_set_text(tip1_label, "设备电量较低，即将关机");
+    lv_label_set_text(tip1_label, "电量较低即将关机");
     lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
     lv_obj_set_style_text_font(tip1_label, font_26, 0);
     lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
@@ -191,16 +213,30 @@ static void lv_abnorml_minute_battery(lv_obj_t *cont)
     lv_obj_set_style_text_color(tip2_label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(tip2_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(btn, lv_minute_battery_event, LV_EVENT_CLICKED, NULL);
 
     lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
     return;
 }
 
+static void lv_minute_battery_event(lv_event_t *e)
+{
+    //TODO: 回到当前页面
+    lv_obj_clean(abnormal_page);
+    abnormal_page = NULL;
+
+}
+
 static void lv_abnorml_high_temperature(lv_obj_t *cont)
 {
     //背景图
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "V:tk1/icon/high_temperature.png");
+    lv_img_set_zoom(photo, 128);
+    lv_obj_set_size(photo, 380, 210);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 60);
 
-    //文字提示：设备电量较低，请及时充电
+    //文字提示：相机温度较高，无法进行操作
     if (NULL == font_26) font_26 = font_get_regular(26);
     lv_obj_t *tip1_label = lv_label_create(cont);
     lv_label_set_text(tip1_label, "相机温度较高，无法进行操作");
@@ -217,8 +253,13 @@ static void lv_abnorml_high_temperature(lv_obj_t *cont)
 static void lv_abnorml_low_temperature(lv_obj_t *cont)
 {
     //背景图
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "V:tk1/icon/low_temperature.png");
+    lv_img_set_zoom(photo, 128);
+    lv_obj_set_size(photo, 380, 210);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 60);
 
-    //文字提示：设备电量较低，请及时充电
+    //文字提示：相机温度较低，无法进行操作
     if (NULL == font_26) font_26 = font_get_regular(26);
     lv_obj_t *tip1_label = lv_label_create(cont);
     lv_label_set_text(tip1_label, "相机温度较低，无法进行操作");
@@ -235,11 +276,16 @@ static void lv_abnorml_low_temperature(lv_obj_t *cont)
 static void lv_abnorml_storage_exhausted(lv_obj_t *cont)
 {
     //背景图
+    lv_obj_t *storage = lv_img_create(cont);
+    lv_img_set_src(storage, "V:tk1/icon/storage.png");
+    lv_img_set_zoom(storage, 128);
+    lv_obj_set_size(storage, 380, 210);
+    lv_obj_align(storage, LV_ALIGN_TOP_MID, 0, 25);
 
-    //文字提示：设备电量较低，请及时充电
+    //文字提示：存储容量即将耗尽，即将停止录像
     if (NULL == font_26) font_26 = font_get_regular(26);
     lv_obj_t *tip1_label = lv_label_create(cont);
-    lv_label_set_text(tip1_label, "设备存储容量即将耗尽，即将停止录像");
+    lv_label_set_text(tip1_label, "存储容量即将耗尽，即将停止录像");
     lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
     lv_obj_set_style_text_font(tip1_label, font_26, 0);
     lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
@@ -262,15 +308,22 @@ static void lv_abnorml_storage_exhausted(lv_obj_t *cont)
     lv_obj_set_style_text_color(tip2_label, lv_color_hex(0x000000), 0);
     lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(tip2_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(btn, lv_storage_exhausted_click_event, LV_EVENT_CLICKED, NULL);
 
     lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
     return;
 }
 
+static void lv_storage_exhausted_click_event(lv_event_t *e)
+{
+    //TODO: 回到当前页面
+    lv_obj_clean(abnormal_page);
+    abnormal_page = NULL;
+
+}
+
 static void lv_abnorml_storage_exhausted_toast(lv_obj_t *cont)
 {
-    //背景图
-
     //文字提示：存储容量耗尽无法拍摄
     if (NULL == font_32) font_32 = font_get_regular(32);
     lv_obj_t *obj = lv_obj_create(cont);
@@ -287,6 +340,13 @@ static void lv_abnorml_storage_exhausted_toast(lv_obj_t *cont)
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+
+     //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_fail.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 31, 124);
 
     lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
     return;
@@ -346,7 +406,8 @@ static void lv_abnorml_transmit_usb(lv_obj_t *cont)
     lv_obj_t *battery = lv_img_create(charge);
     lv_img_set_src(battery, "V:tk1/icon/usb_icon_charge.png");
     lv_img_set_zoom(battery, 128);
-    lv_obj_align_to(battery, charge, LV_ALIGN_LEFT_MID, -25, 0);
+    lv_obj_set_size(battery, 70, 70);
+    lv_obj_align_to(battery, charge, LV_ALIGN_LEFT_MID, 19, 0);
 
     if (NULL == font_28) font_28 = font_get_regular(28);
     lv_obj_t *label1 = lv_label_create(charge);
@@ -375,7 +436,8 @@ static void lv_abnorml_transmit_usb(lv_obj_t *cont)
     lv_obj_t *photo = lv_img_create(transmit);
     lv_img_set_src(photo, "V:tk1/icon/usb_icon_photo.png");
     lv_img_set_zoom(photo, 128);
-    lv_obj_align_to(photo, transmit, LV_ALIGN_LEFT_MID, -25, 0);
+    lv_obj_set_size(photo, 70, 70);
+    lv_obj_align_to(photo, transmit, LV_ALIGN_LEFT_MID, 19, 0);
 
     if (NULL == font_28) font_28 = font_get_regular(28);
     lv_obj_t *label2 = lv_label_create(transmit);
@@ -409,6 +471,7 @@ static void lv_abnorml_transmit_usb(lv_obj_t *cont)
     lv_obj_set_style_bg_color(confirm_btn, lv_color_hex(0xAFF99C), 0);
     lv_obj_t *img_ok = lv_img_create(confirm_btn);
     lv_img_set_src(img_ok, "V:tk1/icon/common_icon_ok button.png");
+    lv_obj_set_size(img_ok, 50, 50);
     lv_obj_align_to(img_ok, confirm_btn, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_image_recolor_opa(img_ok, LV_OPA_COVER, 0);
     lv_obj_set_style_image_recolor(img_ok, lv_color_hex(0x0A0B0D), 0);
