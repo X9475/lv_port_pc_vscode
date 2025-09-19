@@ -43,6 +43,9 @@ static void lv_abnorml_storage_updating(lv_obj_t *cont);
 static void lv_abnorml_transmit_usb(lv_obj_t *cont);
 static void lv_usb_back_click_event(lv_event_t *e);
 static void lv_switch_select_checkbox_event(lv_event_t *e);
+static void lv_abnorml_usb_flash_mode(lv_obj_t *cont);
+static void lv_abnorml_network_exception(lv_obj_t *cont);
+static void lv_network_exception_event(lv_event_t *e);
 
 /**********************
  *  STATIC VARIABLES
@@ -54,6 +57,7 @@ static lv_obj_t *charge;//仅充电
 static lv_obj_t *transmit;//数据传输
 static lv_obj_t *current_select;//记录当前选项
 static lv_style_t style;
+static const lv_font_t *font_24;
 static const lv_font_t *font_26;
 static const lv_font_t *font_28;
 static const lv_font_t *font_30;
@@ -99,7 +103,7 @@ static void lv_page_open()
     // TODO: 根据业务区分调用
     {
         //电量小于20%
-        lv_abnorml_low_battery(abnormal_page);
+        // lv_abnorml_low_battery(abnormal_page);
         //电量小于3%
         // lv_abnorml_minute_battery(abnormal_page);
         //高温异常
@@ -114,6 +118,10 @@ static void lv_page_open()
         // lv_abnorml_storage_updating(abnormal_page);
         //USB传输
         // lv_abnorml_transmit_usb(abnormal_page);
+        //U盘模式中
+        // lv_abnorml_usb_flash_mode(abnormal_page);
+        //网络异常
+        lv_abnorml_network_exception(abnormal_page);
     }
 
     return;
@@ -121,6 +129,7 @@ static void lv_page_open()
 
 static void lv_page_close()
 {
+    lv_font_manager_del_font(font_24);
     lv_font_manager_del_font(font_26);
     lv_font_manager_del_font(font_28);
     lv_font_manager_del_font(font_30);
@@ -519,6 +528,91 @@ static void lv_switch_select_checkbox_event(lv_event_t *e)
     lv_obj_set_parent(unselect, select_parent);
     //更新当前选项的父对象
     current_select = lv_obj_get_parent(select);
+}
+
+static void lv_abnorml_usb_flash_mode(lv_obj_t *cont)
+{
+    //背景图
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "V:tk1/icon/USB.png");
+    lv_img_set_zoom(photo, 128);
+    lv_obj_set_size(photo, 380, 210);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 60);
+
+    //文字提示：U盘模式中…
+    if (NULL == font_26) font_26 = font_get_regular(26);
+    lv_obj_t *tip_label = lv_label_create(cont);
+    lv_label_set_text(tip_label, "U盘模式中…");
+    lv_obj_set_style_text_opa(tip_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip_label, font_26, 0);
+    lv_obj_set_style_text_color(tip_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(tip_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip_label, LV_ALIGN_TOP_MID, 0, 290);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_abnorml_network_exception(lv_obj_t *cont)
+{
+    //背景图
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "V:tk1/icon/network_anomaly.png");
+    lv_img_set_zoom(photo, 128);
+    lv_obj_set_size(photo, 342, 189);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 0);
+
+    //文字提示：设备网络异常
+    if (NULL == font_26) font_26 = font_get_regular(26);
+    lv_obj_t *tip1_label = lv_label_create(cont);
+    lv_label_set_text(tip1_label, "设备网络异常");
+    lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip1_label, font_26, 0);
+    lv_obj_set_style_text_color(tip1_label, lv_color_white(), 0);
+    lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 189);
+
+    if (NULL == font_24) font_24 = font_get_regular(24);
+    lv_obj_t *tip2_label = lv_label_create(cont);
+    lv_obj_set_size(tip2_label, 375, 72);
+    lv_obj_set_style_opa(tip2_label, LV_OPA_80, 0);
+    lv_obj_set_style_text_line_space(tip2_label, 6, 0);
+    lv_label_set_text(tip2_label, "1、请确保设备所摆放位置信号良好2、请确保流量卡中有可用流量");
+    lv_label_set_long_mode(tip2_label, LV_LABEL_LONG_WRAP);
+    lv_obj_set_style_text_opa(tip2_label, LV_OPA_60, 0);
+    lv_obj_set_style_text_font(tip2_label, font_24, 0);
+    lv_obj_set_style_text_color(tip2_label, lv_color_hex(0xEBEBF5), 0);
+    lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip2_label, LV_ALIGN_TOP_MID, 0, 229);
+
+    //重试
+    if (NULL == font_30) font_30 = font_get_regular(30);
+    lv_obj_t *btn = lv_btn_create(cont);
+    lv_obj_set_size(btn, 148, 70);
+    lv_obj_align(btn, LV_ALIGN_TOP_MID, 0, 320);
+    lv_obj_set_style_radius(btn, 51, 0);
+    lv_obj_set_style_shadow_opa(btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_t *tip3_label = lv_label_create(btn);
+    lv_label_set_text(tip3_label, "重试");
+    lv_obj_set_style_text_opa(tip3_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip3_label, font_30, 0);
+    lv_obj_set_style_text_color(tip3_label, lv_color_hex(0x1C1C1E), 0);
+    lv_obj_set_style_text_align(tip3_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip3_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(btn, lv_network_exception_event, LV_EVENT_CLICKED, NULL);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_network_exception_event(lv_event_t *e)
+{
+    //TODO: 回到当前页面
+    lv_obj_clean(abnormal_page);
+    abnormal_page = NULL;
+
 }
 
 #endif
