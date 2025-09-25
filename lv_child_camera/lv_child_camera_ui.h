@@ -26,6 +26,7 @@ extern "C" {
 #include "src/lv_startup_dev/lv_startup_dev.h"
 #include "src/lv_setting_dev/lv_setting_dev.h"
 #include "src/lv_abnorml_dev/lv_abnorml_dev.h"
+#include "src/lv_realtime_shooting_dev/lv_realtime_shooting.h"
 
 /*********************
  *      DEFINES
