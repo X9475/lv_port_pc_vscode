@@ -479,7 +479,7 @@ static void lv_abnorml_transmit_usb(lv_obj_t *cont)
     lv_obj_set_style_bg_opa(confirm_btn, LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(confirm_btn, lv_color_hex(0xAFF99C), 0);
     lv_obj_t *img_ok = lv_img_create(confirm_btn);
-    lv_img_set_src(img_ok, "V:tk1/icon/common_icon_ok button.png");
+    lv_img_set_src(img_ok, "V:tk1/icon/common_icon_ok_button.png");
     lv_obj_set_size(img_ok, 50, 50);
     lv_obj_align_to(img_ok, confirm_btn, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_image_recolor_opa(img_ok, LV_OPA_COVER, 0);

@@ -23,9 +23,9 @@
 
 #define LV_CHILD_CAMERA_STARTUP     0 //添加流程
 #define LV_CHILD_CAMERA_MENU        0 //设备菜单
-#define LV_CHILD_CAMERA_ADDDEV      0 //设备设置
+#define LV_CHILD_CAMERA_SETTING     1 //设备设置
 #define LV_CHILD_CAMERA_ABNORMAL    0 //异常情况
-#define LV_CHILD_CAMERA_REALTIME_SHOOTING 1 //实时拍摄场景
+#define LV_CHILD_CAMERA_REALTIME_SHOOTING 0 //实时拍摄场景
 
 #endif /*LV_CHILD_CAMERA_UI_CONF_H*/
 
