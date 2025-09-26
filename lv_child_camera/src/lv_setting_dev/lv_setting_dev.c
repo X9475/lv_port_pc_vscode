@@ -49,6 +49,15 @@ static void lv_setting_recovery_factory_confirmation(lv_obj_t *cont);
 static void lv_setting_certification(lv_obj_t *cont);
 static void lv_setting_format_confirmation(lv_obj_t *cont);
 static void lv_cancel_and_confirm_click_event(lv_event_t *e);
+static void lv_setting_format_doing_toast(lv_obj_t *cont);
+static void lv_setting_format_success_toast(lv_obj_t *cont);
+static void lv_setting_format_failed_toast(lv_obj_t *cont);
+static void lv_setting_change_doing_toast(lv_obj_t *cont);
+static void lv_setting_change_success_toast(lv_obj_t *cont);
+static void lv_setting_change_failed_toast(lv_obj_t *cont);
+static void lv_setting_recovery_doing_toast(lv_obj_t *cont);
+static void lv_setting_recovery_success_toast(lv_obj_t *cont);
+static void lv_setting_recovery_failed_toast(lv_obj_t *cont);
 
 /**********************
  *  STATIC VARIABLES
@@ -63,6 +72,7 @@ static const lv_font_t *font_26;
 static const lv_font_t *font_28;
 static const lv_font_t *font_30;
 static const lv_font_t *font_30B;
+static const lv_font_t *font_32;
 static const lv_font_t *font_34;
 static const lv_font_t *font_40;
 static lv_obj_t *confirm;
@@ -169,9 +179,27 @@ static void lv_page_open()
         //恢复出厂设置确认
         // lv_setting_recovery_factory_confirmation(setting_page);
         //认证标志
-        lv_setting_certification(setting_page);
+        // lv_setting_certification(setting_page);
         //格式确认
         // lv_setting_format_confirmation(setting_page);
+        //格式化中toast
+        // lv_setting_format_doing_toast(setting_page);
+        //格式化成功
+        // lv_setting_format_success_toast(setting_page);
+        //格式化失败
+        // lv_setting_format_failed_toast(setting_page);
+        //切换中toast
+        // lv_setting_change_doing_toast(setting_page);
+        //切换成功
+        // lv_setting_change_success_toast(setting_page);
+        //切换失败
+        // lv_setting_change_failed_toast(setting_page);
+        //恢复出厂中
+        // lv_setting_recovery_doing_toast(setting_page);
+        //恢复出厂成功
+        // lv_setting_recovery_success_toast(setting_page);
+        //恢复出厂失败
+        lv_setting_recovery_failed_toast(setting_page);
     }
 
     return;
@@ -184,6 +212,7 @@ static void lv_page_close()
     lv_font_manager_del_font(font_28);
     lv_font_manager_del_font(font_30);
     lv_font_manager_del_font(font_30B);
+    lv_font_manager_del_font(font_32);
     lv_font_manager_del_font(font_34);
     lv_font_manager_del_font(font_40);
     lv_font_deinit();
@@ -764,6 +793,285 @@ static void lv_setting_format_confirmation(lv_obj_t *cont)
     lv_obj_set_style_image_recolor_opa(img_confirm, LV_OPA_COVER, 0);
     lv_obj_set_style_image_recolor(img_confirm, lv_color_hex(0x0A0B0D), 0);
     lv_obj_add_event_cb(sd_confirm, lv_cancel_and_confirm_click_event, LV_EVENT_CLICKED, sd_confirm);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_setting_format_doing_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 262, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：格式化中...
+    if (NULL == font_32) font_32 = font_get_regular(32);
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "格式化中...");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, font_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_success.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 90, 140);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_setting_format_success_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 262, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：格式化成功
+    if (NULL == font_32) font_32 = font_get_regular(32);
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "格式化成功");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, font_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_success.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 90, 140);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_setting_format_failed_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 240, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：格式化失败
+    if (NULL == font_32) font_32 = font_get_regular(32);
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "格式化失败");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, font_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_fail.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 108, 115);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_setting_change_doing_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 225, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：切换中...
+    if (NULL == font_32) font_32 = font_get_regular(32);
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "切换中...");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, font_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_success.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 105, 140);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_setting_change_success_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 230, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：切换成功
+    if (NULL == font_32) font_32 = font_get_regular(32);
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "切换成功");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, font_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_success.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 105, 140);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_setting_change_failed_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 208, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：切换失败
+    if (NULL == font_32) font_32 = font_get_regular(32);
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "切换失败");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, font_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_fail.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 124, 115);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_setting_recovery_doing_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 353, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：恢复出厂设置中…
+    if (NULL == font_32) font_32 = font_get_regular(32);
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "恢复出厂设置中…");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, font_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_success.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 35, 140);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_setting_recovery_success_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 230, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：恢复成功
+    if (NULL == font_32) font_32 = font_get_regular(32);
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "恢复成功");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, font_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_success.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 105, 140);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void lv_setting_recovery_failed_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 208, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：恢复失败
+    if (NULL == font_32) font_32 = font_get_regular(32);
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "恢复失败");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, font_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "V:tk1/icon/toast_fail.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align(toast, LV_ALIGN_TOP_LEFT, 124, 115);
 
     lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
     return;

@@ -10,7 +10,7 @@ extern "C" {
  *********************/
 #include "../lv_child_camera_ui.h"
 
-#if (LV_CHILD_CAMERA != 0) && (LV_CHILD_CAMERA_ADDDEV != 0)
+#if (LV_CHILD_CAMERA != 0) && (LV_CHILD_CAMERA_SETTING != 0)
 
 /*********************
  *      DEFINES
