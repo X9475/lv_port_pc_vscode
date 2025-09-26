@@ -861,86 +861,98 @@ static void lv_realtime_shooting_video(lv_obj_t * parent, int type)
 /* 左边滚轮值改变事件回调 */
 static void left_roller_event_cb(lv_event_t * e)
 {
-    lv_obj_t * left_roller = lv_event_get_target(e);
+    static int32_t last_index = -1;
+    lv_obj_t *left_roller = lv_event_get_target(e);
     uint16_t selected = lv_roller_get_selected(left_roller);
-    int* type = (int *)lv_event_get_user_data(e);
-    printf("type=%d\n", *type);
-    /* 根据左边滚轮的选择更新右边滚轮内容 */
-    switch(selected) {
-        case 0: 
-            if(*type == 0)
-            {
-                lv_roller_set_options(right_roller, timer_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择OFF
-            }
-            else if(*type == 1)
-            {
-                lv_roller_set_options(right_roller, resolution_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择1080p
-            }
-            else if(*type == 2)
-            {
-                lv_roller_set_options(right_roller, time_lapse_resolution_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择1080P
-            }
-            break;
-        case 1: 
-            if(*type == 0)
-            {
-                lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
-            }
-            else if(*type == 1)
-            {
-                lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
-            }
-            else if(*type == 2)
-            {
-                lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
-            }
-            break;
-        case 2: 
-            if(*type == 0)
-            {
-                lv_roller_set_options(right_roller, trigger_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择OFF
-            }
-            else if(*type == 1)
-            {   
-                lv_roller_set_options(right_roller, frame_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择30
-            }
-            else if(*type == 2)
-            {
-                lv_roller_set_options(right_roller, time_lapse_ratio_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4X日出日落
-            }
-            break;
+    int *type = (int *)lv_event_get_user_data(e);
+
+    if (last_index != lv_roller_get_selected(left_roller))
+    {//选项发生变化
+        last_index = lv_roller_get_selected(left_roller);
+        printf("type=%d\n", *type);
+        /* 根据左边滚轮的选择更新右边滚轮内容 */
+        switch(selected) {
+            case 0: 
+                if(*type == 0)
+                {
+                    lv_roller_set_options(right_roller, timer_options, LV_ROLLER_MODE_NORMAL);
+                    lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择OFF
+                }
+                else if(*type == 1)
+                {
+                    lv_roller_set_options(right_roller, resolution_options, LV_ROLLER_MODE_NORMAL);
+                    lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择1080p
+                }
+                else if(*type == 2)
+                {
+                    lv_roller_set_options(right_roller, time_lapse_resolution_options, LV_ROLLER_MODE_NORMAL);
+                    lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择1080P
+                }
+                break;
+            case 1: 
+                if(*type == 0)
+                {
+                    lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
+                    lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
+                }
+                else if(*type == 1)
+                {
+                    lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
+                    lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
+                }
+                else if(*type == 2)
+                {
+                    lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
+                    lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
+                }
+                break;
+            case 2: 
+                if(*type == 0)
+                {
+                    lv_roller_set_options(right_roller, trigger_options, LV_ROLLER_MODE_NORMAL);
+                    lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择OFF
+                }
+                else if(*type == 1)
+                {   
+                    lv_roller_set_options(right_roller, frame_options, LV_ROLLER_MODE_NORMAL);
+                    lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择30
+                }
+                else if(*type == 2)
+                {
+                    lv_roller_set_options(right_roller, time_lapse_ratio_options, LV_ROLLER_MODE_NORMAL);
+                    lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4X日出日落
+                }
+                break;
+        }
     }
 }
 
 static void right_roller_event_cb(lv_event_t * e)
 {
-    lv_obj_t * right_roller = lv_event_get_target(e);
+    static int32_t last_index = -1;
+    lv_obj_t *right_roller = lv_event_get_target(e);
     uint16_t selected = lv_roller_get_selected(right_roller);
 
-    char selected_text[32] = {0};
-    lv_roller_get_selected_str(right_roller, selected_text, sizeof(selected_text));
-    LV_LOG_USER("Roller changed: Index=%d, Text=%s", selected, selected_text);
+    if (last_index != lv_roller_get_selected(right_roller))
+    {//选项发生变化
+        last_index = lv_roller_get_selected(right_roller);
 
-    /* 根据左边滚轮的选择更新右边滚轮内容 */
-    switch(selected) {
-        case 0: 
-            LV_LOG_WARN("This is a event message");
-            break;
-        case 1: 
-            LV_LOG_WARN("This is a event1 message");
-            break;
-        case 2: 
-            LV_LOG_WARN("This is a event2 message");
-            break;
+        char selected_text[32] = {0};
+        lv_roller_get_selected_str(right_roller, selected_text, sizeof(selected_text));
+        LV_LOG_USER("Roller changed: Index=%d, Text=%s", selected, selected_text);
+
+        /* 根据左边滚轮的选择更新右边滚轮内容 */
+        switch(selected) {
+            case 0: 
+                LV_LOG_WARN("This is a event message");
+                break;
+            case 1: 
+                LV_LOG_WARN("This is a event1 message");
+                break;
+            case 2: 
+                LV_LOG_WARN("This is a event2 message");
+                break;
+        }
     }
 }
 
