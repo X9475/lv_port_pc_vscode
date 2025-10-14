@@ -664,18 +664,11 @@ static void lv_setting_storage_manage(lv_obj_t *cont)
     lv_obj_set_style_opa(image, LV_OPA_COVER, 0);
     lv_obj_align(image, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_t *backgroud = lv_obj_create(cont);
-    lv_obj_remove_style_all(backgroud);
-    lv_obj_add_style(backgroud, &style, 0);
-    lv_obj_set_size(backgroud, 442, 203);
-    lv_obj_align(backgroud, LV_ALIGN_BOTTOM_RIGHT, -30, -91);
-    lv_obj_swap(image, backgroud);
-
-    lv_obj_t *line = lv_obj_create(backgroud);
-    lv_obj_remove_style_all(line);
-    lv_obj_set_size(line, 2, 203);
-    lv_obj_add_style(line, &style_line, 0);
-    lv_obj_align_to(line, backgroud, LV_ALIGN_LEFT_MID, 0, 0);
+    lv_obj_t *background = lv_obj_create(cont);
+    lv_obj_remove_style_all(background);
+    lv_obj_add_style(background, &style, 0);
+    lv_obj_set_size(background, 442, 203);
+    lv_obj_align(background, LV_ALIGN_BOTTOM_RIGHT, -30, -91);
 
     //滑动条
     lv_obj_t *slider = lv_slider_create(cont);
@@ -687,10 +680,17 @@ static void lv_setting_storage_manage(lv_obj_t *cont)
     lv_obj_add_style(slider, &style_knob, LV_PART_KNOB);
     lv_obj_add_style(slider, &style_indicator, LV_PART_INDICATOR);
     lv_slider_set_value(slider, (use_storage / total_storage) * 100, LV_ANIM_OFF);
-    lv_obj_add_event_cb(slider, storage_manage_event_cb, LV_EVENT_VALUE_CHANGED, backgroud);
-    lv_obj_send_event(slider, LV_EVENT_VALUE_CHANGED, NULL);
     lv_obj_clear_flag(slider, LV_OBJ_FLAG_CLICKABLE);//不能被点击
-    lv_obj_swap(slider, backgroud);
+
+    lv_obj_t *line = lv_obj_create(cont);
+    lv_obj_remove_style_all(line);
+    lv_obj_set_size(line, 2, 203);
+    lv_obj_add_style(line, &style_line, 0);
+    lv_obj_align(line, LV_ALIGN_BOTTOM_LEFT, 30, -91);
+    lv_obj_set_user_data(background, line);
+
+    lv_obj_add_event_cb(slider, storage_manage_event_cb, LV_EVENT_VALUE_CHANGED, background);
+    lv_obj_send_event(slider, LV_EVENT_VALUE_CHANGED, NULL);
 
     //返回按钮
     lv_obj_t *back = lv_img_create(cont);
@@ -778,10 +778,13 @@ static void storage_manage_event_cb(lv_event_t *e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *slider = lv_event_get_target(e);
     lv_obj_t *background = lv_event_get_user_data(e);
+    lv_obj_t *line = lv_obj_get_user_data(background);
 
-    if (code == LV_EVENT_VALUE_CHANGED) {
+    if (code == LV_EVENT_VALUE_CHANGED)
+    {
         int value = lv_slider_get_value(slider);
         lv_obj_set_size(background, 442 - (442 * value / 100), 203);
+        lv_obj_set_x(line, (442 * value / 100) + 30);
     }
 }
 
