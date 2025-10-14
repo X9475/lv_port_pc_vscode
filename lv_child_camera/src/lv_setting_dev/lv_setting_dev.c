@@ -39,7 +39,7 @@ typedef struct
 static void style_init();
 static void lv_page_open();
 static void lv_page_close();
-static void page_back_cb(lv_event_t *e);
+static void page_back_event_cb(lv_event_t *e);
 static void lv_setting_more_settings(lv_obj_t *cont);
 static void *lv_more_setting_iterm_create(lv_obj_t *cont, const char *name);
 static void setting_iterm_click_event_cb(lv_event_cb_t *e);
@@ -49,9 +49,12 @@ static void audio_iterm_click_event_cb(lv_event_cb_t *e);
 static void lv_setting_single_record_duration(lv_obj_t *cont);
 static void lv_setting_screen_off_time(lv_obj_t *cont);
 static void lv_setting_time_display_format(lv_obj_t *cont);
+static void lv_setting_storage_manage(lv_obj_t *cont);
+static void storage_manage_event_cb(lv_event_t *e);
+static void storage_manage_format_click_event_cb(lv_event_t *e);
 static void lv_setting_vibration_amplitude(lv_obj_t *cont);
-static void *lv_roller_iterm_create(lv_obj_t *cont, const char *opts);
-static void roller_event_handler(lv_event_t *e);
+static void *setting_single_roller_iterm_create(lv_obj_t *cont, const char *opts);
+static void setting_single_roller_event_cb(lv_event_t *e);
 static void lv_setting_recovery_factory_confirmation(lv_obj_t *cont);
 static void lv_setting_certification(lv_obj_t *cont);
 static void lv_setting_format_confirmation(lv_obj_t *cont);
@@ -81,6 +84,10 @@ static lv_style_t style;
 static lv_style_t style_roller;
 static lv_style_t style_select_roller;
 static lv_style_t style_mask;
+static lv_style_t style_storage_num;
+static lv_style_t style_storage_text;
+static lv_style_t style_line;
+static const lv_font_t *font_22;
 static const lv_font_t *font_24;
 static const lv_font_t *font_26;
 static const lv_font_t *font_28;
@@ -89,6 +96,7 @@ static const lv_font_t *font_30B;
 static const lv_font_t *font_32;
 static const lv_font_t *font_34;
 static const lv_font_t *font_40;
+static const lv_font_t *font_170;
 static lv_obj_t *confirm;
 static lv_obj_t *cancel;
 static lv_obj_t *sd_confirm;
@@ -97,6 +105,8 @@ static lv_obj_t *line_cont;
 
 static lv_timer_t *anim_timer = NULL;
 static uint8_t exec_count = 0;
+static float use_storage = 89.0;//GB
+static float total_storage = 128.0;//GB
 
 static saver_option_t saver_option_list[SAVER_NUM];
 static const char *setting_list[SETTING_NUM] = {
@@ -177,6 +187,34 @@ static void style_init()
     lv_style_set_bg_grad(&style_mask, &grad);
     lv_style_set_bg_grad_dir(&style_mask, LV_GRAD_DIR_VER);
 
+    //style_storage_num
+    lv_style_init(&style_storage_num);
+    lv_style_set_text_opa(&style_storage_num, LV_OPA_COVER);
+    lv_style_set_text_color(&style_storage_num, lv_color_hex(0XFFFFFF));
+    lv_style_set_text_align(&style_storage_num, LV_TEXT_ALIGN_CENTER);
+    lv_style_set_text_font(&style_storage_num, font_get_regular(28));
+
+    //style_storage_text
+    lv_style_init(&style_storage_text);
+    lv_style_set_text_opa(&style_storage_text, LV_OPA_COVER);
+    lv_style_set_text_color(&style_storage_text, lv_color_hex(0XFFFFFF));
+    lv_style_set_text_align(&style_storage_text, LV_TEXT_ALIGN_CENTER);
+    lv_style_set_text_font(&style_storage_text, font_get_regular(26));
+
+    //style_line
+    static lv_grad_dsc_t grad1;
+    grad1.dir = LV_GRAD_DIR_VER;
+    grad1.stops_count = 2;
+    grad1.stops[0].color = lv_color_hex(0xFFFFFF);
+    grad1.stops[0].opa = LV_OPA_TRANSP;
+    grad1.stops[1].color = lv_color_hex(0xFFFFFF);
+    grad1.stops[1].opa = LV_OPA_COVER;
+    grad1.stops[0].frac = 0;
+    grad1.stops[1].frac = 255;
+    lv_style_init(&style_line);
+    lv_style_copy(&style_line, &style);
+    lv_style_set_bg_grad(&style_line, &grad1);
+    lv_style_set_bg_grad_dir(&style_line, LV_GRAD_DIR_VER);
 }
 
 static void lv_page_open()
@@ -203,7 +241,7 @@ static void lv_page_open()
         //时间展示形式
         // lv_setting_time_display_format(setting_page);
         //存储管理
-        // lv_setting_storage_manage(setting_page);
+        lv_setting_storage_manage(setting_page);
         //振动幅度
         // lv_setting_vibration_amplitude(setting_page);
         //关于相机
@@ -215,7 +253,7 @@ static void lv_page_open()
         //格式确认
         // lv_setting_format_confirmation(setting_page);
         //屏保样式
-        lv_setting_screen_saver_style(setting_page);
+        // lv_setting_screen_saver_style(setting_page);
         //格式化中toast
         // lv_setting_format_doing_toast(setting_page);
         //格式化成功
@@ -241,6 +279,7 @@ static void lv_page_open()
 
 static void lv_page_close()
 {
+    lv_font_manager_del_font(font_22);
     lv_font_manager_del_font(font_24);
     lv_font_manager_del_font(font_26);
     lv_font_manager_del_font(font_28);
@@ -249,6 +288,7 @@ static void lv_page_close()
     lv_font_manager_del_font(font_32);
     lv_font_manager_del_font(font_34);
     lv_font_manager_del_font(font_40);
+    lv_font_manager_del_font(font_170);
     lv_font_deinit();
 }
 
@@ -260,7 +300,7 @@ static void lv_setting_more_settings(lv_obj_t *cont)
     lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
     lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
     //滚动列表
     lv_obj_t *cont_col = lv_obj_create(cont);
@@ -366,7 +406,7 @@ static void lv_setting_audio_effect(lv_obj_t *cont)
     lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
     lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
     //滚动列表
     lv_obj_t *cont_col = lv_obj_create(cont);
@@ -390,7 +430,7 @@ static void lv_setting_audio_effect(lv_obj_t *cont)
     return;
 }
 
-static void page_back_cb(lv_event_t *e)
+static void page_back_event_cb(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
 
@@ -473,7 +513,7 @@ static void lv_setting_single_record_duration(lv_obj_t *cont)
     lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
     lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
     //文字
     if (NULL == font_30B) font_30B = font_get_bold(30);
@@ -484,14 +524,14 @@ static void lv_setting_single_record_duration(lv_obj_t *cont)
     lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
     lv_obj_align_to(header, cont, LV_ALIGN_TOP_LEFT, 80, 26);
 
-    lv_obj_t *roller = lv_roller_iterm_create(cont, "15s\n30s\n1min");
-    lv_obj_add_event_cb(roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_t *roller = setting_single_roller_iterm_create(cont, "15s\n30s\n1min");
+    lv_obj_add_event_cb(roller, setting_single_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
     return;
 }
 
-static void *lv_roller_iterm_create(lv_obj_t *cont, const char *opts)
+static void *setting_single_roller_iterm_create(lv_obj_t *cont, const char *opts)
 {
     lv_obj_t *roller = lv_roller_create(cont);
     lv_obj_add_style(roller, &style, 0);
@@ -509,7 +549,7 @@ static void *lv_roller_iterm_create(lv_obj_t *cont, const char *opts)
     return roller;
 }
 
-static void roller_event_handler(lv_event_t *e)
+static void setting_single_roller_event_cb(lv_event_t *e)
 {
     static int32_t last_index = -1;
     lv_event_code_t code = lv_event_get_code(e);
@@ -555,7 +595,7 @@ static void lv_setting_screen_off_time(lv_obj_t *cont)
     lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
     lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
     //文字
     if (NULL == font_30B) font_30B = font_get_bold(30);
@@ -566,8 +606,8 @@ static void lv_setting_screen_off_time(lv_obj_t *cont)
     lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
     lv_obj_align_to(header, cont, LV_ALIGN_TOP_LEFT, 80, 26);
 
-    lv_obj_t *roller = lv_roller_iterm_create(cont, "5s\n10s\n30s");
-    lv_obj_add_event_cb(roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_t *roller = setting_single_roller_iterm_create(cont, "5s\n10s\n30s");
+    lv_obj_add_event_cb(roller, setting_single_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
     return;
@@ -581,7 +621,7 @@ static void lv_setting_time_display_format(lv_obj_t *cont)
     lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
     lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
     //文字
     if (NULL == font_30B) font_30B = font_get_bold(30);
@@ -592,11 +632,170 @@ static void lv_setting_time_display_format(lv_obj_t *cont)
     lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
     lv_obj_align_to(header, cont, LV_ALIGN_TOP_LEFT, 80, 26);
 
-    lv_obj_t *roller = lv_roller_iterm_create(cont, "12小时制\n24小时制");
-    lv_obj_add_event_cb(roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_t *roller = setting_single_roller_iterm_create(cont, "12小时制\n24小时制");
+    lv_obj_add_event_cb(roller, setting_single_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
     return;
+}
+
+static void lv_setting_storage_manage(lv_obj_t *cont)
+{
+    static lv_style_t style_main;
+    lv_style_init(&style_main);
+    lv_style_set_bg_image_src(&style_main, "V:tk1/icon/setting_pic_progress_bar_none.png");
+    lv_style_set_bg_opa(&style_main, LV_OPA_TRANSP);
+    lv_style_set_radius(&style_main, 100);
+
+    static lv_style_t style_indicator;
+    lv_style_init(&style_indicator);
+    lv_style_set_radius(&style_indicator, 0);
+    lv_style_set_bg_image_src(&style_indicator, "V:tk1/icon/setting_pic_progress_bar_have.png");
+    lv_style_set_bg_opa(&style_indicator, LV_OPA_TRANSP);
+
+    static lv_style_t style_knob;
+    lv_style_init(&style_knob);
+    lv_style_set_bg_opa(&style_knob, LV_OPA_TRANSP);
+
+    //渐变背景
+    lv_obj_t *image = lv_img_create(cont);
+    lv_obj_set_size(image, 442, LV_SIZE_CONTENT);
+    lv_img_set_src(image, "V:tk1/icon/setting_pic_dazzle_light.png");
+    lv_obj_set_style_opa(image, LV_OPA_COVER, 0);
+    lv_obj_align(image, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_t *backgroud = lv_obj_create(cont);
+    lv_obj_remove_style_all(backgroud);
+    lv_obj_add_style(backgroud, &style, 0);
+    lv_obj_set_size(backgroud, 442, 203);
+    lv_obj_align(backgroud, LV_ALIGN_BOTTOM_RIGHT, -30, -91);
+    lv_obj_swap(image, backgroud);
+
+    lv_obj_t *line = lv_obj_create(backgroud);
+    lv_obj_remove_style_all(line);
+    lv_obj_set_size(line, 2, 203);
+    lv_obj_add_style(line, &style_line, 0);
+    lv_obj_align_to(line, backgroud, LV_ALIGN_LEFT_MID, 0, 0);
+
+    //滑动条
+    lv_obj_t *slider = lv_slider_create(cont);
+    lv_obj_set_size(slider, 442, 50);
+    lv_slider_set_mode(slider, LV_SLIDER_MODE_NORMAL);
+    lv_slider_set_range(slider, 0, 100);
+    lv_obj_align(slider, LV_ALIGN_BOTTOM_MID, 0, -91);
+    lv_obj_add_style(slider, &style_main, LV_PART_MAIN);
+    lv_obj_add_style(slider, &style_knob, LV_PART_KNOB);
+    lv_obj_add_style(slider, &style_indicator, LV_PART_INDICATOR);
+    lv_slider_set_value(slider, (use_storage / total_storage) * 100, LV_ANIM_OFF);
+    lv_obj_add_event_cb(slider, storage_manage_event_cb, LV_EVENT_VALUE_CHANGED, backgroud);
+    lv_obj_send_event(slider, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_clear_flag(slider, LV_OBJ_FLAG_CLICKABLE);//不能被点击
+    lv_obj_swap(slider, backgroud);
+
+    //返回按钮
+    lv_obj_t *back = lv_img_create(cont);
+    lv_obj_set_size(back, 50, 50);
+    lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
+    lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
+    lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
+
+    //格式化
+    lv_obj_t *format = lv_btn_create(cont);
+    lv_obj_set_size(format, 126, 60);
+    lv_obj_set_style_shadow_width(format, 0, 0);
+    lv_obj_set_style_radius(format, 34, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(format, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(format, lv_color_hex(0x2C2C2E), LV_PART_MAIN);
+    lv_obj_align(format, LV_ALIGN_TOP_RIGHT, -15, 15);
+    lv_obj_add_event_cb(format, storage_manage_format_click_event_cb, LV_EVENT_CLICKED, NULL);
+
+    if (NULL == font_22) font_22 = font_get_regular(22);
+    lv_obj_t *label = lv_label_create(format);
+    lv_label_set_text(label, "格式化");
+    lv_obj_set_style_text_font(label, font_22, 0);
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+
+    //滑动条显示文本
+    if (NULL == font_170) font_170 = font_get_regular(170);
+    lv_obj_t *bar_label_1 = lv_label_create(cont);
+    lv_label_set_text(bar_label_1, "89");
+    lv_obj_set_style_text_font(bar_label_1, font_170, 0);
+    lv_obj_set_style_text_opa(bar_label_1, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(bar_label_1, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(bar_label_1, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(bar_label_1, LV_ALIGN_TOP_LEFT, 28, 80);
+
+    if (NULL == font_34) font_34 = font_get_regular(34);
+    lv_obj_t *bar_label_2 = lv_label_create(cont);
+    lv_label_set_text(bar_label_2, "GB / 128GB");
+    lv_obj_set_style_text_font(bar_label_2, font_34, 0);
+    lv_obj_set_style_text_opa(bar_label_2, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(bar_label_2, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(bar_label_2, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(bar_label_2, bar_label_1, LV_ALIGN_OUT_RIGHT_TOP, 8, 40);
+
+    //底部显示文本
+    lv_obj_t *label_1 = lv_label_create(cont);
+    lv_label_set_text(label_1, "36");
+    lv_obj_add_style(label_1, &style_storage_num, 0);
+    lv_obj_align(label_1, LV_ALIGN_BOTTOM_LEFT, 30, -34);
+
+    lv_obj_t *label_2 = lv_label_create(cont);
+    lv_label_set_text(label_2, "照片");
+    lv_obj_add_style(label_2, &style_storage_text, 0);
+    lv_obj_align_to(label_2, label_1, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
+
+    lv_obj_t *label_3 = lv_label_create(cont);
+    lv_label_set_text(label_3, "36");
+    lv_obj_add_style(label_3, &style_storage_num, 0);
+    lv_obj_align_to(label_3, label_2, LV_ALIGN_OUT_RIGHT_MID, 34, 0);
+
+    lv_obj_t *label_4 = lv_label_create(cont);
+    lv_label_set_text(label_4, "录像");
+    lv_obj_add_style(label_4, &style_storage_text, 0);
+    lv_obj_align_to(label_4, label_3, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
+
+    lv_obj_t *label_5 = lv_label_create(cont);
+    lv_label_set_text(label_5, "4");
+    lv_obj_add_style(label_5, &style_storage_num, 0);
+    lv_obj_align_to(label_5, label_4, LV_ALIGN_OUT_RIGHT_MID, 51, 0);
+
+    lv_obj_t *label_6 = lv_label_create(cont);
+    lv_label_set_text(label_6, "延时摄影段数");
+    lv_obj_add_style(label_6, &style_storage_text, 0);
+    lv_obj_align_to(label_6, label_5, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
+
+    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    return;
+}
+
+static void storage_manage_event_cb(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *slider = lv_event_get_target(e);
+    lv_obj_t *background = lv_event_get_user_data(e);
+
+    if (code == LV_EVENT_VALUE_CHANGED) {
+        int value = lv_slider_get_value(slider);
+        lv_obj_set_size(background, 442 - (442 * value / 100), 203);
+    }
+}
+
+static void storage_manage_format_click_event_cb(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if (code == LV_EVENT_CLICKED)
+    {
+        //TODO: 通知业务同步处理，进行格式化
+
+        lv_obj_clean(setting_page);
+        setting_page = NULL;
+    }
 }
 
 static void lv_setting_vibration_amplitude(lv_obj_t *cont)
@@ -607,7 +806,7 @@ static void lv_setting_vibration_amplitude(lv_obj_t *cont)
     lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
     lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
     //文字
     if (NULL == font_30B) font_30B = font_get_bold(30);
@@ -618,8 +817,8 @@ static void lv_setting_vibration_amplitude(lv_obj_t *cont)
     lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
     lv_obj_align_to(header, cont, LV_ALIGN_TOP_LEFT, 80, 26);
 
-    lv_obj_t *roller = lv_roller_iterm_create(cont, "低\n中\n高");
-    lv_obj_add_event_cb(roller, roller_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_t *roller = setting_single_roller_iterm_create(cont, "低\n中\n高");
+    lv_obj_add_event_cb(roller, setting_single_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
     return;
@@ -719,7 +918,7 @@ static void lv_setting_certification(lv_obj_t *cont)
     lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
     lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 10, 10);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
     //背景图
     lv_obj_t *image = lv_img_create(cont);
@@ -840,7 +1039,7 @@ static void lv_setting_screen_saver_style(lv_obj_t *cont)
     lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
     lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
     //右侧滚动条
     line_cont = line_container_create(cont);
