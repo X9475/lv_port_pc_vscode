@@ -2097,7 +2097,6 @@ static void lv_versatile_filters(lv_obj_t * parent)
 /* 左边滚轮值改变事件回调 */
 static void left_roller_event_cb(lv_event_t * e)
 {
-<<<<<<< Updated upstream
     static int32_t last_index = -1;
     lv_obj_t *left_roller = lv_event_get_target(e);
     uint16_t selected = lv_roller_get_selected(left_roller);
@@ -2161,65 +2160,6 @@ static void left_roller_event_cb(lv_event_t * e)
                 }
                 break;
         }
-=======
-    lv_obj_t * left_roller = lv_event_get_target(e);
-    int selected = lv_roller_get_selected(left_roller);
-    int* type = (int *)lv_event_get_user_data(e);
-    printf("type=%d\n", *type);
-    /* 根据左边滚轮的选择更新右边滚轮内容 */
-    switch(selected) {
-        case 0: 
-            if(*type == 0)
-            {
-                lv_roller_set_options(right_roller, timer_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择OFF
-            }
-            else if(*type == 1)
-            {
-                lv_roller_set_options(right_roller, resolution_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择1080p
-            }
-            else if(*type == 2)
-            {
-                lv_roller_set_options(right_roller, time_lapse_resolution_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择1080P
-            }
-            break;
-        case 1: 
-            if(*type == 0)
-            {
-                lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
-            }
-            else if(*type == 1)
-            {
-                lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
-            }
-            else if(*type == 2)
-            {
-                lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
-            }
-            break;
-        case 2: 
-            if(*type == 0)
-            {
-                lv_roller_set_options(right_roller, trigger_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择OFF
-            }
-            else if(*type == 1)
-            {   
-                lv_roller_set_options(right_roller, frame_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择30
-            }
-            else if(*type == 2)
-            {
-                lv_roller_set_options(right_roller, time_lapse_ratio_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4X日出日落
-            }
-            break;
->>>>>>> Stashed changes
     }
 }
 
