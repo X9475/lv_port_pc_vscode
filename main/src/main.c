@@ -18,6 +18,7 @@
 #include "lvgl/robot/main/lv_robot_main_ui.h"
 #include "../lv_100ask_generic_ui/src/main/lv_100ask_generic_ui_main.h"
 #include "../lv_child_camera/src/lv_child_camera_ui.h"
+#include "../lv_child_camera/common/page_src/lv_camera_main.h"
 
 /*********************
  *      DEFINES
@@ -83,7 +84,9 @@ int main(int argc, char **argv)
   #if LV_USE_OS == LV_OS_NONE
 
   lv_manager_init();
+  lv_camera_init();
 
+  // lv_main();
   lv_child_camera();
   // lv_robot_main();
   // lv_example_qrcode_1();
@@ -99,6 +102,7 @@ int main(int argc, char **argv)
   }
 
   lv_manager_deinit();
+  lv_camera_deinit();
 
   #elif LV_USE_OS == LV_OS_FREERTOS
 

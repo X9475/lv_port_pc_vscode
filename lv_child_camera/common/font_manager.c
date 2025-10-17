@@ -16,33 +16,33 @@
 
 #if (LV_CHILD_CAMERA != 0) && (LV_USE_FONT_MANAGER != 0)
 
-/*********************
- *      DEFINES
- *********************/
 #define FZLTH_GB18030L2_B_DIR "../../assert/font/FZLTH_GB18030L2/FZLTH_GB18030L2_B.ttf"
 #define FZLTH_GB18030L2_R_DIR "../../assert/font/FZLTH_GB18030L2/FZLTH_GB18030L2_R.ttf"
 
-/**********************
- *      TYPEDEFS
- **********************/
+//字体
+//瘦体
+const lv_font_t *fzlthr_22;
+const lv_font_t *fzlthr_24;
+const lv_font_t *fzlthr_26;
+const lv_font_t *fzlthr_28;
+const lv_font_t *fzlthr_30;
+const lv_font_t *fzlthr_34;
+const lv_font_t *fzlthr_170;
+//粗体
+const lv_font_t *fzlthb_22;
+const lv_font_t *fzlthb_24;
+const lv_font_t *fzlthb_26;
+const lv_font_t *fzlthb_28;
+const lv_font_t *fzlthb_30;
+const lv_font_t *fzlthb_34;
+const lv_font_t *fzlthb_170;
 
-/**********************
- *  STATIC PROTOTYPES
- **********************/
-static const lv_font_t *lv_font_generic(const char *, uint32_t);
-
-/**********************
- *  STATIC VARIABLES
- **********************/
+/// @brief 字体管理器
 static lv_font_manager_t *g_font_manager;
 
-/**********************
- *      MACROS
- **********************/
+static void lv_fzlth_font_generic();
+static const lv_font_t *lv_font_generic(const char *font_family, uint32_t size);
 
-/**********************
- *   GLOBAL FUNCTIONS
- **********************/
 void lv_font_init()
 {
     g_font_manager = lv_font_manager_create(2);
@@ -50,7 +50,37 @@ void lv_font_init()
     lv_font_manager_add_src_static(g_font_manager, "fzlthr", FZLTH_GB18030L2_R_DIR, &lv_freetype_font_class);
     lv_font_manager_add_src_static(g_font_manager, "fzlthb", FZLTH_GB18030L2_B_DIR, &lv_freetype_font_class);
 
+    lv_fzlth_font_generic();
+
     return;
+}
+
+void lv_font_deinit()
+{
+    //销毁之前，确保已使用lv_font_manager_delete_font() 删除所有字体
+    lv_font_manager_delete(g_font_manager);
+    g_font_manager = NULL;
+
+    return;
+}
+
+static void lv_fzlth_font_generic()
+{
+    fzlthr_22 = lv_font_generic("fzlthr", 22);
+    fzlthr_24 = lv_font_generic("fzlthr", 24);
+    fzlthr_26 = lv_font_generic("fzlthr", 26);
+    fzlthr_28 = lv_font_generic("fzlthr", 28);
+    fzlthr_30 = lv_font_generic("fzlthr", 30);
+    fzlthr_34 = lv_font_generic("fzlthr", 34);
+    fzlthr_170 = lv_font_generic("fzlthr", 170);
+
+    fzlthb_22 = lv_font_generic("fzlthb", 22);
+    fzlthb_24 = lv_font_generic("fzlthb", 24);
+    fzlthb_26 = lv_font_generic("fzlthb", 26);
+    fzlthb_28 = lv_font_generic("fzlthb", 28);
+    fzlthb_30 = lv_font_generic("fzlthb", 30);
+    fzlthb_34 = lv_font_generic("fzlthb", 34);
+    fzlthb_170 = lv_font_generic("fzlthb", 170);
 }
 
 const lv_font_t *font_get_regular(uint32_t size)
@@ -70,19 +100,6 @@ void lv_font_manager_del_font(lv_font_t *font)
     lv_font_manager_delete_font(g_font_manager, font);
 }
 
-void lv_font_deinit()
-{
-    //销毁之前，确保已使用lv_font_manager_delete_font() 删除所有字体
-    lv_font_manager_delete(g_font_manager);
-    g_font_manager = NULL;
-
-    return;
-}
-
-/**********************
- *  STATIC FUNCTIONS
- **********************/
-
 static const lv_font_t *lv_font_generic(const char *font_family, uint32_t size)
 {
     if (g_font_manager == NULL) return LV_FONT_DEFAULT;
@@ -98,13 +115,9 @@ static const lv_font_t *lv_font_generic(const char *font_family, uint32_t size)
                                                       style,
                                                       LV_FONT_KERNING_NONE);
     // if NULL, return &lv_font_montserrat_14
-    if (new_font == NULL)
-    {
-        return LV_FONT_DEFAULT;
-    }
+    if (new_font == NULL) return LV_FONT_DEFAULT;
 
     return new_font;
 }
-
 
 #endif
