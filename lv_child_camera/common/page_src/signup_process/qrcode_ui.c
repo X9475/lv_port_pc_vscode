@@ -1,4 +1,4 @@
-#include "lv_signup_process.h"
+#include "../lv_switch_interface.h"
 
 lv_subject_t qrcode_subject;
 static lv_switch_page_pt switch_page;

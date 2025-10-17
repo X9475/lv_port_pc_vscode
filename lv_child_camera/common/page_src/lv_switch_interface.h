@@ -1,12 +1,17 @@
-#ifndef LV_SIGNUP_PROCESS_H
-#define LV_SIGNUP_PROCESS_H
+#ifndef LV_SWITCH_INTERFACE_H
+#define LV_SWITCH_INTERFACE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "../../lv_page_info.h"
+#include "../lv_page_info.h"
 
+//菜单
+extern lv_subject_t menu_subject;
+lv_page_info_pt lv_page_menu_info_get();
+
+/***************************添加流程开始*************************************/
 //扫描二维码
 extern lv_subject_t qrcode_subject;
 lv_page_info_pt lv_page_qrcode_info_get();
@@ -30,6 +35,8 @@ lv_page_info_pt lv_page_agent_start_info_get();
 //网络异常
 extern lv_subject_t network_error_subject;
 lv_page_info_pt lv_page_network_error_info_get();
+
+/***************************设备设置*************************************/
 
 #ifdef __cplusplus
 }

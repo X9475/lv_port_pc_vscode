@@ -1,4 +1,4 @@
-#include "menu_ui.h"
+#include "../lv_switch_interface.h"
 
 #define APP_NUM     7
 
@@ -328,8 +328,6 @@ static void scroll_app_item_event_cb(lv_event_t * e)
         }
     }
 }
-
-// lv_subject_set_int(&menu_subject, PAGE_SWITCH_SUCCESS);
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
 {

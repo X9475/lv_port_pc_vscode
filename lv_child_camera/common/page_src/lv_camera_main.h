@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "signup_process/lv_signup_process.h"
+#include "lv_switch_interface.h"
 
 void lv_camera_init();
 

@@ -86,8 +86,8 @@ int main(int argc, char **argv)
   lv_manager_init();
   lv_camera_init();
 
-  // lv_main();
-  lv_child_camera();
+  lv_main();
+  // lv_child_camera();
   // lv_robot_main();
   // lv_example_qrcode_1();
   // lv_example_libpng_1();
