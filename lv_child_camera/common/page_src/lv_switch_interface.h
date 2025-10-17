@@ -37,6 +37,10 @@ extern lv_subject_t network_error_subject;
 lv_page_info_pt lv_page_network_error_info_get();
 
 /***************************设备设置*************************************/
+//更多设置
+extern lv_subject_t settings_more_subject;
+lv_page_info_pt lv_page_settings_more_info_get();
+
 
 #ifdef __cplusplus
 }

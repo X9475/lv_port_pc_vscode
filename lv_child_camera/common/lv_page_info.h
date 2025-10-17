@@ -35,6 +35,7 @@ typedef enum
     PAGE_FUNCTIONAL_FIRST_BOOTUP,       ///<< 第一次启动
     PAGE_FUNCTIONAL_AGENT_START,        ///<< 智能助手开启
     PAGE_FUNCTIONAL_MENU,               ///<< 菜单界面
+    PAGE_FUNCTIONAL_MORE_SETTINGS,      ///<< 更多设置
 
     //abnormal
     PAGE_ABNORMAL_NETWORK_4G,           ///<< 4G网络异常
