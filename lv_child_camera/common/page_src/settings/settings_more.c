@@ -106,7 +106,7 @@ static void lv_page_load(lv_obj_t *cont)
     //返回按钮
     lv_obj_t *back = lv_img_create(cont);
     lv_obj_set_size(back, 50, 50);
-    lv_img_set_src(back, "V:tk1/icon/common_icon_back.png");
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
     lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
@@ -158,7 +158,7 @@ static void *lv_more_setting_iterm_create(lv_obj_t *cont, const char *name)
     //进入指示
     lv_obj_t *image = lv_img_create(btn);
     lv_obj_set_size(image, 7, 13);
-    lv_img_set_src(image, "V:tk1/icon/common_icon_back.png");
+    lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
     lv_img_set_angle(image, 1800);
     lv_img_set_zoom(image, 160);
     lv_obj_align_to(image, btn, LV_ALIGN_RIGHT_MID, -31, 0);

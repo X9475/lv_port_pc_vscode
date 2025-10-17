@@ -31,13 +31,13 @@ static void set_color_app_style(int i, lv_obj_t *obj, lv_menu_dev_t *iterm_ptr);
 static void set_indicator_light(int i);
 
 static lv_menu_dev_t menu_app_list[APP_NUM] = {
-    {"拍摄", "V:tk1/icon/photograph_icon_screenshot_black.png", "V:tk1/icon/photograph_icon_screenshot.png"},
-    {"AI问答", "V:tk1/icon/photograph_icon_ai_black.png", "V:tk1/icon/photograph_icon_ai.png"},
-    {"视频通话", "V:tk1/icon/photograph_icon_videocall_filled_black.png", "V:tk1/icon/photograph_icon_videocall_filled.png"},
-    {"留言板", "V:tk1/icon/photograph_icon_message_board_black.png", "V:tk1/icon/photograph_icon_message_board.png"},
-    {"闹钟提醒", "V:tk1/icon/photograph_icon_alarm_clock_black.png", "V:tk1/icon/photograph_icon_alarm_clock.png"},
-    {"相册", "V:tk1/icon/photograph_icon_album_black.png", "V:tk1/icon/photograph_icon_album.png"},
-    {"消息中心", "V:tk1/icon/photograph_icon_ring_filled_black.png", "V:tk1/icon/photograph_icon_ring_filled.png"}
+    {"拍摄", "../lv_port_pc_vscode/assert/icon/photograph_icon_screenshot_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_screenshot.png"},
+    {"AI问答", "../lv_port_pc_vscode/assert/icon/photograph_icon_ai_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_ai.png"},
+    {"视频通话", "../lv_port_pc_vscode/assert/icon/photograph_icon_videocall_filled_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_videocall_filled.png"},
+    {"留言板", "../lv_port_pc_vscode/assert/icon/photograph_icon_message_board_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_message_board.png"},
+    {"闹钟提醒", "../lv_port_pc_vscode/assert/icon/photograph_icon_alarm_clock_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_alarm_clock.png"},
+    {"相册", "../lv_port_pc_vscode/assert/icon/photograph_icon_album_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_album.png"},
+    {"消息中心", "../lv_port_pc_vscode/assert/icon/photograph_icon_ring_filled_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_ring_filled.png"}
 };
 
 //待跳转的页面种类
@@ -158,7 +158,7 @@ static void lv_page_load(lv_obj_t *cont)
 
     //绘制刻度圆盘
     lv_obj_t *scale = lv_img_create(cont);
-    lv_img_set_src(scale, "V:tk1/icon/menu_knob_2x.png");
+    lv_img_set_src(scale, "../lv_port_pc_vscode/assert/icon/menu_knob_2x.png");
     lv_img_set_zoom(scale, 128);
     lv_obj_align_to(scale, cont, LV_ALIGN_LEFT_MID, 267, 0);
 
@@ -202,9 +202,9 @@ static void *lv_app_create(int i, lv_obj_t *cont, const char *name, const char *
     lv_obj_t *image1 = lv_img_create(btn);
     lv_obj_set_size(image1, 80, 80);
     if ((i % 2) == 0) {
-        lv_img_set_src(image1, "V:tk1/icon/purple_circle.png");
+        lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/purple_circle.png");
     } else {
-        lv_img_set_src(image1, "V:tk1/icon/green_circle.png");
+        lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/green_circle.png");
     }
     lv_obj_align_to(image1, btn, LV_ALIGN_LEFT_MID, 20, 0);
     //叠加图标
@@ -269,9 +269,9 @@ static void set_indicator_light(int i)
     lv_obj_t *image = lv_img_create(screen);
     // lv_obj_set_size(image, 80, 80);
     if ((i % 2) == 0) {
-        lv_img_set_src(image, "V:tk1/icon/photograph_icon_guide_purple.png");
+        lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_purple.png");
     } else {
-        lv_img_set_src(image, "V:tk1/icon/photograph_icon_guide_green.png");
+        lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_green.png");
     }
     lv_obj_align_to(image, screen, LV_ALIGN_RIGHT_MID, -36, -2);
 }

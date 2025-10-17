@@ -106,7 +106,7 @@ static void lv_page_load(lv_obj_t *cont)
 {
     //背景图
     lv_obj_t *click_face = lv_img_create(cont);
-    lv_img_set_src(click_face, "V:tk1/icon/long_press_2x.png");
+    lv_img_set_src(click_face, "../lv_port_pc_vscode/assert/icon/long_press_2x.png");
     lv_img_set_zoom(click_face, 128);
     lv_obj_align(click_face, LV_ALIGN_TOP_MID, -5, -65);
 

@@ -90,7 +90,7 @@ static void lv_page_load(lv_obj_t *cont)
 {
     //识别框
     lv_obj_t *scanning_box = lv_img_create(cont);
-    lv_img_set_src(scanning_box, "V:tk1/icon/scanning_box_2x.png");
+    lv_img_set_src(scanning_box, "../lv_port_pc_vscode/assert/icon/scanning_box_2x.png");
     lv_img_set_zoom(scanning_box, 128);
     lv_obj_align(scanning_box, LV_ALIGN_CENTER, 0, -30);
 

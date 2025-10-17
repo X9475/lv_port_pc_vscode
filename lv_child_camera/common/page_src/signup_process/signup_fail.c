@@ -90,7 +90,7 @@ static void lv_page_load(lv_obj_t *cont)
 {
     //错误图案
     lv_obj_t *net_error = lv_img_create(cont);
-    lv_img_set_src(net_error, "V:tk1/icon/fail_2x.png");
+    lv_img_set_src(net_error, "../lv_port_pc_vscode/assert/icon/fail_2x.png");
     lv_img_set_zoom(net_error, 128);
     lv_obj_align(net_error, LV_ALIGN_TOP_MID, 0, -100);
 

@@ -92,7 +92,7 @@ static void lv_page_load(lv_obj_t *cont)
 {
     //背景图
     lv_obj_t *agent_bg = lv_img_create(cont);
-    lv_img_set_src(agent_bg, "V:tk1/icon/start_agent_2x.png");
+    lv_img_set_src(agent_bg, "../lv_port_pc_vscode/assert/icon/start_agent_2x.png");
     lv_img_set_zoom(agent_bg, 128);
     lv_obj_align(agent_bg, LV_ALIGN_CENTER, 0, 0);
 
@@ -119,7 +119,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_bg_grad_dir(label, LV_GRAD_DIR_HOR, 0);
 
     lv_obj_t *door = lv_img_create(label);
-    lv_img_set_src(door, "V:tk1/icon/door_icon_two.png");
+    lv_img_set_src(door, "../lv_port_pc_vscode/assert/icon/door_icon_two.png");
     lv_obj_align(door, LV_ALIGN_CENTER, 0, 0);
     lv_obj_add_event_cb(slider_agent, lv_start_agent_slider_event, LV_EVENT_VALUE_CHANGED, label);
 

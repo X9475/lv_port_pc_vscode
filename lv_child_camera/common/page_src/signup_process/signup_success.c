@@ -92,7 +92,7 @@ static void lv_page_load(lv_obj_t *cont)
 {
     //错误图案
     lv_obj_t *login_success = lv_img_create(cont);
-    lv_img_set_src(login_success, "V:tk1/icon/success_2x.png");
+    lv_img_set_src(login_success, "../lv_port_pc_vscode/assert/icon/success_2x.png");
     lv_img_set_zoom(login_success, 128);
     lv_obj_align(login_success, LV_ALIGN_TOP_MID, 0, -100);
 
