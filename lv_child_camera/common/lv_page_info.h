@@ -36,6 +36,15 @@ typedef enum
     PAGE_FUNCTIONAL_AGENT_START,        ///<< 智能助手开启
     PAGE_FUNCTIONAL_MENU,               ///<< 菜单界面
     PAGE_FUNCTIONAL_MORE_SETTINGS,      ///<< 更多设置
+    PAGE_FUNCTIONAL_AUDIO_EFFECT,       ///<< 音频效果
+    PAGE_FUNCTIONAL_RECORD_TIME,        ///<< 单次录像时长设置
+    PAGE_FUNCTIONAL_HOLD_TIME,          ///<< 息屏时间设置
+    PAGE_FUNCTIONAL_DISPLAY_TIME,       ///<< 时间展示格式设置
+    PAGE_FUNCTIONAL_STORAGE_MGR,        ///<< 存储管理
+    PAGE_FUNCTIONAL_VIBRAT_AMPLITUDE,   ///<< 振动幅度
+    PAGE_FUNCTIONAL_ABOUT_CAMERA,       ///<< 关于相机
+    PAGE_FUNCTIONAL_FACTORY_RESTORE,    ///<< 恢复出厂设置
+    PAGE_FUNCTIONAL_CERT_MASK,          ///<< 认证标志
 
     //abnormal
     PAGE_ABNORMAL_NETWORK_4G,           ///<< 4G网络异常

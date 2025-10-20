@@ -30,7 +30,8 @@ void lv_main()
         lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
         LV_ASSERT_MALLOC(switch_page);
 
-        switch_page->new_page = lv_page_qrcode_info_get();
+        // switch_page->new_page = lv_page_qrcode_info_get();
+        switch_page->new_page = lv_page_settings_more_info_get();
         lv_subject_set_pointer(&switch_subject, switch_page);
     }
 

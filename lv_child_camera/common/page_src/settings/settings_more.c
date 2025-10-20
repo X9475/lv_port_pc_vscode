@@ -31,10 +31,10 @@ static enum PAGE_EVENT_ENUM
     PAGE_SWITCH_SINGLE_RECORD_DURATION, //单次录像时长设置
     PAGE_SWITCH_SCREEN_OFF_TIME,        //熄屏时间
     PAGE_SWITCH_TIME_DISPLAY_FORMAT,    //时间展示形式
+    PAGE_SWITCH_STORAGE_MANAGER,        //存储管理
     PAGE_SWITCH_VIBRATION_AMPLITUDE,    //振动幅度
     PAGE_SWITCH_CAMERA_ABOUT,           //关于相机
     PAGE_SWITCH_FACTORY_RESTORE,        //恢复出厂设置
-    PAGE_SWITCH_STORAGE_MANAGER,        //存储管理
     PAGE_SWITCH_CERTIFICATION_MARK,     //认证标志
     PAGE_SWITCH_BACK
 };
@@ -58,8 +58,6 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
-    //加入栈表
-    // lv_stack_push(&settings_more_page_info);
 
     screen = lv_obj_create(NULL);
     lv_obj_add_style(screen, &screen_style, 0);
@@ -173,38 +171,37 @@ static void setting_iterm_click_event_cb(lv_event_cb_t *e)
 
     if (LV_EVENT_CLICKED == code)
     {
-        printf("Click %s\n", name);
         if (lv_strcmp(name, "单次录像时长") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_SINGLE_RECORD_DURATION);
         }
         else if (lv_strcmp(name, "熄屏时间") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_SCREEN_OFF_TIME);
         }
         else if (lv_strcmp(name, "时间展示形式") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_TIME_DISPLAY_FORMAT);
         }
         else if (lv_strcmp(name, "存储管理") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_STORAGE_MANAGER);
         }
         else if (lv_strcmp(name, "振动幅度") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VIBRATION_AMPLITUDE);
         }
         else if (lv_strcmp(name, "关于相机") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_CAMERA_ABOUT);
         }
         else if (lv_strcmp(name, "恢复出厂设置") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_FACTORY_RESTORE);
         }
         else if (lv_strcmp(name, "认证标志") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_CERTIFICATION_MARK);
         }
     }
 }
@@ -223,31 +220,38 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
     switch (page_event)
     {
-        // case PAGE_SWITCH_SINGLE_RECORD_DURATION:
-        //     switch_page->new_page = lv_page_signup_success_info_get();
-        //     // switch_page->new_page = lv_page_menu_info_get();
-        //     break;
-        // case PAGE_SWITCH_SCREEN_OFF_TIME:
-        //     // switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
-        // case PAGE_SWITCH_TIME_DISPLAY_FORMAT:
-        //     // switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
-        // case PAGE_SWITCH_VIBRATION_AMPLITUDE:
-        //     // switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
-        // case PAGE_SWITCH_CAMERA_ABOUT:
-        //     // switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
-        // case PAGE_SWITCH_FACTORY_RESTORE:
-        //     // switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
-        // case PAGE_SWITCH_STORAGE_MANAGER:
-        //     // switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
-        // case PAGE_SWITCH_CERTIFICATION_MARK:
-        //     // switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
+        case PAGE_SWITCH_SINGLE_RECORD_DURATION:
+            lv_stack_push(&settings_more_page_info);
+            switch_page->new_page = lv_page_record_time_info_get();
+            break;
+        case PAGE_SWITCH_SCREEN_OFF_TIME:
+            lv_stack_push(&settings_more_page_info);
+            switch_page->new_page = lv_page_hold_time_info_get();
+            break;
+        case PAGE_SWITCH_TIME_DISPLAY_FORMAT:
+            lv_stack_push(&settings_more_page_info);        
+            switch_page->new_page = lv_page_time_display_info_get();
+            break;
+        case PAGE_SWITCH_STORAGE_MANAGER:
+            lv_stack_push(&settings_more_page_info);        
+            switch_page->new_page = lv_page_storage_manage_info_get();
+            break;
+        case PAGE_SWITCH_VIBRATION_AMPLITUDE:
+            lv_stack_push(&settings_more_page_info);        
+            switch_page->new_page = lv_page_vibrat_amplitude_info_get();
+            break;
+        case PAGE_SWITCH_CAMERA_ABOUT:
+            lv_stack_push(&settings_more_page_info);        
+            switch_page->new_page = lv_page_about_camera_info_get();
+            break;
+        case PAGE_SWITCH_FACTORY_RESTORE:
+            lv_stack_push(&settings_more_page_info);
+            switch_page->new_page = lv_page_factory_restore_info_get();
+            break;
+        case PAGE_SWITCH_CERTIFICATION_MARK:
+            lv_stack_push(&settings_more_page_info);
+            switch_page->new_page = lv_page_cert_mask_info_get();
+            break;
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();
             break;
