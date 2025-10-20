@@ -11,6 +11,8 @@ void lv_camera_init()
     lv_stack_list_init();
     //页面切换主题初始化
     page_switch_subject_init();
+    //toast主题初始化
+    lv_toast_page_subject_init();
 
     return;
 }

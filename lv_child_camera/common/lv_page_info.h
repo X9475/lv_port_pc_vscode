@@ -52,6 +52,17 @@ typedef enum
     PAGE_ABNORMAL_NETWORK_4G,           ///<< 4G网络异常
 
     //toast
+    PAGE_TOAST_NONE,
+    PAGE_TOAST_FORMAT_DOING,            ///<< 格式化中
+    PAGE_TOAST_FORMAT_SUCCESS,          ///<< 格式化成功
+    PAGE_TOAST_FORMAT_ERROR,            ///<< 格式化失败
+    PAGE_TOAST_SWICTH_DOING,            ///<< 切换中
+    PAGE_TOAST_SWICTH_SUCCESS,          ///<< 切换成功
+    PAGE_TOAST_SWICTH_ERROR,            ///<< 切换失败
+    PAGE_TOAST_FACTORY_RESTORE_DOING,   ///<< 恢复出厂设置中
+    PAGE_TOAST_FACTORY_RESTORE_SUCCESS, ///<< 恢复出厂设置成功
+    PAGE_TOAST_FACTORY_RESTORE_ERROR,   ///<< 恢复出厂设置失败
+    PAGE_TOAST_CONCELL,                 ///<< 取消toast
 
     PAGE_NONE
 } LV_PAGE_ENUM;

@@ -43,8 +43,6 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
-    //加入栈表
-    // lv_stack_push(&qrcode_page_info);
 
     screen = lv_obj_create(NULL);
     lv_obj_add_style(screen, &screen_style, 0);
@@ -151,10 +149,9 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     {
         case PAGE_SWITCH_SUCCESS:
             switch_page->new_page = lv_page_signup_success_info_get();
-            // switch_page->new_page = lv_page_menu_info_get();
             break;
         case PAGE_SWITCH_FAILED:
-            // switch_page->new_page = lv_page_signup_failed_info_get();
+            switch_page->new_page = lv_page_signup_failed_info_get();
             break;
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();

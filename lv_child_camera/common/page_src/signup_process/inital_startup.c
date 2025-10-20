@@ -47,8 +47,6 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
-    //加入栈表
-    // lv_stack_push(&inital_startup_page_info);
 
     screen = lv_obj_create(NULL);
     lv_obj_add_style(screen, &screen_style, 0);
@@ -162,7 +160,7 @@ static void long_pressed_event_cb(lv_event_t *e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *arc = lv_event_get_user_data(e);
 
-    // printf("======================code: %d\n", code);
+    printf("======================code: %d\n", code);
 
     if (code == LV_EVENT_LONG_PRESSED && long_flag == false)
     {
@@ -180,7 +178,7 @@ static void long_pressed_event_cb(lv_event_t *e)
         lv_anim_start(&arc_anim);
     }
 
-    if (code == LV_EVENT_RELEASED && release_flag == false)
+    if (code == LV_EVENT_RELEASED && release_flag == false && long_flag == true)
     {
         long_flag = false;
         release_flag = true;

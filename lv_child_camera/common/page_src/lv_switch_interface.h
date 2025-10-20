@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include "../lv_page_info.h"
+#include "toast/toast.h"
 
 //菜单
 extern lv_subject_t menu_subject;
