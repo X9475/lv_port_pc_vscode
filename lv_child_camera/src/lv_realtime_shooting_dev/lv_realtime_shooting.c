@@ -48,6 +48,10 @@
 #define PHOTOGRAPH_ICON_SELECT_GREEN "V:tk1/realtime_shooting/photograph_icon_select_green.png"
 #define LUT_ICON_NONE "V:tk1/realtime_shooting/lut_icon_none.png"
 #define PHOTOGRAPH_ICON_GUIDE_GREEN "V:tk1/realtime_shooting/photograph_icon_guide_green.png"
+#define PHOTOGRAPH_PIC_PHOTO "V:tk1/realtime_shooting/photograph_pic_photo.png"
+#define PHOTOGRAPH_PIC_VIDEO "V:tk1/realtime_shooting/photograph_pic_video.png"
+#define PHOTOGRAPH_PIC_TIME_LAPSE "V:tk1/realtime_shooting/photograph_pic_time_lapse.png"
+#define PHOTOGRAPH_ICON_QUESTION "V:tk1/realtime_shooting/photograph_icon_question.png"
 /**********************
  *      TYPEDEFS
  **********************/
@@ -65,6 +69,7 @@ static void lv_realtime_shooting_rapid_coding(lv_obj_t * parent, int type);
 
 static void recreate_video_list(lv_obj_t *parent);
 static void create_video_list(lv_obj_t *parent);
+static void update_center_contact_color(lv_obj_t *obj);
 /**********************
  *  STATIC VARIABLES
  **********************/
@@ -93,11 +98,16 @@ static lv_style_t style_knob;
 static lv_style_t style_file_info;
 static lv_style_t style_multi_filter;
 
+static lv_style_t style_black_background;
+
 // 全局变量
 static lv_obj_t * flash_img;
 static lv_obj_t * zoom_label;
 static lv_obj_t *photo_all_label;
 static lv_obj_t *video_play_indicator_area;
+static lv_obj_t *line_cont;
+static uint8_t exec_count = 0;
+static lv_timer_t *anim_timer = NULL;
 
 static bool flash_state = false;
 static bool camera_state = false;
@@ -328,6 +338,13 @@ static void realtime_shooting_style_init()
     multi_filter_grad.stops[1].frac = 255;
 
     lv_style_set_bg_grad(&style_multi_filter, &multi_filter_grad);
+
+    lv_style_init(&style_black_background);
+    lv_style_set_radius(&style_black_background, 0);
+    lv_style_set_pad_all(&style_black_background, 0);
+    lv_style_set_border_width(&style_black_background, 0);
+    lv_style_set_bg_color(&style_black_background, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&style_black_background, LV_OPA_COVER);
 
 
 }
@@ -905,6 +922,293 @@ static void lv_realtime_shooting_mode(lv_obj_t * parent)
     // 创建定时器更新焦距倍率
     lv_timer_create(timer_cb, 500, NULL); // 每500ms更新一次
 }
+
+static void circular_scroll_handle(lv_obj_t *cont, uint8_t dir)
+{
+    lv_coord_t child_cnt = lv_obj_get_child_cnt(cont);
+    if(child_cnt < 2) return;
+
+    //获取当前中心坐标
+    lv_area_t cont_a;
+    lv_obj_get_coords(cont, &cont_a);
+    int32_t cont_y_center = cont_a.y1 + lv_area_get_height(&cont_a) / 2;
+
+    //针对移动后的位置绘制曲线
+    for (uint32_t i = 0; i < child_cnt; i++)
+    {
+        lv_obj_t *child = lv_obj_get_child(cont, i);
+        lv_area_t child_a;
+        lv_obj_get_coords(child, &child_a);
+
+        int32_t child_y_center = child_a.y1 + lv_area_get_height(&child_a) / 2;
+        int32_t diff_y = child_y_center - cont_y_center;
+
+        // int32_t x = LV_ABS(diff_y * 1 / 4);
+        int32_t x = 14.252f - 18.252f * expf(-0.085f * LV_ABS(diff_y));
+        lv_obj_set_style_translate_x(child, x, 0);
+
+        if (LV_ABS(diff_y) < 20) {//局部透明度
+            lv_obj_set_style_bg_opa(child, LV_OPA_COVER, 0);
+        } else {
+            lv_obj_set_style_bg_opa(child, LV_OPA_20, 0);
+        }
+    }
+
+    if (dir == 1)
+        lv_obj_scroll_by(cont, 0, -1, LV_ANIM_OFF);
+
+    if (dir == 2)
+        lv_obj_scroll_by(cont, 0, 1, LV_ANIM_OFF);
+}
+
+static void screen_saver_timer_cb(lv_timer_t *timer)
+{
+    uint8_t *pdir = lv_timer_get_user_data(timer);
+
+    circular_scroll_handle(line_cont, *pdir);
+    //次数控制
+    if(++exec_count >= 30) {
+        lv_timer_del(anim_timer);
+        anim_timer = NULL;
+    }
+}
+
+static void scroll_saver_event_cb(lv_event_t *e)
+{
+    lv_obj_t *cont = lv_event_get_target(e);
+    lv_obj_t *first = lv_obj_get_child(cont, 0);
+    lv_area_t first_a;
+    lv_obj_get_coords(first, &first_a);
+
+    //判断滚动方向
+    static uint8_t dir = 0;//0 nul, 1 up, 2 down
+    static int32_t last_y = 0xffffffff;
+
+    if (last_y == 0xffffffff) last_y = first_a.y1;
+
+    dir = first_a.y1 > last_y? 2 : 1;
+    last_y = first_a.y1;
+
+    //倾斜变换
+    lv_area_t cont_a;
+    lv_obj_get_coords(cont, &cont_a);
+    int32_t cont_y_center = cont_a.y1 + lv_area_get_height(&cont_a) / 2;
+    uint32_t child_cnt = lv_obj_get_child_cnt(cont);
+
+    static uint8_t last_idx = 0;
+    static uint8_t cur_idx = 0;
+
+    for (uint32_t i = 0; i < child_cnt; i++)
+    {
+        lv_obj_t *child = lv_obj_get_child(cont, i);
+        lv_area_t child_a;
+        lv_obj_get_coords(child, &child_a);
+
+        if (LV_ABS(child_a.y1 - 95) < 20) cur_idx = i;
+
+        int32_t child_y_center = child_a.y1 + lv_area_get_height(&child_a) / 2;
+        int32_t diff_y = child_y_center - cont_y_center;
+
+        int32_t r = lv_obj_get_height(cont);
+        uint32_t x_sqr = r * r - LV_ABS(diff_y) * LV_ABS(diff_y);
+
+        lv_sqrt_res_t res;
+        lv_sqrt(x_sqr, &res, 0x8000);
+        int32_t x = r - res.i;
+
+        //设置旋转中心为右侧边缘中间点
+        lv_obj_set_style_transform_pivot_x(child, 610, 0);
+        lv_obj_set_style_transform_pivot_y(child, 205, 0);
+
+        int32_t angle = -(diff_y) / 3;
+        angle = LV_ABS(diff_y) >= 60? angle : 0;
+        lv_obj_set_style_translate_x(child, x - 20, 0);
+        lv_obj_set_style_transform_rotation(child, angle, LV_PART_MAIN);
+    }
+
+    if (cur_idx != last_idx) {
+        last_idx = cur_idx;
+        if (!anim_timer) {
+            //创建定时器，每40ms执行滚动动态
+            anim_timer = lv_timer_create(screen_saver_timer_cb, 40, &dir);
+            exec_count = 0;
+        }
+    }
+}
+
+static void video_mode_click_event_cb(lv_event_t *e)
+{
+    lv_obj_t *saver = lv_event_get_target(e);
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *mode = lv_event_get_user_data(e);
+    if (LV_EVENT_CLICKED == code)
+    {
+        if(lv_obj_get_child(mode, 0) == saver)
+        {
+            printf("mode photo\n");
+        }
+        else if(lv_obj_get_child(mode, 1) == saver)
+        {
+            printf("mode video\n");
+        }
+        else if(lv_obj_get_child(mode, 2) == saver)
+        {
+            printf("mode time_lapse\n");
+        }
+    }
+}
+
+static void *video_mode_create(int iMode, lv_obj_t *cont, const char *path)
+{
+    lv_obj_t *mode = lv_obj_create(cont);
+    lv_obj_remove_style_all(mode);
+    lv_obj_set_size(mode, 376, 140);
+    lv_obj_set_style_radius(mode, 30, 0);
+    lv_obj_set_style_bg_opa(mode, LV_OPA_COVER, 0);
+
+    if(iMode == 0)
+    {
+        lv_obj_align(mode, LV_ALIGN_TOP_LEFT, 26, 0);
+        lv_obj_set_style_bg_color(mode, lv_color_hex(0x4169E1), LV_PART_MAIN);
+        lv_obj_t *label = lv_label_create(mode);
+        lv_label_set_text(label, "PHOTO");
+        lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+        lv_obj_set_style_text_font(label, font_get_regular(30), 0);
+        lv_obj_set_style_text_color(label, lv_color_hex(0XFFFFFF), 0);
+        lv_obj_align(label, LV_ALIGN_TOP_LEFT, 154, 32);
+
+        lv_obj_t *label1 = lv_label_create(mode);
+        lv_label_set_text(label1, "拍照");
+        lv_obj_set_style_text_opa(label1, LV_OPA_COVER, 0);
+        lv_obj_set_style_text_font(label1, font_get_regular(28), 0);
+        lv_obj_set_style_text_color(label1, lv_color_hex(0XFFFFFF), 0);
+        lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 154, 72);
+    }
+    else if(iMode == 1)
+    {
+        lv_obj_align(mode, LV_ALIGN_LEFT_MID, 26, 0);
+        lv_obj_set_style_bg_color(mode, lv_color_hex(0x28272E), LV_PART_MAIN);
+
+        lv_obj_t *label = lv_label_create(mode);
+        lv_label_set_text(label, "VIDEO");
+        lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+        lv_obj_set_style_text_font(label, font_get_regular(30), 0);
+        lv_obj_set_style_text_color(label, lv_color_hex(0XFFFFFF), 0);
+        lv_obj_align(label, LV_ALIGN_TOP_LEFT, 154, 32);
+
+        lv_obj_t *label1 = lv_label_create(mode);
+        lv_label_set_text(label1, "录像");
+        lv_obj_set_style_text_opa(label1, LV_OPA_COVER, 0);
+        lv_obj_set_style_text_font(label1, font_get_regular(28), 0);
+        lv_obj_set_style_text_color(label1, lv_color_hex(0XFFFFFF), 0);
+        lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 154, 72);
+    }
+    else if(iMode == 2)
+    {
+        lv_obj_align(mode, LV_ALIGN_BOTTOM_LEFT, 26, 0);
+        lv_obj_set_style_bg_color(mode, lv_color_hex(0xD1946A), LV_PART_MAIN);
+        
+        lv_obj_t *label = lv_label_create(mode);
+        lv_label_set_text(label, "TIME-LAPSE");
+        lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+        lv_obj_set_style_text_font(label, font_get_regular(30), 0);
+        lv_obj_set_style_text_color(label, lv_color_hex(0XFFFFFF), 0);
+        lv_obj_align(label, LV_ALIGN_TOP_LEFT, 154, 32);
+
+        lv_obj_t *label1 = lv_label_create(mode);
+        lv_label_set_text(label1, "延时摄影");
+        lv_obj_set_style_text_opa(label1, LV_OPA_COVER, 0);
+        lv_obj_set_style_text_font(label1, font_get_regular(28), 0);
+        lv_obj_set_style_text_color(label1, lv_color_hex(0XFFFFFF), 0);
+        lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 154, 72);
+    }
+
+    lv_obj_t *image = lv_img_create(mode);
+    lv_obj_set_size(image, 128, 128);
+    lv_img_set_src(image, path);
+    lv_obj_align(image, LV_ALIGN_LEFT_MID, 6, 0);
+
+    return mode;
+}
+
+static void *line_container_create(lv_obj_t *cont)
+{
+    lv_obj_t *line_cont = lv_obj_create(cont);
+
+    lv_obj_add_style(line_cont, &style_black_background, 0);
+    lv_obj_set_size(line_cont, 20, 150);
+    lv_obj_align(line_cont, LV_ALIGN_RIGHT_MID, -20, 0);
+
+    lv_obj_set_flex_flow(line_cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_scroll_dir(line_cont, LV_DIR_VER);
+    lv_obj_set_scroll_snap_y(line_cont, LV_SCROLL_SNAP_CENTER);
+    lv_obj_set_scrollbar_mode(line_cont, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_remove_flag(line_cont, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_pad_row(line_cont, 8, 0);
+
+    for (uint8_t i = 0; i < 39; i++)
+    {
+        lv_obj_t *line = lv_obj_create(line_cont);
+        lv_obj_remove_style_all(line);
+        lv_obj_set_size(line, 30, 2);
+        lv_obj_set_style_bg_opa(line, LV_OPA_20, 0);
+        lv_obj_set_style_bg_color(line, lv_color_hex(0xFFFFFF), 0);
+    }
+
+    //初始位置设置为中间的子对象
+    lv_obj_scroll_to_view(lv_obj_get_child(line_cont, 19), LV_ANIM_OFF);
+    circular_scroll_handle(line_cont, 0);
+
+    return line_cont;
+}
+
+static const char *mode_list[3] = {
+    PHOTOGRAPH_PIC_PHOTO,
+    PHOTOGRAPH_PIC_VIDEO,
+    PHOTOGRAPH_PIC_TIME_LAPSE
+};
+
+static void lv_video_mode_style(lv_obj_t * parent)
+{
+    lv_obj_add_style(parent, &style_black_background, 0);
+
+    //创建录像模式列表转盘
+    lv_obj_t *cont_col = lv_obj_create(parent);
+    lv_obj_add_style(cont_col, &style_black_background, 0);
+
+    // 移除flex布局，使用绝对布局
+    lv_obj_set_size(cont_col, lv_pct(100), lv_pct(100));
+    lv_obj_set_layout(cont_col, LV_LAYOUT_NONE);
+    lv_obj_set_scroll_snap_y(cont_col, LV_SCROLL_SNAP_CENTER);
+    lv_obj_align(cont_col, LV_ALIGN_LEFT_MID, 26, 0);
+    lv_obj_set_scroll_dir(cont_col, LV_DIR_VER);
+    lv_obj_set_scrollbar_mode(cont_col, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_add_event_cb(cont_col, scroll_saver_event_cb, LV_EVENT_SCROLL, NULL);
+
+
+    for (uint8_t i = 0; i < 3; i++)
+    {
+        lv_obj_t *video_mode = video_mode_create(i, cont_col, mode_list[i]);
+        lv_obj_add_event_cb(video_mode, video_mode_click_event_cb, LV_EVENT_CLICKED, cont_col);
+    }
+
+    lv_obj_scroll_to_view(lv_obj_get_child(cont_col, 1), LV_ANIM_OFF);
+    lv_obj_send_event(cont_col, LV_EVENT_SCROLL, NULL);
+
+    lv_scr_load_anim(parent, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+
+    lv_obj_t *image = lv_img_create(parent);
+    lv_obj_set_size(image, 42, 42);
+    lv_img_set_src(image, PHOTOGRAPH_ICON_QUESTION);
+    lv_obj_align(image, LV_ALIGN_RIGHT_MID, -50, 0);
+
+    //右侧滚动条
+    line_cont = line_container_create(parent);
+
+    return;
+}
+
+
 static void lv_realtime_shooting_photos_mode(lv_obj_t * parent)
 {
     lv_obj_set_style_bg_color(parent, lv_color_black(), 0);
@@ -1421,6 +1725,131 @@ static void play_pause_btn_cb(lv_event_t * e)
             // 暂停播放
             is_playing = false;
             lv_timer_pause(timer_1);
+        }
+    }
+}
+
+// 存储联系人对象指针的数组
+static lv_obj_t *contact_objs[20];
+static void page_back_event_cb(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if (LV_EVENT_CLICKED == code)
+    {
+        printf("contact page return back\n");
+        //TODO: 回到上个页面
+
+    }
+}
+
+static void contact_page_click_event_cb(lv_event_t *e)
+{
+    lv_obj_t *saver = lv_event_get_target(e);
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *mode = lv_event_get_user_data(e);
+    if (LV_EVENT_CLICKED == code)
+    {
+        printf("mode time_lapse\n");
+    }
+}
+
+static void update_center_contact_color(lv_obj_t *obj)
+{
+    // 获取滚动位置
+    lv_coord_t scroll_y = lv_obj_get_scroll_y(obj);
+    lv_coord_t height = lv_obj_get_height(obj);
+    
+    // 计算中间位置
+    lv_coord_t center_y = scroll_y + height / 2;
+    
+    // 重置所有联系人的背景颜色
+    for (uint8_t i = 0; i < 20; i++) {
+        lv_obj_set_style_bg_color(contact_objs[i], lv_color_hex(0x000000), LV_PART_MAIN);
+    }
+    
+    // 找到最接近中间位置的联系人
+    int closest_index = -1;
+    lv_coord_t min_distance = INT16_MAX;
+    
+    for (uint8_t i = 0; i <= 20; i++) {
+        lv_coord_t contact_y = i * (160 + 12) + 80; // 联系人的中心Y坐标
+        lv_coord_t distance = LV_ABS(contact_y - center_y);
+        
+        if (distance < min_distance) {
+            min_distance = distance;
+            closest_index = i-1;
+        }
+    }
+    
+    // 高亮中间的联系人
+    if (closest_index >= 0 && closest_index <= 20) {
+        lv_obj_set_style_bg_color(contact_objs[closest_index], lv_color_hex(0x2A3534), LV_PART_MAIN);
+    }
+}
+
+
+static void contact_scroll_event_cb(lv_event_t *e)
+{
+    lv_obj_t *cont = lv_event_get_target(e);
+    lv_obj_t *first = lv_obj_get_child(cont, 0);
+    lv_area_t first_a;
+    lv_obj_get_coords(first, &first_a);
+
+    update_center_contact_color(cont); //高亮选中联系人
+
+    //判断滚动方向
+    static uint8_t dir = 0;//0 nul, 1 up, 2 down
+    static int32_t last_y = 0xffffffff;
+
+    if (last_y == 0xffffffff) last_y = first_a.y1;
+
+    dir = first_a.y1 > last_y? 2 : 1;
+    last_y = first_a.y1;
+
+    //倾斜变换
+    lv_area_t cont_a;
+    lv_obj_get_coords(cont, &cont_a);
+    int32_t cont_y_center = cont_a.y1 + lv_area_get_height(&cont_a) / 2;
+    uint32_t child_cnt = lv_obj_get_child_cnt(cont);
+
+    static uint8_t last_idx = 0;
+    static uint8_t cur_idx = 0;
+
+    for (uint32_t i = 0; i < child_cnt; i++)
+    {
+        lv_obj_t *child = lv_obj_get_child(cont, i);
+        lv_area_t child_a;
+        lv_obj_get_coords(child, &child_a);
+
+        if (LV_ABS(child_a.y1 - 95) < 20) cur_idx = i;
+
+        int32_t child_y_center = child_a.y1 + lv_area_get_height(&child_a) / 2;
+        int32_t diff_y = child_y_center - cont_y_center;
+
+        int32_t r = lv_obj_get_height(cont);
+        uint32_t x_sqr = r * r - LV_ABS(diff_y) * LV_ABS(diff_y);
+
+        lv_sqrt_res_t res;
+        lv_sqrt(x_sqr, &res, 0x8000);
+        int32_t x = r - res.i;
+
+        //设置旋转中心为右侧边缘中间点
+        lv_obj_set_style_transform_pivot_x(child, 610, 0);
+        lv_obj_set_style_transform_pivot_y(child, 205, 0);
+
+        int32_t angle = -(diff_y) / 3;
+        angle = LV_ABS(diff_y) >= 60? angle : 0;
+        lv_obj_set_style_translate_x(child, x - 20, 0);
+        lv_obj_set_style_transform_rotation(child, angle, LV_PART_MAIN);
+    }
+
+    if (cur_idx != last_idx) {
+        last_idx = cur_idx;
+        if (!anim_timer) {
+            //创建定时器，每40ms执行滚动动态
+            anim_timer = lv_timer_create(screen_saver_timer_cb, 40, &dir);
+            exec_count = 0;
         }
     }
 }
@@ -1947,7 +2376,79 @@ static void lv_photo_picture(lv_obj_t * parent, int type)
     else if(type == 8)
     {
         create_video_list(parent);
-    }   
+    }
+    else if(type == 9)
+    {
+        lv_obj_add_style(parent, &style_black_background, 0);
+        lv_obj_set_style_border_width(parent, 0, 0);
+        lv_obj_set_style_pad_all(parent, 0, 0);
+
+        //创建联系人
+        lv_obj_t *cont_col = lv_obj_create(parent);
+        lv_obj_add_style(cont_col, &style_black_background, 0);
+
+        // 移除flex布局，使用绝对布局
+        lv_obj_set_size(cont_col, lv_pct(100), lv_pct(100));
+        lv_obj_set_layout(cont_col, LV_LAYOUT_NONE);
+        lv_obj_set_scroll_snap_y(cont_col, LV_SCROLL_SNAP_CENTER);
+        lv_obj_align(cont_col, LV_ALIGN_LEFT_MID, 0, 0);
+        lv_obj_set_scroll_dir(cont_col, LV_DIR_VER);
+        lv_obj_set_scrollbar_mode(cont_col, LV_SCROLLBAR_MODE_OFF);
+        lv_obj_add_event_cb(cont_col, contact_scroll_event_cb, LV_EVENT_SCROLL, NULL);
+
+        for (uint8_t i = 0; i < 20; i++)
+        {
+            lv_obj_t *contact = lv_obj_create(cont_col);
+            lv_obj_remove_style_all(contact);
+            lv_obj_set_size(contact, 370, 160);
+            lv_obj_set_style_radius(contact, 98, 0);
+            lv_obj_set_style_bg_opa(contact, LV_OPA_COVER, 0);
+            lv_obj_align(contact, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_set_style_bg_color(contact, lv_color_hex(0x000000), LV_PART_MAIN);
+
+            lv_obj_t *image = lv_img_create(contact);
+            lv_obj_set_size(image, 130, 130);
+            lv_obj_set_style_radius(image, LV_RADIUS_CIRCLE, 0);
+            lv_obj_set_style_clip_corner(image, true, 0);
+            lv_img_set_src(image, mode_list[0]);
+            lv_obj_align(image, LV_ALIGN_LEFT_MID, 6, 0);
+
+            lv_obj_t *label = lv_label_create(contact);
+            lv_label_set_text(label, "Mami");
+            lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+            lv_obj_set_style_text_font(label, font_get_regular(34), 0);
+            lv_obj_set_style_text_color(label, lv_color_hex(0XFFFFFF), 0);
+            lv_obj_align(label, LV_ALIGN_LEFT_MID, 156, 0);
+
+            // 使用绝对位置：每个图片垂直排列，水平位置为0（最左边）
+            lv_obj_set_pos(contact, 0, i * (160 + 12));
+
+            lv_obj_add_flag(contact, LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_add_event_cb(contact, contact_page_click_event_cb, LV_EVENT_CLICKED, cont_col);
+
+            // 存储联系人对象指针
+            contact_objs[i] = contact;
+        }
+
+        lv_obj_scroll_to_view(lv_obj_get_child(cont_col, 0), LV_ANIM_OFF);
+        lv_obj_set_style_bg_color(lv_obj_get_child(cont_col, 0), lv_color_hex(0x2A3534), LV_PART_MAIN);
+        
+
+        lv_scr_load_anim(parent, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+
+        //返回按钮
+        lv_obj_t *back = lv_img_create(parent);
+        lv_obj_set_size(back, 50, 50);
+        lv_img_set_src(back, ICON_BACK);
+        lv_obj_align_to(back, parent, LV_ALIGN_TOP_LEFT, 30, 20);
+        lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
+
+        //右侧滚动条
+        line_cont = line_container_create(parent);
+
+
+    }
 }
 
 static void versatile_filters_item_event_cb(lv_event_t * e)
@@ -2635,7 +3136,8 @@ static void lv_page_open()
         //实时取景拍摄模式--已实现
         //lv_realtime_shooting_mode(scr);
 
-        //模式列表页录像、延时摄影 ---未实现比较麻烦
+        //模式列表页录像、延时摄影 ---已完成
+        //lv_video_mode_style(scr);
 
         //照片合集样式---已实现
         //lv_realtime_shooting_photos_mode(scr);
@@ -2643,14 +3145,14 @@ static void lv_page_open()
         //实时拍摄切换、加载动画等待，等待交互点动画 ,0:切换中，1:加载中--已实现
         //lv_realtime_shooting_switch_wait(scr, 0);
 
-        //实时取景焦距对焦 ---已实现， 实时取景焦距未实现---比较麻烦
-        lv_realtime_shooting_focus(scr);
+        //实时取景焦距对焦 ---已实现， 实时取景焦距已实现
+        //lv_realtime_shooting_focus(scr);
 
         //实时取景录像，延时摄影, 0:录像---已实现，界面边缘滑动已实现，延时摄影后续版本再实现
         //lv_realtime_shooting_video(scr, 0);
 
-        //相册功能---已基本实现，缺少AI对话，等待素材后再实现，缺少分享联系人功能---待实现
-        //lv_photo_picture(scr, 1);
+        //相册功能---已基本实现，缺少AI对话，等待素材后再实现
+        //lv_photo_picture(scr, 9);
 
         //调试函数，后续删除
         //create_video_player_ui(scr);
