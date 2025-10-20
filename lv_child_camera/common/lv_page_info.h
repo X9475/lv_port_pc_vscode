@@ -35,8 +35,10 @@ typedef enum
     PAGE_FUNCTIONAL_FIRST_BOOTUP,       ///<< 第一次启动
     PAGE_FUNCTIONAL_AGENT_START,        ///<< 智能助手开启
     PAGE_FUNCTIONAL_MENU,               ///<< 菜单界面
+    PAGE_FUNCTIONAL_MENU_SETTING,       ///<< 菜单设置界面
     PAGE_FUNCTIONAL_MORE_SETTINGS,      ///<< 更多设置
     PAGE_FUNCTIONAL_AUDIO_EFFECT,       ///<< 音频效果
+    PAGE_FUNCTIONAL_SAVER_STYLE,        ///<< 屏保样式
     PAGE_FUNCTIONAL_RECORD_TIME,        ///<< 单次录像时长设置
     PAGE_FUNCTIONAL_HOLD_TIME,          ///<< 息屏时间设置
     PAGE_FUNCTIONAL_DISPLAY_TIME,       ///<< 时间展示格式设置

@@ -11,6 +11,10 @@ extern "C" {
 extern lv_subject_t menu_subject;
 lv_page_info_pt lv_page_menu_info_get();
 
+//设置菜单
+extern lv_subject_t menu_setting_subject;
+lv_page_info_pt lv_page_menu_setting_info_get();
+
 /***************************添加流程开始*************************************/
 //扫描二维码
 extern lv_subject_t qrcode_subject;
@@ -80,6 +84,11 @@ lv_page_info_pt lv_page_cert_mask_info_get();
 //格式化确认
 extern lv_subject_t format_confirm_subject;
 lv_page_info_pt lv_page_format_confirm_info_get();
+
+//屏保样式
+extern lv_subject_t screensaver_style_subject;
+lv_page_info_pt lv_page_screensaver_style_info_get();
+
 
 #ifdef __cplusplus
 }

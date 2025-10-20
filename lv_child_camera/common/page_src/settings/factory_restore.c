@@ -22,7 +22,7 @@ static enum PAGE_EVENT_ENUM
 {
     PAGE_SWITCH_NONE,
     PAGE_SWITCH_CONFIRM,
-    PAGE_SWITCH_CONCELL
+    PAGE_SWITCH_BACK
 };
 
 static lv_page_info_t factory_restore_page_info = {
@@ -147,7 +147,7 @@ static void lv_cancel_and_confirm_click_event(lv_event_t *e)
     }
     else if (btn == cancel)
     {
-        lv_subject_set_int(&factory_restore_subject, PAGE_SWITCH_CONCELL);
+        lv_subject_set_int(&factory_restore_subject, PAGE_SWITCH_BACK);
     }
 }
 
@@ -168,7 +168,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         case PAGE_SWITCH_CONFIRM:
             // switch_page->new_page = lv_page_agent_start_info_get();
             break;
-        case PAGE_SWITCH_CONCELL:
+        case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();
             break;
         default:

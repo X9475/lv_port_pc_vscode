@@ -205,13 +205,6 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
     switch (page_event)
     {
-        // case PAGE_SWITCH_SUCCESS:
-        //     switch_page->new_page = lv_page_signup_success_info_get();
-        //     // switch_page->new_page = lv_page_menu_info_get();
-        //     break;
-        // case PAGE_SWITCH_FAILED:
-        //     // switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();
             break;
