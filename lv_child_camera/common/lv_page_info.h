@@ -32,6 +32,7 @@ typedef enum
     PAGE_FUNCTIONAL_QRCODE,             ///<< 显示注册二维码
     PAGE_FUNCTIONAL_SIGNUP_SUCCESS,     ///<< 注册成功
     PAGE_FUNCTIONAL_SIGNUP_FAILED,      ///<< 注册失败
+    PAGE_FUNCTIONAL_NETWORK_4G,         ///<< 4G网络异常
     PAGE_FUNCTIONAL_FIRST_BOOTUP,       ///<< 第一次启动
     PAGE_FUNCTIONAL_AGENT_START,        ///<< 智能助手开启
     PAGE_FUNCTIONAL_MENU,               ///<< 菜单界面
@@ -49,7 +50,18 @@ typedef enum
     PAGE_FUNCTIONAL_CERT_MASK,          ///<< 认证标志
 
     //abnormal
-    PAGE_ABNORMAL_NETWORK_4G,           ///<< 4G网络异常
+    PAGE_ABNORMAL_NONE,
+    PAGE_ABNORMAL_LOW_BATTERY,          ///<< 电池电量小于20%
+    PAGE_ABNORMAL_MINUTE_BATTERY,       ///<< 电池电量小于3%
+    PAGE_ABNORMAL_HIGH_TAMPERATURE,     ///<< 电池高温异常
+    PAGE_ABNORMAL_LOW_TAMPERATURE,      ///<< 电池低温异常
+    PAGE_ABNORMAL_STORAGE_EXHAUSTED,    ///<< 存储即将耗尽
+    PAGE_ABNORMAL_UPDATING,             ///<< 升级中
+    PAGE_ABNORMAL_USB_TRANSMIT,         ///<< USB传输
+    PAGE_ABNORMAL_USB_FLASH_MODE,       ///<< U盘模式中
+    PAGE_ABNORMAL_NETWORK,              ///<< 网络异常
+    PAGE_ABNORMAL_RETRY,                ///<< 重试
+    PAGE_ABNORMAL_CONFIRM,              ///<< 异常确认
 
     //toast
     PAGE_TOAST_NONE,
@@ -62,7 +74,8 @@ typedef enum
     PAGE_TOAST_FACTORY_RESTORE_DOING,   ///<< 恢复出厂设置中
     PAGE_TOAST_FACTORY_RESTORE_SUCCESS, ///<< 恢复出厂设置成功
     PAGE_TOAST_FACTORY_RESTORE_ERROR,   ///<< 恢复出厂设置失败
-    PAGE_TOAST_CONCELL,                 ///<< 取消toast
+    PAGE_TOAST_STORAGE_EXHAUSTED,       ///<< 存储已耗尽，无法拍摄
+    PAGE_TOAST_CONFIRM,                 ///<< toast确认
 
     PAGE_NONE
 } LV_PAGE_ENUM;

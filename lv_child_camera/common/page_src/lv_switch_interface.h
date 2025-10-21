@@ -7,6 +7,7 @@ extern "C" {
 
 #include "../lv_page_info.h"
 #include "toast/toast.h"
+#include "abnormal/abnormal.h"
 
 //菜单
 extern lv_subject_t menu_subject;

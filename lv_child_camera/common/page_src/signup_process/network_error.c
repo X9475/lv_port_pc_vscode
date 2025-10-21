@@ -27,7 +27,7 @@ static enum PAGE_EVENT_ENUM
 };
 
 static lv_page_info_t network_error_page_info = {
-    .page_id = PAGE_ABNORMAL_NETWORK_4G,
+    .page_id = PAGE_FUNCTIONAL_NETWORK_4G,
     .page = NULL,
     .reserved = NULL,
     .construct_cb = lv_page_construct,
@@ -138,7 +138,6 @@ static void lv_page_load(lv_obj_t *cont)
 
 static void retry_btn_click_event_cb(lv_event_t *e)
 {
-
     lv_subject_set_int(&network_error_subject, PAGE_SWITCH_RETRY);
 }
 

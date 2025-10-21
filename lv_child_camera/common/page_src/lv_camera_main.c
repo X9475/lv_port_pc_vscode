@@ -1,5 +1,6 @@
 #include "lv_camera_main.h"
 
+lv_obj_t *top_screen = NULL;
 static bool g_signup_flag = false;
 static lv_switch_page_pt switch_page;
 
@@ -13,6 +14,10 @@ void lv_camera_init()
     page_switch_subject_init();
     //toast主题初始化
     lv_toast_page_subject_init();
+    //abnormal主题初始化
+    lv_anormal_page_subject_init();
+    //创建顶层屏幕
+    top_screen = lv_layer_top();
 
     return;
 }
@@ -32,8 +37,8 @@ void lv_main()
         lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
         LV_ASSERT_MALLOC(switch_page);
 
-        // switch_page->new_page = lv_page_qrcode_info_get();
-        switch_page->new_page = lv_page_menu_setting_info_get();
+        switch_page->new_page = lv_page_qrcode_info_get();
+        // switch_page->new_page = lv_page_menu_setting_info_get();
         lv_subject_set_pointer(&switch_subject, switch_page);
     }
 
