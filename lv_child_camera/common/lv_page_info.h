@@ -36,6 +36,20 @@ typedef enum
     PAGE_FUNCTIONAL_AGENT_START,        ///<< 智能助手开启
     PAGE_FUNCTIONAL_MENU,               ///<< 菜单界面
     PAGE_FUNCTIONAL_MORE_SETTINGS,      ///<< 更多设置
+    PAGE_FUNCTIONAL_ALBUM,              ///<< 相册初始界面
+    PAGE_FUNCTIONAL_ALBUM_NONE,         ///<< 相册为空界面
+    PAGE_FUNCTIONAL_ALBUM_SHARE,        ///<< 相册分享界面
+    PAGE_FUNCTIONAL_ALBUM_SHARE_SUC,    ///<< 相册分享成功界面
+    PAGE_FUNCTIONAL_ALBUM_SHARE_RETRY,  ///<< 相册分享成功界面
+    PAGE_FUNCTIONAL_ALBUM_INFO,         ///<< 相册信息界面
+    PAGE_FUNCTIONAL_ALBUM_AI,           ///<< 相册AI界面
+    PAGE_FUNCTIONAL_ALBUM_FOUR_GRID,    ///<< 相册四宫格界面
+    PAGE_FUNCTIONAL_ALBUM_DELETE,       ///<< 相册删除界面
+    
+    PAGE_FUNCTIONAL_SHOOTING_PHOTO,     ///<< 拍摄首界面
+    PAGE_FUNCTIONAL_SHOOTING_MODE,     ///<< 拍摄录制界面
+    PAGE_FUNCTIONAL_SHOOTING_WAIT,     ///<< 拍摄模式切换等待界面
+    PAGE_FUNCTIONAL_SHOOTING_VIDEO,    ///<< 录制模式界面
 
     //abnormal
     PAGE_ABNORMAL_NETWORK_4G,           ///<< 4G网络异常

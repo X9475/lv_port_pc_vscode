@@ -182,9 +182,13 @@ static void app_icon_event_cb(lv_event_t * e)
 
     lv_obj_scroll_to_view(app_obj, LV_ANIM_OFF);
 
-    if (code == LV_EVENT_CLICKED) {
+    if (code == LV_EVENT_CLICKED) 
+    {
         printf("===>点击: %s, 进入子菜单\n", iterm_data->name);
-        //TODO: 进入子菜单
+        if (lv_strcmp(iterm_data->name, "相册") == 0)
+        {
+            lv_subject_set_int(&menu_subject, PAGE_SWITCH_ALBUM);
+        }
     }
 }
 
@@ -333,7 +337,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 {
     LV_UNUSED(observer);
     int32_t page_event = lv_subject_get_int(subject);
-    LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
+    LV_LOG_WARN("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
     if (page_event == PAGE_SWITCH_NONE) return;//注意首次触发
     
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
@@ -343,10 +347,11 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
     switch (page_event)
     {
-        // case PAGE_SWITCH_SUCCESS:
-        //     // switch_page->new_page = lv_page_signup_success_info_get();
-        //     switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
+        case PAGE_SWITCH_ALBUM:
+            // switch_page->new_page = lv_page_signup_success_info_get();
+            switch_page->new_page = lv_page_album_info_get();
+            break;
+
         // case PAGE_SWITCH_FAILED:
         //     // switch_page->new_page = lv_page_signup_failed_info_get();
         //     break;

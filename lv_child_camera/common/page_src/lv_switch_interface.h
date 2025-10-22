@@ -41,6 +41,47 @@ lv_page_info_pt lv_page_network_error_info_get();
 extern lv_subject_t settings_more_subject;
 lv_page_info_pt lv_page_settings_more_info_get();
 
+/***************************相册功能*************************************/
+
+extern lv_subject_t album_subject;
+lv_page_info_pt lv_page_album_get();
+
+extern lv_subject_t  album_none_subject;
+lv_page_info_pt lv_page_album_none_get();
+
+extern lv_subject_t album_share_subject;
+lv_page_info_pt lv_page_album_share_get();
+
+extern lv_subject_t album_share_suc_subject;
+lv_page_info_pt lv_page_album_share_suc_get();
+
+extern lv_subject_t  album_share_retry_subject;
+lv_page_info_pt lv_page_album_share_retry_get();
+
+extern lv_subject_t album_info_subject;
+lv_page_info_pt lv_page_album_info_get();
+
+extern lv_subject_t album_ai_subject;
+lv_page_info_pt lv_page_album_ai_get();
+
+extern lv_subject_t album_four_grid_subject;
+lv_page_info_pt lv_page_album_four_grid_get();
+
+extern lv_subject_t  album_delete_subject;
+lv_page_info_pt lv_page_album_delete_get();
+
+/***************************拍摄功能*************************************/
+extern lv_subject_t shooting_photo_subject;
+lv_page_info_pt lv_page_shooting_photo_get();
+
+extern lv_subject_t shooting_mode_subject;
+lv_page_info_pt lv_page_shooting_mode_get();
+
+extern lv_subject_t shooting_switch_wait_subject;
+lv_page_info_pt lv_page_shooting_switch_wait_get();
+
+extern lv_subject_t shooting_switch_video_subject;
+lv_page_info_pt lv_page_shooting_switch_video_get();
 
 #ifdef __cplusplus
 }
