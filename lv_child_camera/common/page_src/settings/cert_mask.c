@@ -106,7 +106,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_t *back = lv_img_create(cont);
     lv_obj_set_size(back, 50, 50);
     lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
-    lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 10, 10);
+    lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
@@ -192,6 +192,10 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
     }
 
-    if (NULL == switch_page->new_page) lv_free(switch_page);
+    if (NULL == switch_page->new_page) {
+        lv_free(switch_page);
+        return;
+    }
+
     lv_subject_set_pointer(&switch_subject, switch_page);
 }

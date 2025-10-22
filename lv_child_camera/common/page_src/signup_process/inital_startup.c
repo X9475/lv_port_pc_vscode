@@ -161,8 +161,6 @@ static void long_pressed_event_cb(lv_event_t *e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *arc = lv_event_get_user_data(e);
 
-    printf("======================code: %d\n", code);
-
     if (code == LV_EVENT_LONG_PRESSED && long_flag == false)
     {
         long_flag = true;
@@ -232,7 +230,11 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
     }
 
-    if (NULL == switch_page->new_page) lv_free(switch_page);
+    if (NULL == switch_page->new_page) {
+        lv_free(switch_page);
+        return;
+    }
+
     lv_subject_set_pointer(&switch_subject, switch_page);
 }
 
