@@ -1,11 +1,10 @@
 #include "../lv_switch_interface.h"
 
-lv_subject_t  shooting_switch_wait_subject;
+lv_subject_t about_camera_subject;
 static lv_switch_page_pt switch_page;
 
-static lv_style_t screen_style;
-
 static lv_obj_t *screen = NULL;
+static lv_style_t screen_style;
 
 static void lv_page_construct(void);
 static void lv_page_destruct(void);
@@ -14,28 +13,26 @@ static void lv_page_subject_init();
 static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
-
-static void timer_callback(lv_timer_t * timer);
+static void page_back_event_cb(lv_event_t *e);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
 {
     PAGE_SWITCH_NONE,
-    PAGE_SWITCH_NEXT,
     PAGE_SWITCH_BACK
 };
 
-static lv_page_info_t shooting_switch_wait_page = {
-    .page_id = PAGE_FUNCTIONAL_SHOOTING_WAIT,
+static lv_page_info_t about_camera_page_info = {
+    .page_id = PAGE_FUNCTIONAL_ABOUT_CAMERA,
     .page = NULL,
     .reserved = NULL,
     .construct_cb = lv_page_construct,
-    .destruct_cb = lv_page_destruct
+    .destruct_cb = lv_page_destruct,
 };
 
-lv_page_info_pt lv_page_shooting_switch_wait_get()
+lv_page_info_pt lv_page_about_camera_info_get()
 {
-    return &shooting_switch_wait_page;
+    return &about_camera_page_info;
 }
 
 static void lv_page_construct(void)
@@ -53,7 +50,8 @@ static void lv_page_construct(void)
 
     //绘制当前页面
     lv_page_load(screen);
-    shooting_switch_wait_page.page = screen;
+
+    about_camera_page_info.page = screen;
     return;
 }
 
@@ -75,74 +73,58 @@ static void lv_page_style_init()
 
 static void lv_page_subject_init()
 {
-    lv_subject_init_int(&shooting_switch_wait_subject, PAGE_SWITCH_NONE);
-    lv_subject_add_observer(&shooting_switch_wait_subject, lv_switch_observer_cb, NULL);
+    lv_subject_init_int(&about_camera_subject, PAGE_SWITCH_NONE);
+    lv_subject_add_observer(&about_camera_subject, lv_switch_observer_cb, NULL);
     return;
 }
 
 static void lv_page_subject_deinit()
 {
-    lv_subject_deinit(&shooting_switch_wait_subject);
-}
-
-static void page_back_event_cb(lv_event_t *e)
-{
-    lv_subject_set_int(&shooting_switch_wait_subject, PAGE_SWITCH_BACK);
+    lv_subject_deinit(&about_camera_subject);
 }
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    // lv_obj_t * animimg0 = lv_animimg_create(cont);
-    // lv_obj_align(animimg0, LV_ALIGN_TOP_LEFT, 98, 43);
+    //返回按钮
+    lv_obj_t *back = lv_img_create(cont);
+    lv_obj_set_size(back, 50, 50);
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
+    lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
+    lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
-    //todo:等待后续的动态图像
     lv_obj_t *label = lv_label_create(cont);
-    lv_label_set_text(label, "切换中");
-
+    lv_label_set_text(label, "关于相机");
     lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(label, font_get_regular(30), 0);
-    lv_obj_set_style_text_color(label, lv_color_hex(0XFFFFFF), 0);
-    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 320);
-
-    // 创建定时器，2秒后执行跳转
-    lv_timer_t * timer = lv_timer_create(timer_callback, 2000, NULL);
-    lv_timer_set_repeat_count(timer, 1);  // 只执行一次
+    lv_obj_set_style_text_font(label, fzlthr_26, 0);
+    lv_obj_set_style_text_color(label, lv_color_white(), 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }
 
-// 定时器回调函数
-static void timer_callback(lv_timer_t * timer)
+static void page_back_event_cb(lv_event_t *e)
 {
-    // 跳转到其他页面的代码
-    lv_subject_set_int(&shooting_switch_wait_subject, PAGE_SWITCH_NEXT);
-
-    // 清理定时器
-    lv_timer_del(timer);
+    lv_subject_set_int(&about_camera_subject, PAGE_SWITCH_BACK);
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
 {
     LV_UNUSED(observer);
     int32_t page_event = lv_subject_get_int(subject);
-    LV_LOG_WARN("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
+    LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
     if (page_event == PAGE_SWITCH_NONE) return;//注意首次触发
     
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
     lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
     LV_ASSERT_MALLOC(switch_page);
-    switch_page->old_page = &shooting_switch_wait_page;
+    switch_page->old_page = &about_camera_page_info;
 
     switch (page_event)
     {
-        case PAGE_SWITCH_NEXT:
-            switch_page->new_page = lv_page_shooting_switch_video_get();
-            break;
-
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();
             break;
-
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);
             break;
@@ -153,5 +135,4 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         return;
     }
 
-    lv_subject_set_pointer(&switch_subject, switch_page);
 }

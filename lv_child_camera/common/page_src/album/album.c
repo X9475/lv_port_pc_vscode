@@ -26,7 +26,6 @@ static lv_obj_t *video_time_label;
 static lv_obj_t * photo_icon_allows_down;
 static lv_obj_t * video_play_time_label;
 static lv_obj_t * slider;          // 滑动条对象
-static lv_obj_t * top_screen = NULL;  // 模态弹窗对象
 
 static lv_style_t screen_style;
 static lv_style_t up_area_style;
@@ -102,7 +101,8 @@ static void lv_page_construct(void)
     lv_page_subject_init();
     
 
-    screen = lv_obj_create(NULL);
+    screen = lv_obj_create(act_screen);
+    lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
@@ -332,7 +332,6 @@ static void lv_page_load(lv_obj_t *cont)
 static void delete_video_file(void)
 {
     // 在顶层创建模态弹窗
-    top_screen = lv_obj_create(lv_layer_top());
     lv_obj_set_size(top_screen, 502, 410);
     lv_obj_center(top_screen);
 
@@ -429,9 +428,8 @@ static void delete_click_event(lv_event_t * e)
     // 删除模态弹窗
     if (top_screen) 
     {
-
-        lv_obj_del(top_screen);
-        top_screen = NULL;
+        lv_obj_remove_style_all(top_screen);
+        lv_obj_clean(top_screen);
     }
 }
 
@@ -683,6 +681,10 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
     }
 
-    if (NULL == switch_page->new_page) return;
+    if (NULL == switch_page->new_page) {
+        lv_free(switch_page);
+        return;
+    }
+
     lv_subject_set_pointer(&switch_subject, switch_page);
 }

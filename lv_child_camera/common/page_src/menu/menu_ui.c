@@ -76,7 +76,8 @@ static void lv_page_construct(void)
     //加入栈表
     // lv_stack_push(&menu_page_info);
 
-    screen = lv_obj_create(NULL);
+    screen = lv_obj_create(top_screen);
+    lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
@@ -355,14 +356,17 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         // case PAGE_SWITCH_FAILED:
         //     // switch_page->new_page = lv_page_signup_failed_info_get();
         //     break;
-        case PAGE_SWITCH_BACK:
-            switch_page->new_page = lv_stack_pop();
-            break;
+        // case PAGE_SWITCH_BACK:
+        //     switch_page->new_page = lv_stack_pop();
+        //     break;
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);
             break;
     }
 
-    if (NULL == switch_page->new_page) return;
-    lv_subject_set_pointer(&switch_subject, switch_page);
+    if (NULL == switch_page->new_page) {
+        lv_free(switch_page);
+        return;
+    }
+
 }

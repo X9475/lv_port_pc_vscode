@@ -6,10 +6,19 @@ extern "C" {
 #endif
 
 #include "../lv_page_info.h"
+#include "toast/toast.h"
+#include "abnormal/abnormal.h"
+
+extern lv_obj_t *top_screen;
+extern lv_obj_t *act_screen;
 
 //菜单
 extern lv_subject_t menu_subject;
 lv_page_info_pt lv_page_menu_info_get();
+
+//设置菜单
+extern lv_subject_t menu_setting_subject;
+lv_page_info_pt lv_page_menu_setting_info_get();
 
 /***************************添加流程开始*************************************/
 //扫描二维码
@@ -40,6 +49,50 @@ lv_page_info_pt lv_page_network_error_info_get();
 //更多设置
 extern lv_subject_t settings_more_subject;
 lv_page_info_pt lv_page_settings_more_info_get();
+
+//音频效果
+extern lv_subject_t audio_effect_subject;
+lv_page_info_pt lv_page_audio_effect_info_get();
+
+//单次录像时长
+extern lv_subject_t record_time_subject;
+lv_page_info_pt lv_page_record_time_info_get();
+
+//息屏时间设置
+extern lv_subject_t hold_time_subject;
+lv_page_info_pt lv_page_hold_time_info_get();
+
+//时间展示格式
+extern lv_subject_t time_display_subject;
+lv_page_info_pt lv_page_time_display_info_get();
+
+//存储管理
+extern lv_subject_t storage_manage_subject;
+lv_page_info_pt lv_page_storage_manage_info_get();
+
+//振动幅度
+extern lv_subject_t vibrat_amplitude_subject;
+lv_page_info_pt lv_page_vibrat_amplitude_info_get();
+
+//关于相机
+extern lv_subject_t about_camera_subject;
+lv_page_info_pt lv_page_about_camera_info_get();
+
+//恢复出厂设置
+extern lv_subject_t factory_restore_subject;
+lv_page_info_pt lv_page_factory_restore_info_get();
+
+//认证标志
+extern lv_subject_t cert_mask_subject;
+lv_page_info_pt lv_page_cert_mask_info_get();
+
+//格式化确认
+extern lv_subject_t format_confirm_subject;
+lv_page_info_pt lv_page_format_confirm_info_get();
+
+//屏保样式
+extern lv_subject_t screensaver_style_subject;
+lv_page_info_pt lv_page_screensaver_style_info_get();
 
 /***************************相册功能*************************************/
 

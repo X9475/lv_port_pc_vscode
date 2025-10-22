@@ -60,7 +60,8 @@ static void lv_page_construct(void)
     //加入栈表
     // lv_stack_push(&agent_start_page_info);
 
-    screen = lv_obj_create(NULL);
+    screen = lv_obj_create(act_screen);
+    lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
@@ -131,8 +132,6 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, 1), LV_ANIM_OFF);
     lv_obj_send_event(cont_col, LV_EVENT_SCROLL, NULL);
 
-    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
-
     lv_obj_t *image = lv_img_create(cont);
     lv_obj_set_size(image, 42, 42);
     lv_img_set_src(image, PHOTOGRAPH_ICON_QUESTION);
@@ -146,7 +145,7 @@ static void lv_page_load(lv_obj_t *cont)
 
 static void *line_container_create(lv_obj_t *cont)
 {
-    lv_obj_t *line_cont = lv_obj_create(cont);
+    line_cont = lv_obj_create(cont);
 
     lv_obj_add_style(line_cont, &screen_style, 0);
     lv_obj_set_size(line_cont, 20, 150);
@@ -415,6 +414,10 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
     }
 
-    if (NULL == switch_page->new_page) return;
+    if (NULL == switch_page->new_page) {
+        lv_free(switch_page);
+        return;
+    }
+
     lv_subject_set_pointer(&switch_subject, switch_page);
 }

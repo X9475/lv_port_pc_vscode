@@ -43,10 +43,9 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
-    //加入栈表
-    // lv_stack_push(&signup_failed_page_info);
 
-    screen = lv_obj_create(NULL);
+    screen = lv_obj_create(act_screen);
+    lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
@@ -166,7 +165,10 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
     }
 
-    if (NULL == switch_page->new_page) return;
-    lv_subject_set_pointer(&switch_subject, switch_page);
+    if (NULL == switch_page->new_page) {
+        lv_free(switch_page);
+        return;
+    }
+
 }
 
