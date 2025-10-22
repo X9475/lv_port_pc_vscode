@@ -1,6 +1,7 @@
 #include "lv_camera_main.h"
 
 lv_obj_t *top_screen = NULL;
+lv_obj_t *act_screen = NULL;
 static bool g_signup_flag = false;
 static lv_switch_page_pt switch_page;
 
@@ -18,6 +19,8 @@ void lv_camera_init()
     lv_anormal_page_subject_init();
     //创建顶层屏幕
     top_screen = lv_layer_top();
+    //创建活动屏幕
+    act_screen = lv_screen_active();
 
     return;
 }
@@ -30,17 +33,19 @@ void lv_camera_deinit()
 
 void lv_main()
 {
-    ///展示二维码
-    if (lv_dev_stage_get() == LV_PAGE_STAGE_ADDING)
-    {
-        switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
-        lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
-        LV_ASSERT_MALLOC(switch_page);
+    switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
+    lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
+    LV_ASSERT_MALLOC(switch_page);
 
+    if (lv_dev_stage_get() == LV_PAGE_STAGE_ADDING)
+    {//添加流程阶段
         switch_page->new_page = lv_page_qrcode_info_get();
-        // switch_page->new_page = lv_page_menu_setting_info_get();
-        lv_subject_set_pointer(&switch_subject, switch_page);
+    }
+    else if (lv_dev_stage_get() == LV_PAGE_STAGE_RUNNING)
+    {//正式运行阶段
+        switch_page->new_page = lv_page_menu_info_get();
     }
 
+    lv_subject_set_pointer(&switch_subject, switch_page);
     return;
 }

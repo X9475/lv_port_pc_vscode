@@ -41,10 +41,9 @@ void lv_toast_page_subject_init()
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
 {
-    extern lv_obj_t *top_screen;
-    static lv_obj_t *cont;
-
     LV_UNUSED(observer);
+
+    static lv_obj_t *cont;
     int32_t page_event = lv_subject_get_int(subject);
     LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
     if (page_event == PAGE_TOAST_NONE) return;//注意首次触发

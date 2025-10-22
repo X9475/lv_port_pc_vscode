@@ -9,6 +9,9 @@ extern "C" {
 #include "toast/toast.h"
 #include "abnormal/abnormal.h"
 
+extern lv_obj_t *top_screen;
+extern lv_obj_t *act_screen;
+
 //菜单
 extern lv_subject_t menu_subject;
 lv_page_info_pt lv_page_menu_info_get();

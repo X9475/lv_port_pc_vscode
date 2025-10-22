@@ -59,7 +59,8 @@ static void lv_page_construct(void)
     //主题初始化
     lv_page_subject_init();
 
-    screen = lv_obj_create(NULL);
+    screen = lv_obj_create(act_screen);
+    lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
@@ -213,6 +214,12 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
     if (page_event == PAGE_SWITCH_NONE) return;//注意首次触发
     
+    if (page_event == PAGE_SWITCH_BACK) {
+        lv_obj_clear_flag(lv_page_menu_setting_info_get()->page, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_del(settings_more_page_info.page);
+        return;
+    }
+
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
     lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
     LV_ASSERT_MALLOC(switch_page);
@@ -252,14 +259,14 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             lv_stack_push(&settings_more_page_info);
             switch_page->new_page = lv_page_cert_mask_info_get();
             break;
-        case PAGE_SWITCH_BACK:
-            switch_page->new_page = lv_stack_pop();
-            break;
+        // case PAGE_SWITCH_BACK:
+        //     switch_page->new_page = lv_stack_pop();
+        //     break;
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);
             break;
     }
 
-    if (NULL == switch_page->new_page) return;
+    if (NULL == switch_page->new_page) lv_free(switch_page);
     lv_subject_set_pointer(&switch_subject, switch_page);
 }

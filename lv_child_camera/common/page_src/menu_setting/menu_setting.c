@@ -50,7 +50,8 @@ static void lv_page_construct(void)
     //主题初始化
     lv_page_subject_init();
 
-    screen = lv_obj_create(NULL);
+    screen = lv_obj_create(top_screen);
+    lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
@@ -153,30 +154,33 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
     lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
     LV_ASSERT_MALLOC(switch_page);
-    switch_page->old_page = &menu_setting_page_info;
+    // switch_page->old_page = &menu_setting_page_info;
 
     switch (page_event)
     {
         case PAGE_SWITCH_AUDIO_EFFECT:
-            lv_stack_push(&menu_setting_page_info);
+            // lv_stack_push(&menu_setting_page_info);
+            lv_obj_add_flag(menu_setting_page_info.page, LV_OBJ_FLAG_HIDDEN);
             switch_page->new_page = lv_page_audio_effect_info_get();
             break;
         case PAGE_SWITCH_SAVER_STYLE:
-            lv_stack_push(&menu_setting_page_info);
+            // lv_stack_push(&menu_setting_page_info);
+            lv_obj_add_flag(menu_setting_page_info.page, LV_OBJ_FLAG_HIDDEN);
             switch_page->new_page = lv_page_screensaver_style_info_get();
             break;
         case PAGE_SWITCH_SETTING_MORE:
-            lv_stack_push(&menu_setting_page_info);        
+            // lv_stack_push(&menu_setting_page_info);
+            lv_obj_add_flag(menu_setting_page_info.page, LV_OBJ_FLAG_HIDDEN);
             switch_page->new_page = lv_page_settings_more_info_get();
             break;
-        case PAGE_SWITCH_BACK:
-            switch_page->new_page = lv_stack_pop();
-            break;
+        // case PAGE_SWITCH_BACK:
+        //     switch_page->new_page = lv_stack_pop();
+        //     break;
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);
             break;
     }
 
-    if (NULL == switch_page->new_page) return;
+    if (NULL == switch_page->new_page) lv_free(switch_page);
     lv_subject_set_pointer(&switch_subject, switch_page);
 }
