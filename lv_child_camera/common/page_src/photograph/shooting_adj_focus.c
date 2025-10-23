@@ -91,8 +91,8 @@ static void lv_page_style_init()
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
-    lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
-    lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+    //lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
 
     static lv_grad_dsc_t down_grad;
     down_grad.dir = LV_GRAD_DIR_VER;
@@ -125,12 +125,13 @@ static void lv_page_subject_deinit()
 static void lv_page_load(lv_obj_t *cont)
 {
     lv_obj_add_style(cont, &screen_style, 0);
-
+    
     // 创建底部矩形渐变框
     lv_obj_t *down_indicator_area = lv_obj_create(cont);
     lv_obj_set_size(down_indicator_area, 502, 230);
     lv_obj_align(down_indicator_area, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_add_style(down_indicator_area, &down_area_style, 0);
+    lv_obj_clear_flag(down_indicator_area, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_t *scale = lv_scale_create(down_indicator_area);
     // 设置刻度盘的尺寸为150x150像素
