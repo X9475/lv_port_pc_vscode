@@ -46,7 +46,7 @@
 //     // lv_stack_push(&agent_start_page_info);
 
 //     screen = lv_obj_create(act_screen);
-    lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
+//     lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
 //     lv_obj_add_style(screen, &screen_style, 0);
 //     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
 //     lv_obj_center(screen);
@@ -99,7 +99,7 @@
 // {
 //     LV_UNUSED(observer);
 //     int32_t page_event = lv_subject_get_int(subject);
-//     LV_LOG_WARN("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
+//     LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
 //     if (page_event == PAGE_SWITCH_NONE) return;//注意首次触发
     
 //     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));

@@ -40,6 +40,7 @@ lv_page_info_pt *lv_page_signup_success_info_get()
 
 static void lv_page_construct(void)
 {
+    printf("======1\n");
     //样式初始化
     lv_page_style_init();
     //主题初始化
@@ -164,5 +165,6 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         return;
     }
 
+    lv_subject_set_pointer(&switch_subject, switch_page);
 }
 
