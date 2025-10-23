@@ -156,9 +156,6 @@ static void lv_page_load(lv_obj_t *cont)
 
     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, 0), LV_ANIM_OFF);
     lv_obj_set_style_bg_color(lv_obj_get_child(cont_col, 0), lv_color_hex(0x2A3534), LV_PART_MAIN);
-    
-
-    lv_scr_load_anim(cont, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
 
     //返回按钮
     lv_obj_t *back = lv_img_create(cont);

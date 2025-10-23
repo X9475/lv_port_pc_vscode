@@ -136,6 +136,19 @@ lv_page_info_pt lv_page_shooting_switch_wait_get();
 extern lv_subject_t shooting_switch_video_subject;
 lv_page_info_pt lv_page_shooting_switch_video_get();
 
+extern lv_subject_t shooting_adj_focus_subject;
+lv_page_info_pt lv_page_shooting_adj_focus_get();
+
+lv_page_info_pt lv_page_shooting_multi_filter_get();
+extern lv_subject_t shooting_multi_filter_subject;
+
+lv_page_info_pt lv_page_shooting_adj_param_get();
+extern lv_subject_t shooting_adj_param_subject;
+
+lv_page_info_pt lv_page_shooting_video_param_get();
+extern lv_subject_t shooting_video_param_subject;
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -2,12 +2,12 @@
 
 #define ICON_BACK "V:tk1/realtime_shooting/photograph_icon_back.png"
 
-static const char * photograph_left_options = "倒计时\n画面比例\n触发方式";
+static const char * video_left_options = "分辨率\n画面比例\n帧率";
 static const char * ratio_options = "1:1\n4:3\n16:9";
-static const char * timer_options = "5s\nOFF\n3s";
-static const char * trigger_options = "表情\nOFF\n手势";
+static const char * resolution_options ="4K\n1080P";
+static const char * frame_options ="25\n30\n50";
 
-lv_subject_t shooting_adj_param_subject;
+lv_subject_t shooting_video_param_subject;
 static lv_switch_page_pt switch_page;
 
 static lv_style_t screen_style;
@@ -40,17 +40,17 @@ static enum PAGE_EVENT_ENUM
     PAGE_SWITCH_BACK
 };
 
-static lv_page_info_t shooting_adj_param_page = {
-    .page_id = PAGE_FUNCTIONAL_SHOOTING_ADJ_PARAM,
+static lv_page_info_t shooting_video_param_page = {
+    .page_id = PAGE_FUNCTIONAL_SHOOTING_VIDEO_PARAM,
     .page = NULL,
     .reserved = NULL,
     .construct_cb = lv_page_construct,
     .destruct_cb = lv_page_destruct
 };
 
-lv_page_info_pt lv_page_shooting_adj_param_get()
+lv_page_info_pt lv_page_shooting_video_param_get()
 {
-    return &shooting_adj_param_page;
+    return &shooting_video_param_page;
 }
 
 static void lv_page_construct(void)
@@ -68,7 +68,7 @@ static void lv_page_construct(void)
 
     //绘制当前页面
     lv_page_load(screen);
-    shooting_adj_param_page.page = screen;
+    shooting_video_param_page.page = screen;
     return;
 }
 
@@ -147,14 +147,14 @@ static void lv_page_style_init()
 
 static void lv_page_subject_init()
 {
-    lv_subject_init_int(&shooting_adj_param_subject, PAGE_SWITCH_NONE);
-    lv_subject_add_observer(&shooting_adj_param_subject, lv_switch_observer_cb, NULL);
+    lv_subject_init_int(&shooting_video_param_subject, PAGE_SWITCH_NONE);
+    lv_subject_add_observer(&shooting_video_param_subject, lv_switch_observer_cb, NULL);
     return;
 }
 
 static void lv_page_subject_deinit()
 {
-    lv_subject_deinit(&shooting_adj_param_subject);
+    lv_subject_deinit(&shooting_video_param_subject);
 }
 
 static void lv_page_load(lv_obj_t *cont)
@@ -179,7 +179,7 @@ static void lv_page_load(lv_obj_t *cont)
     /* 创建左边滚轮 */
     lv_obj_t * left_roller = lv_roller_create(cont);
 
-    lv_roller_set_options(left_roller, photograph_left_options, LV_ROLLER_MODE_NORMAL);
+    lv_roller_set_options(left_roller, video_left_options, LV_ROLLER_MODE_NORMAL);
 
     lv_roller_set_selected(left_roller, 1, LV_ANIM_OFF); // 默认选择画面比例
     lv_roller_set_visible_row_count(left_roller, 3);
@@ -268,23 +268,22 @@ static void left_roller_event_cb(lv_event_t * e)
         switch(selected) 
         {
             case 0: 
-                lv_roller_set_options(right_roller, timer_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择OFF
+                lv_roller_set_options(right_roller, resolution_options, LV_ROLLER_MODE_NORMAL);
+                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择1080p
                 break;
 
             case 1: 
-                lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
+               lv_roller_set_options(right_roller, ratio_options, LV_ROLLER_MODE_NORMAL);
                 lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择4:3
                 break;
 
             case 2: 
-                lv_roller_set_options(right_roller, trigger_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择OFF
+                lv_roller_set_options(right_roller, frame_options, LV_ROLLER_MODE_NORMAL);
+                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择30
                 break;
         }
     }
 }
-
 
 static void back_click_cb(lv_event_t * e) 
 {
@@ -293,7 +292,7 @@ static void back_click_cb(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) 
     {
         printf("back photograph\n");
-        lv_subject_set_int(&shooting_adj_param_subject, PAGE_SWITCH_NEXT);
+        lv_subject_set_int(&shooting_video_param_subject, PAGE_SWITCH_NEXT);
     }
 }
 
@@ -307,12 +306,12 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
     lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
     LV_ASSERT_MALLOC(switch_page);
-    switch_page->old_page = &shooting_adj_param_page;
+    switch_page->old_page = &shooting_video_param_page;
 
     switch (page_event)
     {
         case PAGE_SWITCH_NEXT:
-            switch_page->new_page = lv_page_shooting_photo_get();
+            switch_page->new_page = lv_page_shooting_switch_video_get();
             break;
 
         case PAGE_SWITCH_BACK:

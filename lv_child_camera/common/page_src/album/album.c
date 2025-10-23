@@ -41,6 +41,9 @@ static bool is_playing = false;    // 播放状态标志
 static bool is_icon_hidden = false;
 static int total_files = 2;          // 总文件数（示例值
 static int current_file_index = 1;    // 当前文件索引
+// 定义阈值
+#define LEFT_EDGE_THRESHOLD 200
+#define RIGHT_EDGE_THRESHOLD (LV_HOR_RES - LEFT_EDGE_THRESHOLD)
 
 static void lv_page_construct(void);
 static void lv_page_destruct(void);
@@ -55,6 +58,7 @@ static void album_icon_click_event(lv_event_t * e);
 static void photo_timer_cb(lv_timer_t * timer);
 static void screen_click_event(lv_event_t * e);
 static void delete_click_event(lv_event_t * e);
+static void gesture_event_handler(lv_event_t * e);
 
 // 图标类型枚举
 typedef enum 
@@ -77,6 +81,7 @@ static enum PAGE_EVENT_ENUM
     PAGE_SWITCH_ALBUM_INFO_SHOW,    //相册文件信息展示界面
     PAGE_SWITCH_ALBUM_FOUR_GRID,    //相册四宫格界面
     PAGE_SWITCH_ALBUM_AI,           //相册AI对话界面
+    PAGE_SWITCH_SHOOT_PHOTO,        //相册拍摄界面
     PAGE_SWITCH_BACK                //返回
 };
 
@@ -116,6 +121,8 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_obj_remove_event_cb(act_screen, gesture_event_handler);
+
     lv_page_subject_deinit();
 }
 
@@ -210,14 +217,12 @@ static void lv_page_subject_deinit()
 }
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_t * live_view = lv_image_create(cont);
-    lv_obj_set_size(live_view, LV_HOR_RES, LV_VER_RES);
-    //todo:获取当前最新的录像流视频和图片信息，并将图片信息展示在界面上
-    lv_image_set_src(live_view, "V:png/img_camera_backup.png");
-    lv_obj_center(live_view);
-    
+
+    // 添加手势检测到实时取景背景
+    lv_obj_add_event_cb(act_screen, gesture_event_handler, LV_EVENT_GESTURE, NULL); 
+
     // 创建顶部矩形渐变框
-    lv_obj_t *up_indicator_area = lv_obj_create(live_view);
+    lv_obj_t *up_indicator_area = lv_obj_create(cont);
     lv_obj_set_size(up_indicator_area, 502, 156);
     lv_obj_align(up_indicator_area, LV_ALIGN_TOP_MID, 0, 0);
     lv_obj_add_style(up_indicator_area, &up_area_style, 0);
@@ -251,14 +256,14 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_flag(photo_icon_trash_filled, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_trash_filled, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_TRASH);  //删除图标处理事件
 
-    lv_obj_t * photo_icon_share = lv_img_create(live_view);
+    lv_obj_t * photo_icon_share = lv_img_create(cont);
     lv_img_set_src(photo_icon_share, PHOTOGRAPH_ICON_SHARE);
     lv_obj_set_size(photo_icon_share, 40, 40);
     lv_obj_align(photo_icon_share, LV_ALIGN_TOP_LEFT, 30, 185);
     lv_obj_add_flag(photo_icon_share, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_share, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_SHARE);   //分享图标点击处理事件
 
-    photo_icon_stop = lv_img_create(live_view);
+    photo_icon_stop = lv_img_create(cont);
     lv_img_set_src(photo_icon_stop, PHOTOGRAPH_ICON_STOP);
     lv_obj_set_size(photo_icon_stop, 100, 100);
     lv_obj_align(photo_icon_stop, LV_ALIGN_CENTER, 0, 0);
@@ -266,18 +271,18 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_event_cb(photo_icon_stop, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_STOP);   //播放图点击标处理事件
 
     // 为整个live_view添加点击事件，用于恢复暂停图标
-    lv_obj_add_flag(live_view, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(live_view, screen_click_event, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(cont, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(cont, screen_click_event, LV_EVENT_CLICKED, NULL);
 
-    lv_obj_t * buttom_line = lv_obj_create(live_view);
-    lv_obj_set_size(buttom_line, 10, 48);
+    lv_obj_t * buttom_line = lv_obj_create(cont);
+    lv_obj_set_size(buttom_line, 6, 50);
     lv_obj_set_style_radius(buttom_line, 4, 0);
     lv_obj_set_style_bg_color(buttom_line, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
     lv_obj_align(buttom_line, LV_ALIGN_TOP_LEFT, 475, 183); 
     lv_obj_set_style_opa(buttom_line, LV_OPA_COVER, 0);
 
     // 创建底部矩形渐变框
-    lv_obj_t *down_indicator_area = lv_obj_create(live_view);
+    lv_obj_t *down_indicator_area = lv_obj_create(cont);
     lv_obj_set_size(down_indicator_area, 502, 156);
     lv_obj_align(down_indicator_area, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_add_style(down_indicator_area, &down_area_style, 0);
@@ -310,6 +315,34 @@ static void lv_page_load(lv_obj_t *cont)
 
     return;
 }
+
+static void gesture_event_handler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_GESTURE) 
+    { 
+        lv_dir_t dir = lv_indev_get_gesture_dir(lv_indev_get_act());
+
+        // 获取触摸点的起始位置
+        lv_indev_t * indev = lv_indev_get_act();
+        lv_point_t point;
+        lv_indev_get_point(indev, &point);
+
+        printf("手势方向: %d, 触摸点坐标: (%d, %d)\n", dir, point.x, point.y);
+
+        //右边缘向左滑动 - 切换到拍摄界面
+        if(dir == LV_DIR_LEFT && point.x > RIGHT_EDGE_THRESHOLD) 
+        {
+            printf("右边缘向左滑动,切换到拍摄界面\n");
+            lv_subject_set_int(&album_subject, PAGE_SWITCH_SHOOT_PHOTO);
+        }
+        else 
+        {
+            printf("其他手势或条件不满足\n");
+        }
+    }
+}
+
 
 
 // static void get_curr_playback_cnt_and_totol(int* iCurrCnt, int* iTotal) 
@@ -422,7 +455,7 @@ static void delete_click_event(lv_event_t * e)
             LV_LOG_USER("所有文件已删除，跳转到空界面");
             lv_subject_set_int(&album_subject, PAGE_SWITCH_ALBUM_NULL);
         }
-    
+
     }
 
     // 删除模态弹窗
@@ -670,6 +703,10 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             //加入栈表
             lv_stack_push(&album_page);
             switch_page->new_page = lv_page_album_ai_get();
+            break;
+
+        case PAGE_SWITCH_SHOOT_PHOTO:
+            switch_page->new_page = lv_page_shooting_photo_get();
             break;
 
         case PAGE_SWITCH_BACK:

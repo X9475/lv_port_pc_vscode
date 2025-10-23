@@ -339,7 +339,7 @@ static void recreate_content_layout(lv_obj_t *cont)
     lv_obj_add_event_cb(photo_icon_select, select_icon_click_event, LV_EVENT_CLICKED, NULL);
 
     album_buttom_line = lv_obj_create(cont);
-    lv_obj_set_size(album_buttom_line, 10, 48);
+    lv_obj_set_size(album_buttom_line, 6, 50);
     lv_obj_set_style_radius(album_buttom_line, 4, 0);
     lv_obj_set_style_bg_color(album_buttom_line, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
     lv_obj_align(album_buttom_line, LV_ALIGN_TOP_LEFT, 475, 183); 

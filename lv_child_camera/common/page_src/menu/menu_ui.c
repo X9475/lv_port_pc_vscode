@@ -190,6 +190,10 @@ static void app_icon_event_cb(lv_event_t * e)
         {
             lv_subject_set_int(&menu_subject, PAGE_SWITCH_ALBUM);
         }
+        else if(lv_strcmp(iterm_data->name, "拍摄") == 0)
+        {
+            lv_subject_set_int(&menu_subject, PAGE_SWITCH_SHOOT);
+        }
     }
 }
 
@@ -349,8 +353,11 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch (page_event)
     {
         case PAGE_SWITCH_ALBUM:
-            // switch_page->new_page = lv_page_signup_success_info_get();
-            switch_page->new_page = lv_page_album_info_get();
+            switch_page->new_page = lv_page_album_get();
+            break;
+
+        case PAGE_SWITCH_SHOOT:
+            switch_page->new_page = lv_page_shooting_photo_get();
             break;
 
         // case PAGE_SWITCH_FAILED:
