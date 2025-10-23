@@ -209,15 +209,9 @@ static void lv_page_subject_deinit()
     lv_subject_deinit(&album_subject);
 }
 static void lv_page_load(lv_obj_t *cont)
-{
-    lv_obj_t * live_view = lv_image_create(cont);
-    lv_obj_set_size(live_view, LV_HOR_RES, LV_VER_RES);
-    //todo:获取当前最新的录像流视频和图片信息，并将图片信息展示在界面上
-    lv_image_set_src(live_view, "V:png/img_camera_backup.png");
-    lv_obj_center(live_view);
-    
+{   
     // 创建顶部矩形渐变框
-    lv_obj_t *up_indicator_area = lv_obj_create(live_view);
+    lv_obj_t *up_indicator_area = lv_obj_create(cont);
     lv_obj_set_size(up_indicator_area, 502, 156);
     lv_obj_align(up_indicator_area, LV_ALIGN_TOP_MID, 0, 0);
     lv_obj_add_style(up_indicator_area, &up_area_style, 0);
@@ -251,14 +245,14 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_flag(photo_icon_trash_filled, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_trash_filled, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_TRASH);  //删除图标处理事件
 
-    lv_obj_t * photo_icon_share = lv_img_create(live_view);
+    lv_obj_t * photo_icon_share = lv_img_create(cont);
     lv_img_set_src(photo_icon_share, PHOTOGRAPH_ICON_SHARE);
     lv_obj_set_size(photo_icon_share, 40, 40);
     lv_obj_align(photo_icon_share, LV_ALIGN_TOP_LEFT, 30, 185);
     lv_obj_add_flag(photo_icon_share, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_share, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_SHARE);   //分享图标点击处理事件
 
-    photo_icon_stop = lv_img_create(live_view);
+    photo_icon_stop = lv_img_create(cont);
     lv_img_set_src(photo_icon_stop, PHOTOGRAPH_ICON_STOP);
     lv_obj_set_size(photo_icon_stop, 100, 100);
     lv_obj_align(photo_icon_stop, LV_ALIGN_CENTER, 0, 0);
@@ -266,10 +260,10 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_event_cb(photo_icon_stop, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_STOP);   //播放图点击标处理事件
 
     // 为整个live_view添加点击事件，用于恢复暂停图标
-    lv_obj_add_flag(live_view, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(live_view, screen_click_event, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(cont, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(cont, screen_click_event, LV_EVENT_CLICKED, NULL);
 
-    lv_obj_t * buttom_line = lv_obj_create(live_view);
+    lv_obj_t * buttom_line = lv_obj_create(cont);
     lv_obj_set_size(buttom_line, 10, 48);
     lv_obj_set_style_radius(buttom_line, 4, 0);
     lv_obj_set_style_bg_color(buttom_line, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
@@ -277,7 +271,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_opa(buttom_line, LV_OPA_COVER, 0);
 
     // 创建底部矩形渐变框
-    lv_obj_t *down_indicator_area = lv_obj_create(live_view);
+    lv_obj_t *down_indicator_area = lv_obj_create(cont);
     lv_obj_set_size(down_indicator_area, 502, 156);
     lv_obj_align(down_indicator_area, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_add_style(down_indicator_area, &down_area_style, 0);

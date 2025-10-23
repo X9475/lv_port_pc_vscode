@@ -3134,7 +3134,7 @@ static void lv_page_open()
         lv_obj_t * scr = lv_scr_act();
         lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
         //实时取景拍摄模式--已实现
-        //lv_realtime_shooting_mode(scr);
+        lv_realtime_shooting_mode(scr);
 
         //模式列表页录像、延时摄影 ---已完成
         //lv_video_mode_style(scr);
@@ -3149,7 +3149,7 @@ static void lv_page_open()
         //lv_realtime_shooting_focus(scr);
 
         //实时取景录像，延时摄影, 0:录像---已实现，界面边缘滑动已实现，延时摄影后续版本再实现
-        lv_realtime_shooting_video(scr, 0);
+        //lv_realtime_shooting_video(scr, 0);
 
         //相册功能---已基本实现，缺少AI对话，等待素材后再实现
         //lv_photo_picture(scr, 9);
@@ -3161,7 +3161,7 @@ static void lv_page_open()
         //lv_versatile_filters(scr);
 
         //快速编码设置 0拍摄，1录像 2延时摄影---已实现
-        //lv_realtime_shooting_rapid_coding(scr, 0);
+        lv_realtime_shooting_rapid_coding(scr, 0);
     }
 
     return;

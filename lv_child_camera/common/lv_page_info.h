@@ -45,10 +45,16 @@ typedef enum
     PAGE_FUNCTIONAL_ALBUM_FOUR_GRID,    ///<< 相册四宫格界面
     PAGE_FUNCTIONAL_ALBUM_DELETE,       ///<< 相册删除界面
     
-    PAGE_FUNCTIONAL_SHOOTING_PHOTO,     ///<< 拍摄首界面
-    PAGE_FUNCTIONAL_SHOOTING_MODE,      ///<< 拍摄录制界面
-    PAGE_FUNCTIONAL_SHOOTING_WAIT,      ///<< 拍摄模式切换等待界面
-    PAGE_FUNCTIONAL_SHOOTING_VIDEO,     ///<< 录制模式界面
+    PAGE_FUNCTIONAL_SHOOTING_PHOTO,         ///<< 拍摄首界面
+    PAGE_FUNCTIONAL_SHOOTING_MODE,          ///<< 拍摄录制界面
+    PAGE_FUNCTIONAL_SHOOTING_WAIT,          ///<< 拍摄模式切换等待界面
+    PAGE_FUNCTIONAL_SHOOTING_VIDEO,         ///<< 录制模式界面
+    PAGE_FUNCTIONAL_SHOOTING_ADJ_FOCUS,     ///<< 调焦界面
+    PAGE_FUNCTIONAL_SHOOTING_ADJ_PARAM,     ///<< 拍摄录制调参数界面
+    PAGE_FUNCTIONAL_SHOOTING_MULTI_FILTER,  ///<< 百变滤镜界面
+    PAGE_FUNCTIONAL_SHOOTING_VIDEO_PARAM,   ///<< 录像参数调整界面
+
+
     PAGE_FUNCTIONAL_AUDIO_EFFECT,       ///<< 音频效果
     PAGE_FUNCTIONAL_SAVER_STYLE,        ///<< 屏保样式
     PAGE_FUNCTIONAL_RECORD_TIME,        ///<< 单次录像时长设置
