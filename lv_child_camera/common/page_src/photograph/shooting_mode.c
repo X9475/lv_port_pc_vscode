@@ -389,7 +389,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 {
     LV_UNUSED(observer);
     int32_t page_event = lv_subject_get_int(subject);
-    LV_LOG_WARN("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
+    LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
     if (page_event == PAGE_SWITCH_NONE) return;//注意首次触发
     
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));

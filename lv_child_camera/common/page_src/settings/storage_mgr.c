@@ -306,4 +306,5 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         return;
     }
 
+    lv_subject_set_pointer(&switch_subject, switch_page);
 }
