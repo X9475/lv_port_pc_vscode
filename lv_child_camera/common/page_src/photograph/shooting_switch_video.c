@@ -104,6 +104,15 @@ static void lv_page_destruct(void)
         lv_timer_del(timer1);
         timer1 = NULL;
     }
+
+    if(right_panel) 
+    {
+        printf("删除右侧面板\n");
+        lv_obj_del(right_panel);
+        right_panel = NULL;
+        right_panel_visible = false;  // 更新状态标志
+    }
+    
     lv_obj_remove_event_cb(act_screen, gesture_event_handler);
 
     lv_page_subject_deinit();
