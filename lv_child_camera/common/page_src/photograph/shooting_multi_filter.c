@@ -129,7 +129,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_event_cb(return_icon, back_click_cb, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * title_label = lv_label_create(cont);
-    lv_label_set_text(title_label, "滤镜滤镜");
+    lv_label_set_text(title_label, "百变滤镜");
     lv_obj_set_style_text_color(title_label, lv_color_hex(0XFFFFFF), 0);
     lv_obj_set_style_text_font(title_label, font_get_regular(30), 0);
     lv_obj_align_to(title_label, return_icon, LV_ALIGN_OUT_RIGHT_MID, 0, 0);  // 图标右侧，垂直居中

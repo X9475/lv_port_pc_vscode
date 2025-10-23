@@ -61,6 +61,7 @@ static void multi_effect_filter_click_cb(lv_event_t * e);
 static void parameter_adj_click_cb(lv_event_t * e);
 static void enable_click_cb(lv_timer_t * timer);
 static void back_click_cb(lv_event_t * e);
+static void photo_click_cb(lv_event_t *e);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -126,8 +127,8 @@ static void lv_page_style_init()
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
-    lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
-    lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+    //lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
 
     static lv_grad_dsc_t grad;
     grad.dir = LV_GRAD_DIR_VER;
@@ -248,6 +249,23 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(label, LV_ALIGN_CENTER, 22, 0);
     lv_obj_add_event_cb(rec_btn, record_click_cb, LV_EVENT_CLICKED, NULL);
 
+    //临时调试代码， 创建拍照buton
+    lv_obj_t *photo_btn = lv_btn_create(down_indicator_area);
+    lv_obj_set_size(photo_btn, 70, 70);
+    lv_obj_align(photo_btn, LV_ALIGN_CENTER, 0, 15);
+    lv_obj_set_style_bg_color(photo_btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_set_style_radius(photo_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_opa(photo_btn, LV_OPA_COVER, 0);
+
+    lv_obj_t *photo_label = lv_label_create(photo_btn);
+    lv_label_set_text(photo_label, "拍照");
+
+    lv_obj_set_style_text_opa(photo_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(photo_label, font_get_regular(24), 0);
+    lv_obj_set_style_text_color(photo_label, lv_color_white(), 0);
+    lv_obj_align(photo_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(photo_btn, photo_click_cb, LV_EVENT_CLICKED, NULL);
+
     // // 创建右下角摄像机图标
     lv_obj_t *camera_buton = lv_btn_create(down_indicator_area);
     lv_obj_set_size(camera_buton, 70, 70);
@@ -280,6 +298,33 @@ static void lv_page_load(lv_obj_t *cont)
     zoom_timer = lv_timer_create(timer_cb, 500, NULL); // 每500ms更新一次
 
     return;
+}
+
+// 延迟执行的拍照动作
+static void photo_delayed_action(lv_timer_t *timer)
+{   
+    printf("执行拍照操作\n");
+    
+    // 这里添加实际的拍照逻辑
+    // - 调用相机API进行拍照
+    // - 显示拍照动画效果
+    // - 保存照片等
+
+    // 删除定时器
+    lv_timer_del(timer);
+}
+
+// 拍照按钮点击事件回调函数
+static void photo_click_cb(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    
+    if (code == LV_EVENT_CLICKED) 
+    {
+        // 添加延迟效果 - 使用定时器实现
+        lv_timer_t *photo_timer = lv_timer_create(photo_delayed_action, 300, NULL); // 300ms延迟
+        lv_timer_set_repeat_count(photo_timer, 1); // 只执行一次
+    }
 }
 
 // 定时器回调函数

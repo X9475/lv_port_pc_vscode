@@ -27,8 +27,6 @@ static uint32_t record_sec = 0;
 static bool is_recording = false;
 static bool left_panel_visible = false;
 static bool right_panel_visible = false;
-static uint32_t last_gesture_time = 0;
-static bool click_allowed = true;
 // 定义阈值
 #define LEFT_EDGE_THRESHOLD 200
 #define RIGHT_EDGE_THRESHOLD (LV_HOR_RES - LEFT_EDGE_THRESHOLD)
@@ -42,14 +40,13 @@ static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 
 static void timer_callback_2(lv_timer_t *timer);
-static void screen_click_cb(lv_event_t * e);
+static void video_click_cb(lv_event_t * e);
 //static void camera_click_cb(lv_event_t * e);
 static void timer_cb(lv_timer_t * timer);
 static void gesture_event_handler(lv_event_t * e);
 static void multi_effect_filter_click_cb(lv_event_t * e);
 static void parameter_adj_click_cb(lv_event_t * e);
 static void back_click_cb(lv_event_t * e);
-static void enable_click_cb(lv_timer_t * timer);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -119,8 +116,8 @@ static void lv_page_style_init()
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
-    lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
-    lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+    //lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
 
     static lv_grad_dsc_t grad;
     grad.dir = LV_GRAD_DIR_VER;
@@ -180,10 +177,7 @@ static void lv_page_subject_deinit()
 }
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-
-    // 为整个屏幕添加点击事件
-    lv_obj_add_event_cb(cont, screen_click_cb, LV_EVENT_CLICKED, NULL);
+    //lv_obj_add_style(cont, &screen_style, 0);
 
     // 添加手势检测到实时取景背景
     lv_obj_add_event_cb(act_screen, gesture_event_handler, LV_EVENT_GESTURE, NULL);
@@ -223,6 +217,23 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_size(down_indicator_area, 502, 156);
     lv_obj_align(down_indicator_area, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_add_style(down_indicator_area, &down_area_style, 0);
+
+    //临时调试代码， 创建录像buton
+    lv_obj_t *photo_btn = lv_btn_create(down_indicator_area);
+    lv_obj_set_size(photo_btn, 70, 70);
+    lv_obj_align(photo_btn, LV_ALIGN_CENTER, 0, 15);
+    lv_obj_set_style_bg_color(photo_btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_set_style_radius(photo_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_opa(photo_btn, LV_OPA_COVER, 0);
+
+    lv_obj_t *photo_label = lv_label_create(photo_btn);
+    lv_label_set_text(photo_label, "录像");
+
+    lv_obj_set_style_text_opa(photo_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(photo_label, font_get_regular(24), 0);
+    lv_obj_set_style_text_color(photo_label, lv_color_white(), 0);
+    lv_obj_align(photo_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(photo_btn, video_click_cb, LV_EVENT_CLICKED, NULL);
 
     // // 创建右下角摄像机图标
     lv_obj_t *camera_buton = lv_btn_create(down_indicator_area);
@@ -398,11 +409,7 @@ static void gesture_event_handler(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     if(code == LV_EVENT_GESTURE) 
-    {
-        // 标记手势发生，暂时禁止点击
-        last_gesture_time = lv_tick_get();
-        click_allowed = false;
-        
+    { 
         lv_dir_t dir = lv_indev_get_gesture_dir(lv_indev_get_act());
 
         // 获取触摸点的起始位置
@@ -435,41 +442,17 @@ static void gesture_event_handler(lv_event_t * e)
         {
             printf("其他手势或条件不满足\n");
         }
-
-        // 设置定时器重新允许点击
-        lv_timer_t * timer = lv_timer_create(enable_click_cb, 300, NULL);
-        lv_timer_set_repeat_count(timer, 1);
     }
-}
-
-static void enable_click_cb(lv_timer_t * timer)
-{
-    click_allowed = true;
-    printf("点击功能已重新启用\n");
-    lv_timer_del(timer);
 }
 
 
 // 屏幕点击事件回调函数
-static void screen_click_cb(lv_event_t * e) 
+static void video_click_cb(lv_event_t * e) 
 {
     lv_event_code_t code = lv_event_get_code(e);
     
     if(code == LV_EVENT_CLICKED) 
     {
-        // 检查是否允许点击
-        if(!click_allowed) 
-        {
-            printf("忽略点击（手势冷却期）\n");
-            return;
-        }
-        
-        if(lv_tick_elaps(last_gesture_time) < 300) 
-        {
-            printf("忽略点击（最近有手势）\n");
-            return;
-        }
-
         if(!is_recording) 
         {
             // 第一次点击：开始录像，显示时间和LED
@@ -554,7 +537,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
 
         case PAGE_SWITCH_ADJ_PARAM:
-            switch_page->new_page = lv_page_shooting_adj_param_get();
+            switch_page->new_page = lv_page_shooting_video_param_get();
             break;
 
         case PAGE_SWITCH_MULTI_FILTER:
