@@ -21,6 +21,9 @@ void lv_camera_init()
     top_screen = lv_layer_top();
     //创建活动屏幕
     act_screen = lv_screen_active();
+    lv_obj_set_style_bg_opa(act_screen, LV_OPA_TRANSP, 0);
+
+
 
     return;
 }

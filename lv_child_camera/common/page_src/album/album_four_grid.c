@@ -303,7 +303,7 @@ static void recreate_content_layout(lv_obj_t *cont)
 
     // 创建顶部矩形渐变框
     lv_obj_t *up_indicator_area = lv_obj_create(cont);
-    lv_obj_set_size(up_indicator_area, 502, 156);
+    lv_obj_set_size(up_indicator_area, 502, 65);
     lv_obj_align(up_indicator_area, LV_ALIGN_TOP_MID, 0, 0);
     lv_obj_add_style(up_indicator_area, &up_area_style, 0);
     
