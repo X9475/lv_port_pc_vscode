@@ -99,30 +99,24 @@ static bool page_add_gesture_event_filter(lv_page_info_pt newpage)
 
 static void page_gesture_event_cb(lv_event_t *e)
 {
-    static uint32_t menu = 0;
     static uint32_t setting_menu = 0;
-    static uint32_t cur_page = PAGE_FUNCTIONAL_NONE;
-
-    // lv_obj_t *target = lv_event_get_current_target(e);
-    lv_page_info_pt page_info = lv_event_get_user_data(e);
 
     lv_dir_t dir = lv_indev_get_gesture_dir(lv_indev_get_act());
     lv_indev_wait_release(lv_indev_get_act());
 
+    if (setting_menu != 1 && dir == LV_DIR_TOP) return;
+
     switch (dir)
     {
         case LV_DIR_BOTTOM:
-            if (menu == 0)
+            if (setting_menu == 0)
             {
-                menu = 1;
-                cur_page = PAGE_FUNCTIONAL_MENU_SETTING;
+                setting_menu = 1;
                 switch_menu = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
                 lv_memset(switch_menu, 0, sizeof(lv_switch_page_t));
                 LV_ASSERT_MALLOC(switch_menu);
                 switch_menu->new_page = lv_page_menu_setting_info_get();
                 lv_subject_set_pointer(&switch_subject, switch_menu);
-
-                //隐藏菜单页
                 lv_obj_add_flag(lv_page_menu_info_get()->page, LV_OBJ_FLAG_HIDDEN);
             }
             else
@@ -132,24 +126,8 @@ static void page_gesture_event_cb(lv_event_t *e)
             }
             break;
         case LV_DIR_TOP:
-            if (setting_menu == 0)
-            {
-                setting_menu = 1;
-                cur_page = PAGE_FUNCTIONAL_MENU;
-                switch_menu = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
-                lv_memset(switch_menu, 0, sizeof(lv_switch_page_t));
-                LV_ASSERT_MALLOC(switch_menu);
-                switch_menu->new_page = lv_page_menu_info_get();
-                lv_subject_set_pointer(&switch_subject, switch_menu);
-
-                //隐藏全局设置页
-                lv_obj_add_flag(lv_page_menu_setting_info_get()->page, LV_OBJ_FLAG_HIDDEN);
-            }
-            else
-            {
-                lv_obj_add_flag(lv_page_menu_setting_info_get()->page, LV_OBJ_FLAG_HIDDEN);
-                lv_obj_clear_flag(lv_page_menu_info_get()->page, LV_OBJ_FLAG_HIDDEN);
-            }
+            lv_obj_add_flag(lv_page_menu_setting_info_get()->page, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(lv_page_menu_info_get()->page, LV_OBJ_FLAG_HIDDEN);
             break;
         default:
             break;
