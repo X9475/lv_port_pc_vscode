@@ -74,6 +74,12 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    if (anim_timer) 
+    {
+        lv_timer_del(anim_timer);
+        anim_timer = NULL;
+    }
+    lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
 
@@ -274,8 +280,11 @@ static void screen_saver_timer_cb(lv_timer_t *timer)
     circular_scroll_handle(line_cont, *pdir);
     //次数控制
     if(++exec_count >= 30) {
-        lv_timer_del(anim_timer);
-        anim_timer = NULL;
+        if(anim_timer)
+        {
+            lv_timer_del(anim_timer);
+            anim_timer = NULL;
+        }
     }
 }
 

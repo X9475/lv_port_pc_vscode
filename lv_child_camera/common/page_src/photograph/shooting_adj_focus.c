@@ -279,6 +279,7 @@ static void reset_auto_switch_timer(lv_event_t * e)
     if (auto_switch_timer) 
     {
         lv_timer_del(auto_switch_timer);
+        auto_switch_timer = NULL;
     }
     
     // 重新创建2秒定时器

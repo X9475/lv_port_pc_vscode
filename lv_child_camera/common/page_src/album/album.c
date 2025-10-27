@@ -15,7 +15,8 @@
 lv_subject_t  album_subject;
 static lv_switch_page_pt switch_page;
 
-static lv_timer_t *timer_1;//录像播放的进度条
+static lv_timer_t *play_timer = NULL;//录像播放的进度条
+static lv_timer_t *hidden_timer = NULL;
 
 static lv_obj_t *screen = NULL;
 static lv_obj_t *photo_all_label;
@@ -121,7 +122,27 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    if (play_timer) 
+    {
+        lv_timer_del(play_timer);
+        play_timer = NULL;
+    }
+
+    if (hidden_timer) 
+    {
+        lv_timer_del(hidden_timer);
+        hidden_timer = NULL;
+    }
+    
     lv_obj_remove_event_cb(act_screen, gesture_event_handler);
+
+    lv_style_reset(&screen_style);
+    lv_style_reset(&up_area_style);
+    lv_style_reset(&video_time_style);
+    lv_style_reset(&style_indicator);
+    lv_style_reset(&style_bg);
+    lv_style_reset(&down_area_style);
+    lv_style_reset(&style_knob);
 
     lv_page_subject_deinit();
 }
@@ -478,7 +499,11 @@ static void update_time_label(void)
 static void playback_finished(void)
 {
     is_playing = false;
-    lv_timer_del(timer_1);
+    if (play_timer) 
+    {
+        lv_timer_del(play_timer);
+        play_timer = NULL;  // 重要：立即设为NULL
+    }
     
     // 确保滑动条在最大值位置
     lv_slider_set_value(slider, 100, LV_ANIM_ON);
@@ -517,8 +542,12 @@ static void screen_click_event(lv_event_t * e)
         lv_obj_add_flag(video_play_time_label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(slider, LV_OBJ_FLAG_HIDDEN);
 
-        // 重置状态
-        lv_timer_del(timer_1);
+        // 删除定时器前检查有效性
+        if (play_timer) 
+        {
+            lv_timer_del(play_timer);
+            play_timer = NULL;
+        }
         is_playing = false;
         is_icon_hidden = false;
 
@@ -552,7 +581,7 @@ static void slider_event_cb(lv_event_t * e)
         // 如果正在播放，暂停播放（用户拖动时暂停）
         if(is_playing) 
         {
-            lv_timer_pause(timer_1);
+            lv_timer_pause(play_timer);
         }
     }
     else if(code == LV_EVENT_RELEASED) 
@@ -560,7 +589,7 @@ static void slider_event_cb(lv_event_t * e)
         // 滑动条释放后，如果之前是播放状态则继续播放
         if(is_playing) 
         {
-            lv_timer_resume(timer_1);
+            lv_timer_resume(play_timer);
         }
     }
 }
@@ -605,10 +634,14 @@ static void play_icon_timer_cb(lv_timer_t * timer)
 
 
     //创建播放定时器（初始为暂停状态）
-    timer_1 = lv_timer_create(play_timer_cb, 1000, NULL); // 100ms间隔
+    play_timer = lv_timer_create(play_timer_cb, 1000, NULL); // 100ms间隔
     
     // 删除定时器
-    lv_timer_del(timer);
+    if (hidden_timer) 
+    {
+        lv_timer_del(hidden_timer);
+        hidden_timer = NULL;
+    }
 }
 
 // 统一处理点击事件函数
@@ -637,11 +670,12 @@ static void album_icon_click_event(lv_event_t * e)
             // 播放图标处理逻辑
             if (!is_playing && !is_icon_hidden) 
             {
+                is_playing = true;
                 // 立即修改播放图标为播放中状态
                 lv_img_set_src(obj, PHOTOGRAPH_ICON_PLAY);
 
                 // 创建定时器，1秒后执行隐藏和显示操作
-                lv_timer_t * timer = lv_timer_create(play_icon_timer_cb, 1000, NULL);
+                hidden_timer = lv_timer_create(play_icon_timer_cb, 1000, NULL);
             }
             break;
 
