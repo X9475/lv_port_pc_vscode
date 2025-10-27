@@ -72,6 +72,12 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    // 如果定时器存在，先删除
+    if (anim_timer) 
+    {
+        lv_timer_del(anim_timer);
+        anim_timer = NULL;
+    }
     lv_page_subject_deinit();
 }
 
@@ -315,8 +321,12 @@ static void screen_saver_timer_cb(lv_timer_t *timer)
     //次数控制
     if(++exec_count >= 30) 
     {
-        lv_timer_del(anim_timer);
-        anim_timer = NULL;
+        // 如果定时器存在，先删除
+        if (anim_timer) 
+        {
+            lv_timer_del(anim_timer);
+            anim_timer = NULL;
+        }
     }
 }
 

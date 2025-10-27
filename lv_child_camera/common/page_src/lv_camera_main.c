@@ -21,7 +21,7 @@ void lv_camera_init()
     top_screen = lv_layer_top();
     //创建活动屏幕
     act_screen = lv_screen_active();
-    lv_obj_set_style_bg_opa(act_screen, LV_OPA_TRANSP, 0);
+    //lv_obj_set_style_bg_opa(act_screen, LV_OPA_TRANSP, 0);
 
 
 
@@ -44,6 +44,8 @@ void lv_main()
     {//添加流程阶段
         switch_page->new_page = lv_page_qrcode_info_get();
         // switch_page->new_page = lv_page_agent_start_info_get();
+        //switch_page->new_page = lv_page_shooting_photo_get();
+        //switch_page->new_page = lv_page_album_get();
     }
     else if (lv_dev_stage_get() == LV_PAGE_STAGE_RUNNING)
     {//正式运行阶段

@@ -17,8 +17,8 @@ static lv_style_t realtime_style;
 static lv_obj_t *screen = NULL;
 static lv_obj_t *time_area;
 static lv_obj_t *led;
-static lv_timer_t *timer = NULL;
-static lv_timer_t *timer1 = NULL;
+static lv_timer_t *zoom_timer = NULL;
+static lv_timer_t *record_timer = NULL;
 static lv_obj_t * zoom_label;
 static lv_obj_t * right_panel = NULL;   // 右侧面板
 
@@ -93,16 +93,16 @@ static void lv_page_construct(void)
 static void lv_page_destruct(void)
 {
      // 清理定时器
-    if(timer) 
+    if(zoom_timer) 
     {
-        lv_timer_del(timer);
-        timer = NULL;
+        lv_timer_del(zoom_timer);
+        zoom_timer = NULL;
     }
 
-    if(timer1) 
+    if(record_timer) 
     {
-        lv_timer_del(timer1);
-        timer1 = NULL;
+        lv_timer_del(record_timer);
+        record_timer = NULL;
     }
 
     if(right_panel) 
@@ -270,7 +270,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(zoom_label, LV_ALIGN_CENTER, 0, 0);
 
     // 创建定时器更新焦距倍率
-    timer = lv_timer_create(timer_cb, 1000, NULL);
+    zoom_timer = lv_timer_create(timer_cb, 1000, NULL);
 
     return;
 }
@@ -398,6 +398,13 @@ static void multi_effect_filter_click_cb(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) 
     {
         printf("enter_multi_sffect\n");
+        if(right_panel) 
+        {
+            printf("删除右侧面板\n");
+            lv_obj_del(right_panel);
+            right_panel = NULL;
+            right_panel_visible = false;  // 更新状态标志
+        }
         //todo:跳转到百变滤镜
         lv_subject_set_int(&shooting_switch_video_subject, PAGE_SWITCH_MULTI_FILTER);
     }
@@ -409,6 +416,13 @@ static void parameter_adj_click_cb(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) 
     {
         printf("enter_parameter_adj\n");
+        if(right_panel) 
+        {
+            printf("删除右侧面板\n");
+            lv_obj_del(right_panel);
+            right_panel = NULL;
+            right_panel_visible = false;  // 更新状态标志
+        }
         //todo:跳转到参数调整
         lv_subject_set_int(&shooting_switch_video_subject, PAGE_SWITCH_ADJ_PARAM);
     }
@@ -472,9 +486,9 @@ static void video_click_cb(lv_event_t * e)
             lv_obj_clear_flag(time_area, LV_OBJ_FLAG_HIDDEN);
             
             // 创建定时器更新录像时间
-            if(timer1 == NULL) 
+            if(record_timer == NULL) 
             {
-                timer1 = lv_timer_create(timer_callback_2, 1000, NULL);
+                record_timer = lv_timer_create(timer_callback_2, 1000, NULL);
             }   
         } 
         else 
