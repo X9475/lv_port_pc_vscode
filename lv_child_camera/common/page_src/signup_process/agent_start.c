@@ -61,6 +61,10 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
+    lv_style_reset(&style_main);
+    lv_style_reset(&style_indicator);
+    lv_style_reset(&style_knob);
     lv_page_subject_deinit();
 }
 
@@ -87,6 +91,7 @@ static void lv_page_style_init()
 
     //style_knob
     lv_style_init(&style_knob);
+    lv_style_set_bg_image_src(&style_knob, "../lv_port_pc_vscode/assert/icon/slider_button.png");
     lv_style_set_bg_opa(&style_knob, LV_OPA_TRANSP);
 }
 
@@ -120,21 +125,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_style(slider, &style_knob, LV_PART_KNOB);
     lv_obj_align(slider, LV_ALIGN_TOP_MID, 0, 290);
     lv_obj_add_flag(slider, LV_OBJ_FLAG_ADV_HITTEST);//仅旋钮模式
-
-    lv_obj_t *label = lv_label_create(slider);
-    lv_label_set_text(label, "开启探索世界");
-    lv_obj_set_style_text_opa(label, LV_OPA_90, 0);
-    lv_obj_set_style_text_font(label, fzlthr_30, 0);
-    lv_obj_set_style_text_color(label, lv_color_white(), 0);
-    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label, slider, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_set_user_data(slider, label);
-
-    lv_obj_t *image = lv_image_create(slider);
-    lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/slider_button.png");
-    lv_obj_align(image, LV_ALIGN_LEFT_MID, 9, 0);
-    lv_obj_set_flag(image, LV_OBJ_FLAG_EVENT_BUBBLE, true);
-    lv_obj_add_event_cb(slider, lv_start_agent_slider_event, LV_EVENT_VALUE_CHANGED, image);
+    lv_obj_add_event_cb(slider, lv_start_agent_slider_event, LV_EVENT_ALL, NULL);
 
     return;
 }
@@ -143,8 +134,12 @@ static void lv_start_agent_slider_event(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *slider = lv_event_get_target(e);
-    lv_obj_t *image = lv_event_get_user_data(e);
-    lv_obj_t *label = lv_obj_get_user_data(slider);
+
+    if (LV_EVENT_RELEASED == code)
+    {
+        lv_slider_set_value(slider, 54, LV_ANIM_ON);
+        return;
+    }
 
     if (LV_EVENT_VALUE_CHANGED == code)
     {
@@ -152,21 +147,16 @@ static void lv_start_agent_slider_event(lv_event_t *e)
         // printf("value = %d\n", value);
 
         //9~347,54~388
-        if (value >= 388) {
-            lv_obj_set_x(image, 347);
+        if (value >= 388)
+        {
             lv_slider_set_value(slider, 388, LV_ANIM_OFF);
             lv_subject_set_int(&agent_start_subject, PAGE_SWITCH_NEXT);
-        } else if (value <= 54) {
-            lv_obj_set_x(image, 9);
-            lv_slider_set_value(slider, 54, LV_ANIM_OFF);
-        } else if (value <= 388 && value >= 54) {
-            lv_obj_set_x(image, (value - 54 + 9));
         }
 
-        int32_t x = lv_obj_get_x(image);
-        int32_t opa = (338 - x) / 338.0 * LV_OPA_90;
-        opa = opa < 0? 0 : opa;
-        lv_obj_set_style_text_opa(label, opa, 0);
+        if (value <= 54)
+        {
+            lv_slider_set_value(slider, 54, LV_ANIM_OFF);
+        }
     }
 }
 

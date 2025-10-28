@@ -251,7 +251,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_t * photo_icon_four_grid = lv_img_create(up_indicator_area);
     lv_img_set_src(photo_icon_four_grid, PHOTOGRAPH_ICON_FOUR_GRID);
     lv_obj_set_size(photo_icon_four_grid, 40, 40);
-    lv_obj_align(photo_icon_four_grid, LV_ALIGN_TOP_LEFT, 30, 20);
+    lv_obj_align(photo_icon_four_grid, LV_ALIGN_TOP_LEFT, 50, 20);
 
     lv_obj_add_flag(photo_icon_four_grid, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_four_grid, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_FOUR_GRID); //四宫格图标点击事件
@@ -273,7 +273,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_t * photo_icon_trash_filled = lv_img_create(up_indicator_area);
     lv_img_set_src(photo_icon_trash_filled, PHOTOGRAPH_ICON_TRASH_FILLED);
     lv_obj_set_size(photo_icon_trash_filled, 40, 40);
-    lv_obj_align(photo_icon_trash_filled, LV_ALIGN_TOP_LEFT, 432, 20);
+    lv_obj_align(photo_icon_trash_filled, LV_ALIGN_TOP_RIGHT, -50, 20);
     lv_obj_add_flag(photo_icon_trash_filled, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_trash_filled, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_TRASH);  //删除图标处理事件
 
@@ -311,14 +311,14 @@ static void lv_page_load(lv_obj_t *cont)
     photo_icon_info = lv_img_create(down_indicator_area);
     lv_img_set_src(photo_icon_info, PHOTOGRAPH_ICON_INFO);
     lv_obj_set_size(photo_icon_info, 40, 40);
-    lv_obj_align(photo_icon_info, LV_ALIGN_BOTTOM_LEFT, 30, -20);
+    lv_obj_align(photo_icon_info, LV_ALIGN_BOTTOM_LEFT, 50, -20);
     lv_obj_add_flag(photo_icon_info, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_info, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_INFO);  //录像信息点击处理事件
 
     photo_intell_icon = lv_img_create(down_indicator_area);
     lv_img_set_src(photo_intell_icon, INERTIGENCE_ICON);
     lv_obj_set_size(photo_intell_icon, 66, 66);
-    lv_obj_align(photo_intell_icon, LV_ALIGN_BOTTOM_RIGHT, -20, -20);
+    lv_obj_align(photo_intell_icon, LV_ALIGN_BOTTOM_RIGHT, -50, -20);
     lv_obj_add_flag(photo_intell_icon, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_intell_icon, album_icon_click_event, LV_EVENT_CLICKED, (void *)ICON_INTELL);  //智能AI点击事件
 

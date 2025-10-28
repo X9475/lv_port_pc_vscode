@@ -48,7 +48,6 @@ static void page_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subje
     lv_switch_page_pt switch_page = lv_subject_get_pointer(subject);
     if (NULL == switch_page) return;
 
-    // lv_page_info_pt old_page = switch_page->old_page;
     lv_page_info_pt new_page = switch_page->new_page;
 
     LV_LOG_INFO("page switch begin");

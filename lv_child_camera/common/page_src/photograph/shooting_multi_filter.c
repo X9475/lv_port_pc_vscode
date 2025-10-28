@@ -76,6 +76,8 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
+    lv_style_reset(&style_multi_filter);
     lv_page_subject_deinit();
 }
 
@@ -89,6 +91,7 @@ static void lv_page_style_init()
     lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
     lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
 
+    //style_multi_filter
     lv_style_init(&style_multi_filter);
     static lv_grad_dsc_t multi_filter_grad;
     multi_filter_grad.dir = LV_GRAD_DIR_HOR;
@@ -100,7 +103,6 @@ static void lv_page_style_init()
     multi_filter_grad.stops[1].color = lv_color_hex(0x000000);
     multi_filter_grad.stops[1].opa = LV_OPA_COVER;
     multi_filter_grad.stops[1].frac = 255;
-
     lv_style_set_bg_grad(&style_multi_filter, &multi_filter_grad);
 }
 

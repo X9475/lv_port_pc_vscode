@@ -312,7 +312,7 @@ static void recreate_content_layout(lv_obj_t *cont)
     lv_obj_t * photo_icon_single = lv_img_create(up_indicator_area);
     lv_img_set_src(photo_icon_single, PHOTOGRAPH_ICON_SINGLE);
     lv_obj_set_size(photo_icon_single, 40, 40);
-    lv_obj_align(photo_icon_single, LV_ALIGN_TOP_LEFT, 30, 20);
+    lv_obj_align(photo_icon_single, LV_ALIGN_TOP_LEFT, 50, 20);
 
     lv_obj_add_flag(photo_icon_single, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_single, single_icon_click_event, LV_EVENT_CLICKED, NULL);
@@ -335,7 +335,7 @@ static void recreate_content_layout(lv_obj_t *cont)
     photo_icon_select = lv_img_create(up_indicator_area);
     lv_img_set_src(photo_icon_select, PHOTOGRAPH_ICON_SELECT);
     lv_obj_set_size(photo_icon_select, 40, 40);
-    lv_obj_align(photo_icon_select, LV_ALIGN_TOP_LEFT, 432, 20);
+    lv_obj_align(photo_icon_select, LV_ALIGN_TOP_RIGHT, -50, 20);
 
     lv_obj_add_flag(photo_icon_select, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_select, select_icon_click_event, LV_EVENT_CLICKED, NULL);

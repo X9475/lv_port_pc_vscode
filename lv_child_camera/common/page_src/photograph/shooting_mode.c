@@ -78,6 +78,8 @@ static void lv_page_destruct(void)
         lv_timer_del(anim_timer);
         anim_timer = NULL;
     }
+
+    lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
 

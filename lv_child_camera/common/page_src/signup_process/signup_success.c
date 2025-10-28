@@ -62,6 +62,7 @@ static void lv_page_construct(void)
 static void lv_page_destruct(void)
 {
     if (NULL != timer) lv_timer_del(timer);
+    lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
 

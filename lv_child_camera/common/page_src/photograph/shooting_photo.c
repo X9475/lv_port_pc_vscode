@@ -137,7 +137,12 @@ static void lv_page_destruct(void)
     }
 
     lv_obj_remove_event_cb(act_screen, gesture_event_handler);
-
+    lv_style_reset(&screen_style);
+    lv_style_reset(&up_area_style);
+    lv_style_reset(&down_area_style);
+    lv_style_reset(&btn_style);
+    lv_style_reset(&camera_button_style);
+    lv_style_reset(&realtime_style);
     lv_page_subject_deinit();
 }
 
@@ -151,6 +156,7 @@ static void lv_page_style_init()
     //lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
     lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
 
+    //up_area_style
     static lv_grad_dsc_t grad;
     grad.dir = LV_GRAD_DIR_VER;
     grad.stops_count = 2;
@@ -166,6 +172,7 @@ static void lv_page_style_init()
     lv_style_set_radius(&up_area_style, 0);
     lv_style_set_bg_grad(&up_area_style, &grad);
 
+    //down_area_style
     static lv_grad_dsc_t down_grad;
     down_grad.dir = LV_GRAD_DIR_VER;
     down_grad.stops_count = 2;
@@ -182,18 +189,21 @@ static void lv_page_style_init()
     lv_style_set_radius(&down_area_style, 0);
     lv_style_set_bg_grad(&down_area_style, &down_grad);
 
+    //btn_style
     lv_style_init(&btn_style);
     lv_style_set_bg_color(&btn_style, lv_color_white());
     lv_style_set_radius(&btn_style, 70);
     lv_style_set_shadow_opa(&btn_style, LV_OPA_TRANSP);
     lv_style_set_bg_opa(&btn_style, LV_OPA_TRANSP); // 设置背景透明度
 
+    //camera_button_style
     lv_style_init(&camera_button_style);
     lv_style_set_bg_color(&camera_button_style, lv_color_hex(0xFFFFFF));
     lv_style_set_radius(&camera_button_style, LV_RADIUS_CIRCLE);
     lv_style_set_shadow_opa(&camera_button_style, LV_OPA_TRANSP);
     lv_style_set_bg_opa(&camera_button_style, LV_OPA_10);
 
+    //realtime_style
     lv_style_init(&realtime_style);
     lv_style_set_bg_color(&realtime_style, lv_color_hex(0x1C1C1E));
     lv_style_set_bg_opa(&realtime_style, LV_OPA_COVER);

@@ -91,6 +91,8 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
+    lv_style_reset(&style_mask);
     lv_page_subject_deinit();
 }
 
@@ -207,20 +209,20 @@ static void *lv_app_create(int i, lv_obj_t *cont, const char *name, const char *
     lv_obj_set_style_bg_opa(btn, LV_OPA_50, 0);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0x2A3534), 0);
     lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
-    //圆形
-    lv_obj_t *image1 = lv_img_create(btn);
-    lv_obj_set_size(image1, 80, 80);
-    if ((i % 2) == 0) {
-        lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/purple_circle.png");
-    } else {
-        lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/green_circle.png");
-    }
-    lv_obj_align_to(image1, btn, LV_ALIGN_LEFT_MID, 20, 0);
-    //叠加图标
-    lv_obj_t *image2 = lv_img_create(btn);
-    lv_obj_set_size(image2, 50, 50);
-    lv_img_set_src(image2, path);
-    lv_obj_align_to(image2, btn, LV_ALIGN_LEFT_MID, 35, 0);
+    // //圆形
+    // lv_obj_t *image1 = lv_img_create(btn);
+    // lv_obj_set_size(image1, 80, 80);
+    // if ((i % 2) == 0) {
+    //     lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/purple_circle.png");
+    // } else {
+    //     lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/green_circle.png");
+    // }
+    // lv_obj_align_to(image1, btn, LV_ALIGN_LEFT_MID, 20, 0);
+    // //叠加图标
+    // lv_obj_t *image2 = lv_img_create(btn);
+    // lv_obj_set_size(image2, 50, 50);
+    // lv_img_set_src(image2, path);
+    // lv_obj_align_to(image2, btn, LV_ALIGN_LEFT_MID, 35, 0);
     //文字
     lv_obj_t *label = lv_label_create(btn);
     lv_label_set_text(label, name);
@@ -315,7 +317,7 @@ static void scroll_app_item_event_cb(lv_event_t * e)
         lv_obj_set_style_transform_pivot_y(child, 205, 0);
         if (LV_ABS(diff_y) >= 50)//阈值范围可调
         {
-            set_gray_app_style(child, &menu_app_list[i]);
+            // set_gray_app_style(child, &menu_app_list[i]);
             int32_t angle = -(diff_y) / 2;
             if (diff_y < 0)
             {
@@ -331,7 +333,7 @@ static void scroll_app_item_event_cb(lv_event_t * e)
         else
         {
             set_indicator_light(i);
-            set_color_app_style(i, child, &menu_app_list[i]);
+            // set_color_app_style(i, child, &menu_app_list[i]);
             lv_obj_set_style_translate_x(child, x, 0);
             lv_obj_set_style_transform_rotation(child, 0, LV_PART_MAIN);
         }
