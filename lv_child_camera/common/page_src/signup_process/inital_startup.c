@@ -106,15 +106,19 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    //背景图
-    lv_obj_t *click_face = lv_img_create(cont);
-    lv_img_set_src(click_face, "../lv_port_pc_vscode/assert/icon/long_press_2x.png");
-    lv_img_set_zoom(click_face, 128);
-    lv_obj_align(click_face, LV_ALIGN_TOP_MID, -5, -65);
+    // lv_obj_t *virtual_agent = lv_gif_create(cont);
+    // lv_gif_set_src(virtual_agent, "../lv_port_pc_vscode/assert/gif/virtual_agent.gif");
+    // lv_obj_set_style_transform_zoom(virtual_agent, 128, 0);
+    // lv_obj_align(virtual_agent, LV_ALIGN_TOP_LEFT, -10, 0);
+
+    lv_obj_t *bubble = lv_gif_create(cont);
+    lv_gif_set_src(bubble, "../lv_port_pc_vscode/assert/gif/bubble.gif");
+    lv_obj_set_style_transform_zoom(bubble, 128, 0);
+    lv_obj_align(bubble, LV_ALIGN_TOP_LEFT, 0, 0);
 
     //环形加载器
     lv_obj_t *arc = lv_arc_create(cont);
-    lv_obj_set_size(arc, 226, 226);
+    lv_obj_set_size(arc, 238, 238);
     lv_arc_set_range(arc, 0, 100);
     lv_arc_set_rotation(arc, 270);
     lv_arc_set_value(arc, 0);
@@ -123,7 +127,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_remove_flag(arc, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_style(arc, &indc_style, LV_PART_INDICATOR);
     lv_obj_add_style(arc, &main_style, LV_PART_MAIN);
-    lv_obj_align(arc, LV_ALIGN_TOP_MID, 0, 28);
+    lv_obj_align(arc, LV_ALIGN_TOP_MID, 0, 22);
 
     //设置隐形点击区域 LV_OPA_TRANSP
     lv_obj_t *click_area = lv_btn_create(cont);
