@@ -7,6 +7,10 @@ static lv_switch_page_pt switch_page;
 
 static lv_style_t screen_style;
 static lv_style_t down_area_style;
+static lv_style_t indicator_style;
+static lv_style_t minor_ticks_style;
+static lv_style_t main_line_style;
+static lv_style_t section_label_style;
 
 static lv_obj_t *screen = NULL;
 static lv_scale_section_t * section;
@@ -81,6 +85,12 @@ static void lv_page_destruct(void)
         lv_timer_del(auto_switch_timer);
         auto_switch_timer = NULL;
     }
+    lv_style_reset(&screen_style);
+    lv_style_reset(&down_area_style);
+    lv_style_reset(&indicator_style);
+    lv_style_reset(&minor_ticks_style);
+    lv_style_reset(&main_line_style);
+    lv_style_reset(&section_label_style);
     lv_page_subject_deinit();
 }
 
@@ -91,9 +101,10 @@ static void lv_page_style_init()
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
-    lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
-    lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+    //lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
 
+    //down_area_style
     static lv_grad_dsc_t down_grad;
     down_grad.dir = LV_GRAD_DIR_VER;
     down_grad.stops_count = 2;
@@ -108,6 +119,30 @@ static void lv_page_style_init()
     lv_style_set_border_width(&down_area_style, 0);
     lv_style_set_radius(&down_area_style, 0);
     lv_style_set_bg_grad(&down_area_style, &down_grad);
+
+    //indicator_style
+    lv_style_init(&indicator_style);
+    lv_style_set_text_font(&indicator_style, font_get_regular(18));
+    lv_style_set_text_color(&indicator_style, lv_color_hex(0XFFFFFF));
+    lv_style_set_line_color(&indicator_style, lv_color_hex(0XFFFFFF));
+    lv_style_set_length(&indicator_style, 12);
+    lv_style_set_line_width(&indicator_style, 2);
+
+    //minor_ticks_style
+    lv_style_init(&minor_ticks_style);
+    lv_style_set_line_color(&minor_ticks_style, lv_color_hex(0X979797));
+    lv_style_set_length(&minor_ticks_style, 10);
+    lv_style_set_line_width(&minor_ticks_style, 2);
+
+    //main_line_style
+    lv_style_init(&main_line_style);
+    lv_style_set_arc_color(&main_line_style, lv_color_black());
+    lv_style_set_arc_width(&main_line_style, 5);
+
+    //section_label_style
+    lv_style_init(&section_label_style);
+    lv_style_set_text_font(&section_label_style, font_get_regular(24));
+    lv_style_set_text_color(&section_label_style, lv_color_hex(0XAFF99C));
 }
 
 static void lv_page_subject_init()
@@ -125,12 +160,13 @@ static void lv_page_subject_deinit()
 static void lv_page_load(lv_obj_t *cont)
 {
     lv_obj_add_style(cont, &screen_style, 0);
-
+    
     // 创建底部矩形渐变框
     lv_obj_t *down_indicator_area = lv_obj_create(cont);
     lv_obj_set_size(down_indicator_area, 502, 230);
     lv_obj_align(down_indicator_area, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_add_style(down_indicator_area, &down_area_style, 0);
+    lv_obj_clear_flag(down_indicator_area, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_t *scale = lv_scale_create(down_indicator_area);
     // 设置刻度盘的尺寸为150x150像素
@@ -160,45 +196,13 @@ static void lv_page_load(lv_obj_t *cont)
     static const char * hour_ticks[] = {"1", "2", "3", NULL};
     // 设置刻度标签文本源
     lv_scale_set_text_src(scale, hour_ticks);
-
-    static lv_style_t indicator_style;
-    lv_style_init(&indicator_style);
-
-    /* Label style properties */
-    lv_style_set_text_font(&indicator_style, font_get_regular(18));
-    lv_style_set_text_color(&indicator_style, lv_color_hex(0XFFFFFF));
-
-    /* Major tick properties */
-    lv_style_set_line_color(&indicator_style, lv_color_hex(0XFFFFFF));
-    lv_style_set_length(&indicator_style, 12); /* tick length */
-    lv_style_set_line_width(&indicator_style, 2); /* tick width */
     lv_obj_add_style(scale, &indicator_style, LV_PART_INDICATOR);
-
-    /* Minor tick properties */
-    static lv_style_t minor_ticks_style;
-    lv_style_init(&minor_ticks_style);
-    lv_style_set_line_color(&minor_ticks_style, lv_color_hex(0X979797));
-    lv_style_set_length(&minor_ticks_style, 10); /* tick length */
-    lv_style_set_line_width(&minor_ticks_style, 2); /* tick width */
     lv_obj_add_style(scale, &minor_ticks_style, LV_PART_ITEMS);
-
-    /* Main line properties */
-    static lv_style_t main_line_style;
-    lv_style_init(&main_line_style);
-    lv_style_set_arc_color(&main_line_style, lv_color_black());
-    lv_style_set_arc_width(&main_line_style, 5);
     lv_obj_add_style(scale, &main_line_style, LV_PART_MAIN);
 
     lv_scale_set_range(scale, 0, 20);
     lv_scale_set_angle_range(scale, 120);
     lv_scale_set_rotation(scale, initial_rotation);
-
-    static lv_style_t section_label_style;
-    lv_style_init(&section_label_style);
-
-    /* 只设置标签样式为绿色 */
-    lv_style_set_text_font(&section_label_style, font_get_regular(24));
-    lv_style_set_text_color(&section_label_style, lv_color_hex(0XAFF99C));
 
     /* 配置特殊区间,只应用标签样式*/
     section = lv_scale_add_section(scale);
@@ -278,6 +282,7 @@ static void reset_auto_switch_timer(lv_event_t * e)
     if (auto_switch_timer) 
     {
         lv_timer_del(auto_switch_timer);
+        auto_switch_timer = NULL;
     }
     
     // 重新创建2秒定时器

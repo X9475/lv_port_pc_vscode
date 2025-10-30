@@ -105,6 +105,8 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
+    lv_style_reset(&up_area_style);
     lv_page_subject_deinit();
 }
 
@@ -303,14 +305,14 @@ static void recreate_content_layout(lv_obj_t *cont)
 
     // 创建顶部矩形渐变框
     lv_obj_t *up_indicator_area = lv_obj_create(cont);
-    lv_obj_set_size(up_indicator_area, 502, 156);
+    lv_obj_set_size(up_indicator_area, 502, 65);
     lv_obj_align(up_indicator_area, LV_ALIGN_TOP_MID, 0, 0);
     lv_obj_add_style(up_indicator_area, &up_area_style, 0);
     
     lv_obj_t * photo_icon_single = lv_img_create(up_indicator_area);
     lv_img_set_src(photo_icon_single, PHOTOGRAPH_ICON_SINGLE);
     lv_obj_set_size(photo_icon_single, 40, 40);
-    lv_obj_align(photo_icon_single, LV_ALIGN_TOP_LEFT, 30, 20);
+    lv_obj_align(photo_icon_single, LV_ALIGN_TOP_LEFT, 50, 20);
 
     lv_obj_add_flag(photo_icon_single, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_single, single_icon_click_event, LV_EVENT_CLICKED, NULL);
@@ -333,7 +335,7 @@ static void recreate_content_layout(lv_obj_t *cont)
     photo_icon_select = lv_img_create(up_indicator_area);
     lv_img_set_src(photo_icon_select, PHOTOGRAPH_ICON_SELECT);
     lv_obj_set_size(photo_icon_select, 40, 40);
-    lv_obj_align(photo_icon_select, LV_ALIGN_TOP_LEFT, 432, 20);
+    lv_obj_align(photo_icon_select, LV_ALIGN_TOP_RIGHT, -50, 20);
 
     lv_obj_add_flag(photo_icon_select, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_select, select_icon_click_event, LV_EVENT_CLICKED, NULL);

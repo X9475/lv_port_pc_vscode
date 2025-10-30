@@ -76,6 +76,8 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
+    lv_style_reset(&style_multi_filter);
     lv_page_subject_deinit();
 }
 
@@ -89,6 +91,7 @@ static void lv_page_style_init()
     lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
     lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
 
+    //style_multi_filter
     lv_style_init(&style_multi_filter);
     static lv_grad_dsc_t multi_filter_grad;
     multi_filter_grad.dir = LV_GRAD_DIR_HOR;
@@ -100,7 +103,6 @@ static void lv_page_style_init()
     multi_filter_grad.stops[1].color = lv_color_hex(0x000000);
     multi_filter_grad.stops[1].opa = LV_OPA_COVER;
     multi_filter_grad.stops[1].frac = 255;
-
     lv_style_set_bg_grad(&style_multi_filter, &multi_filter_grad);
 }
 
@@ -129,7 +131,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_event_cb(return_icon, back_click_cb, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * title_label = lv_label_create(cont);
-    lv_label_set_text(title_label, "滤镜滤镜");
+    lv_label_set_text(title_label, "百变滤镜");
     lv_obj_set_style_text_color(title_label, lv_color_hex(0XFFFFFF), 0);
     lv_obj_set_style_text_font(title_label, font_get_regular(30), 0);
     lv_obj_align_to(title_label, return_icon, LV_ALIGN_OUT_RIGHT_MID, 0, 0);  // 图标右侧，垂直居中

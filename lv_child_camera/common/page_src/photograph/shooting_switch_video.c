@@ -17,8 +17,8 @@ static lv_style_t realtime_style;
 static lv_obj_t *screen = NULL;
 static lv_obj_t *time_area;
 static lv_obj_t *led;
-static lv_timer_t *timer = NULL;
-static lv_timer_t *timer1 = NULL;
+static lv_timer_t *zoom_timer = NULL;
+static lv_timer_t *record_timer = NULL;
 static lv_obj_t * zoom_label;
 static lv_obj_t * right_panel = NULL;   // 右侧面板
 
@@ -27,8 +27,6 @@ static uint32_t record_sec = 0;
 static bool is_recording = false;
 static bool left_panel_visible = false;
 static bool right_panel_visible = false;
-static uint32_t last_gesture_time = 0;
-static bool click_allowed = true;
 // 定义阈值
 #define LEFT_EDGE_THRESHOLD 200
 #define RIGHT_EDGE_THRESHOLD (LV_HOR_RES - LEFT_EDGE_THRESHOLD)
@@ -42,14 +40,13 @@ static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 
 static void timer_callback_2(lv_timer_t *timer);
-static void screen_click_cb(lv_event_t * e);
+static void video_click_cb(lv_event_t * e);
 //static void camera_click_cb(lv_event_t * e);
 static void timer_cb(lv_timer_t * timer);
 static void gesture_event_handler(lv_event_t * e);
 static void multi_effect_filter_click_cb(lv_event_t * e);
 static void parameter_adj_click_cb(lv_event_t * e);
 static void back_click_cb(lv_event_t * e);
-static void enable_click_cb(lv_timer_t * timer);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -96,19 +93,32 @@ static void lv_page_construct(void)
 static void lv_page_destruct(void)
 {
      // 清理定时器
-    if(timer) 
+    if(zoom_timer) 
     {
-        lv_timer_del(timer);
-        timer = NULL;
+        lv_timer_del(zoom_timer);
+        zoom_timer = NULL;
     }
 
-    if(timer1) 
+    if(record_timer) 
     {
-        lv_timer_del(timer1);
-        timer1 = NULL;
+        lv_timer_del(record_timer);
+        record_timer = NULL;
     }
+
+    if(right_panel) 
+    {
+        printf("删除右侧面板\n");
+        lv_obj_del(right_panel);
+        right_panel = NULL;
+        right_panel_visible = false;  // 更新状态标志
+    }
+    
     lv_obj_remove_event_cb(act_screen, gesture_event_handler);
-
+    lv_style_reset(&screen_style);
+    lv_style_reset(&up_area_style);
+    lv_style_reset(&down_area_style);
+    lv_style_reset(&camera_button_style);
+    lv_style_reset(&realtime_style);
     lv_page_subject_deinit();
 }
 
@@ -119,9 +129,10 @@ static void lv_page_style_init()
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
-    lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
-    lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+    //lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
 
+    //up_area_style
     static lv_grad_dsc_t grad;
     grad.dir = LV_GRAD_DIR_VER;
     grad.stops_count = 2;
@@ -137,6 +148,7 @@ static void lv_page_style_init()
     lv_style_set_radius(&up_area_style, 0);
     lv_style_set_bg_grad(&up_area_style, &grad);
 
+    //down_area_style
     static lv_grad_dsc_t down_grad;
     down_grad.dir = LV_GRAD_DIR_VER;
     down_grad.stops_count = 2;
@@ -153,12 +165,14 @@ static void lv_page_style_init()
     lv_style_set_radius(&down_area_style, 0);
     lv_style_set_bg_grad(&down_area_style, &down_grad);
 
+    //camera_button_style
     lv_style_init(&camera_button_style);
     lv_style_set_bg_color(&camera_button_style, lv_color_hex(0xFFFFFF));
     lv_style_set_radius(&camera_button_style, LV_RADIUS_CIRCLE);
     lv_style_set_shadow_opa(&camera_button_style, LV_OPA_TRANSP);
     lv_style_set_bg_opa(&camera_button_style, LV_OPA_10);
 
+    //realtime_style
     lv_style_init(&realtime_style);
     lv_style_set_bg_color(&realtime_style, lv_color_hex(0x1C1C1E));
     lv_style_set_bg_opa(&realtime_style, LV_OPA_COVER);
@@ -180,10 +194,7 @@ static void lv_page_subject_deinit()
 }
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-
-    // 为整个屏幕添加点击事件
-    lv_obj_add_event_cb(cont, screen_click_cb, LV_EVENT_CLICKED, NULL);
+    //lv_obj_add_style(cont, &screen_style, 0);
 
     // 添加手势检测到实时取景背景
     lv_obj_add_event_cb(act_screen, gesture_event_handler, LV_EVENT_GESTURE, NULL);
@@ -224,6 +235,23 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(down_indicator_area, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_add_style(down_indicator_area, &down_area_style, 0);
 
+    //临时调试代码， 创建录像buton
+    lv_obj_t *photo_btn = lv_btn_create(down_indicator_area);
+    lv_obj_set_size(photo_btn, 70, 70);
+    lv_obj_align(photo_btn, LV_ALIGN_CENTER, 0, 15);
+    lv_obj_set_style_bg_color(photo_btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_set_style_radius(photo_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_opa(photo_btn, LV_OPA_COVER, 0);
+
+    lv_obj_t *photo_label = lv_label_create(photo_btn);
+    lv_label_set_text(photo_label, "录像");
+
+    lv_obj_set_style_text_opa(photo_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(photo_label, font_get_regular(24), 0);
+    lv_obj_set_style_text_color(photo_label, lv_color_white(), 0);
+    lv_obj_align(photo_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(photo_btn, video_click_cb, LV_EVENT_CLICKED, NULL);
+
     // // 创建右下角摄像机图标
     lv_obj_t *camera_buton = lv_btn_create(down_indicator_area);
     lv_obj_set_size(camera_buton, 70, 70);
@@ -250,7 +278,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(zoom_label, LV_ALIGN_CENTER, 0, 0);
 
     // 创建定时器更新焦距倍率
-    timer = lv_timer_create(timer_cb, 1000, NULL);
+    zoom_timer = lv_timer_create(timer_cb, 1000, NULL);
 
     return;
 }
@@ -378,6 +406,13 @@ static void multi_effect_filter_click_cb(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) 
     {
         printf("enter_multi_sffect\n");
+        if(right_panel) 
+        {
+            printf("删除右侧面板\n");
+            lv_obj_del(right_panel);
+            right_panel = NULL;
+            right_panel_visible = false;  // 更新状态标志
+        }
         //todo:跳转到百变滤镜
         lv_subject_set_int(&shooting_switch_video_subject, PAGE_SWITCH_MULTI_FILTER);
     }
@@ -389,6 +424,13 @@ static void parameter_adj_click_cb(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) 
     {
         printf("enter_parameter_adj\n");
+        if(right_panel) 
+        {
+            printf("删除右侧面板\n");
+            lv_obj_del(right_panel);
+            right_panel = NULL;
+            right_panel_visible = false;  // 更新状态标志
+        }
         //todo:跳转到参数调整
         lv_subject_set_int(&shooting_switch_video_subject, PAGE_SWITCH_ADJ_PARAM);
     }
@@ -398,11 +440,7 @@ static void gesture_event_handler(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     if(code == LV_EVENT_GESTURE) 
-    {
-        // 标记手势发生，暂时禁止点击
-        last_gesture_time = lv_tick_get();
-        click_allowed = false;
-        
+    { 
         lv_dir_t dir = lv_indev_get_gesture_dir(lv_indev_get_act());
 
         // 获取触摸点的起始位置
@@ -435,41 +473,17 @@ static void gesture_event_handler(lv_event_t * e)
         {
             printf("其他手势或条件不满足\n");
         }
-
-        // 设置定时器重新允许点击
-        lv_timer_t * timer = lv_timer_create(enable_click_cb, 300, NULL);
-        lv_timer_set_repeat_count(timer, 1);
     }
-}
-
-static void enable_click_cb(lv_timer_t * timer)
-{
-    click_allowed = true;
-    printf("点击功能已重新启用\n");
-    lv_timer_del(timer);
 }
 
 
 // 屏幕点击事件回调函数
-static void screen_click_cb(lv_event_t * e) 
+static void video_click_cb(lv_event_t * e) 
 {
     lv_event_code_t code = lv_event_get_code(e);
     
     if(code == LV_EVENT_CLICKED) 
     {
-        // 检查是否允许点击
-        if(!click_allowed) 
-        {
-            printf("忽略点击（手势冷却期）\n");
-            return;
-        }
-        
-        if(lv_tick_elaps(last_gesture_time) < 300) 
-        {
-            printf("忽略点击（最近有手势）\n");
-            return;
-        }
-
         if(!is_recording) 
         {
             // 第一次点击：开始录像，显示时间和LED
@@ -480,9 +494,9 @@ static void screen_click_cb(lv_event_t * e)
             lv_obj_clear_flag(time_area, LV_OBJ_FLAG_HIDDEN);
             
             // 创建定时器更新录像时间
-            if(timer1 == NULL) 
+            if(record_timer == NULL) 
             {
-                timer1 = lv_timer_create(timer_callback_2, 1000, NULL);
+                record_timer = lv_timer_create(timer_callback_2, 1000, NULL);
             }   
         } 
         else 
@@ -554,7 +568,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
 
         case PAGE_SWITCH_ADJ_PARAM:
-            switch_page->new_page = lv_page_shooting_adj_param_get();
+            switch_page->new_page = lv_page_shooting_video_param_get();
             break;
 
         case PAGE_SWITCH_MULTI_FILTER:

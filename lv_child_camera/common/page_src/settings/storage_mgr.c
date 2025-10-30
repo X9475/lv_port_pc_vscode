@@ -8,6 +8,9 @@ static lv_style_t screen_style;
 static lv_style_t style_storage_num;
 static lv_style_t style_storage_text;
 static lv_style_t style_line;
+static lv_style_t style_main;
+static lv_style_t style_indicator;
+static lv_style_t style_knob;
 static float use_storage = 89.0;//GB
 static float total_storage = 128.0;//GB
 
@@ -65,6 +68,13 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
+    lv_style_reset(&style_storage_num);
+    lv_style_reset(&style_storage_text);
+    lv_style_reset(&style_line);
+    lv_style_reset(&style_main);
+    lv_style_reset(&style_indicator);
+    lv_style_reset(&style_knob);
     lv_page_subject_deinit();
 }
 
@@ -106,6 +116,22 @@ static void lv_page_style_init()
     lv_style_copy(&style_line, &screen_style);
     lv_style_set_bg_grad(&style_line, &grad1);
     lv_style_set_bg_grad_dir(&style_line, LV_GRAD_DIR_VER);
+
+    //style_main
+    lv_style_init(&style_main);
+    lv_style_set_bg_image_src(&style_main, "../lv_port_pc_vscode/assert/icon/setting_pic_progress_bar_none.png");
+    lv_style_set_bg_opa(&style_main, LV_OPA_TRANSP);
+    lv_style_set_radius(&style_main, 100);
+
+    //style_indicator
+    lv_style_init(&style_indicator);
+    lv_style_set_radius(&style_indicator, 0);
+    lv_style_set_bg_image_src(&style_indicator, "../lv_port_pc_vscode/assert/icon/setting_pic_progress_bar_have.png");
+    lv_style_set_bg_opa(&style_indicator, LV_OPA_TRANSP);
+    
+    //style_knob
+    lv_style_init(&style_knob);
+    lv_style_set_bg_opa(&style_knob, LV_OPA_TRANSP);
 }
 
 static void lv_page_subject_init()
@@ -122,22 +148,6 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    static lv_style_t style_main;
-    lv_style_init(&style_main);
-    lv_style_set_bg_image_src(&style_main, "../lv_port_pc_vscode/assert/icon/setting_pic_progress_bar_none.png");
-    lv_style_set_bg_opa(&style_main, LV_OPA_TRANSP);
-    lv_style_set_radius(&style_main, 100);
-
-    static lv_style_t style_indicator;
-    lv_style_init(&style_indicator);
-    lv_style_set_radius(&style_indicator, 0);
-    lv_style_set_bg_image_src(&style_indicator, "../lv_port_pc_vscode/assert/icon/setting_pic_progress_bar_have.png");
-    lv_style_set_bg_opa(&style_indicator, LV_OPA_TRANSP);
-
-    static lv_style_t style_knob;
-    lv_style_init(&style_knob);
-    lv_style_set_bg_opa(&style_knob, LV_OPA_TRANSP);
-
     //渐变背景
     lv_obj_t *image = lv_img_create(cont);
     lv_obj_set_size(image, 442, LV_SIZE_CONTENT);

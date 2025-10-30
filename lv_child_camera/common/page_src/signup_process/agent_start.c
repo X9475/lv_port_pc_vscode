@@ -5,9 +5,9 @@ static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
 static lv_style_t screen_style;
-static lv_obj_t *slider_agent;
-static lv_obj_t *label_agent;
-static int32_t label_opa = 0;
+static lv_style_t style_main;
+static lv_style_t style_indicator;
+static lv_style_t style_knob;
 
 static void lv_page_construct(void);
 static void lv_page_destruct(void);
@@ -61,6 +61,10 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
+    lv_style_reset(&style_main);
+    lv_style_reset(&style_indicator);
+    lv_style_reset(&style_knob);
     lv_page_subject_deinit();
 }
 
@@ -73,6 +77,22 @@ static void lv_page_style_init()
     lv_style_set_border_width(&screen_style, 0);
     lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
     lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+
+    //style_main
+    lv_style_init(&style_main);
+    lv_style_set_bg_image_src(&style_main, "../lv_port_pc_vscode/assert/icon/welcome_slider_bar.png");
+    lv_style_set_bg_opa(&style_main, LV_OPA_TRANSP);
+    lv_style_set_radius(&style_main, 50);
+
+    //style_indicator
+    lv_style_init(&style_indicator);
+    lv_style_set_radius(&style_indicator, 0);
+    lv_style_set_bg_opa(&style_indicator, LV_OPA_TRANSP);
+
+    //style_knob
+    lv_style_init(&style_knob);
+    lv_style_set_bg_image_src(&style_knob, "../lv_port_pc_vscode/assert/icon/slider_button.png");
+    lv_style_set_bg_opa(&style_knob, LV_OPA_TRANSP);
 }
 
 static void lv_page_subject_init()
@@ -96,41 +116,16 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(agent_bg, LV_ALIGN_CENTER, 0, 0);
 
     //创建滑动条
-    slider_agent = lv_slider_create(cont);
-    lv_obj_set_size(slider_agent, 442, 100);
-    lv_slider_set_range(slider_agent, 0, 442);
-    lv_obj_set_style_bg_opa(slider_agent, LV_OPA_80, 0);
-    lv_obj_set_style_bg_color(slider_agent, lv_color_hex(0x9FE5FF), 0);
-    lv_obj_set_style_bg_grad_color(slider_agent, lv_color_hex(0x494949), 0);
-    lv_obj_set_style_bg_grad_dir(slider_agent, LV_GRAD_DIR_HOR, 0);
-    lv_obj_align(slider_agent, LV_ALIGN_TOP_MID, 0, 290);
-    lv_obj_remove_style(slider_agent, NULL, LV_PART_KNOB);
-    lv_obj_remove_style(slider_agent, NULL, LV_PART_INDICATOR);
-
-    lv_obj_t *label = lv_label_create(cont);
-    lv_obj_set_size(label, 86, 86);
-    lv_obj_set_pos(label, 41, 297);
-    lv_obj_set_style_text_opa(label, LV_OPA_TRANSP, 0);
-    lv_obj_set_style_radius(label, LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_bg_opa(label, LV_OPA_COVER, 0);
-    lv_obj_set_style_bg_color(label, lv_color_hex(0xAFF99C), 0);
-    lv_obj_set_style_bg_grad_color(label, lv_color_hex(0x79FFF5), 0);
-    lv_obj_set_style_bg_grad_dir(label, LV_GRAD_DIR_HOR, 0);
-
-    lv_obj_t *door = lv_img_create(label);
-    lv_img_set_src(door, "../lv_port_pc_vscode/assert/icon/door_icon_two.png");
-    lv_obj_align(door, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_add_event_cb(slider_agent, lv_start_agent_slider_event, LV_EVENT_VALUE_CHANGED, label);
-
-    //文字
-    label_opa = LV_OPA_90;
-    label_agent = lv_label_create(slider_agent);
-    lv_label_set_text(label_agent, "开启探索世界");
-    lv_obj_set_style_text_opa(label_agent, label_opa, 0);
-    lv_obj_set_style_text_font(label_agent, fzlthr_30, 0);
-    lv_obj_set_style_text_color(label_agent, lv_color_white(), 0);
-    lv_obj_set_style_text_align(label_agent, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label_agent, slider_agent, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_t *slider = lv_slider_create(cont);
+    lv_obj_set_size(slider, 442, 100);
+    lv_slider_set_range(slider, 0, 442);
+    lv_slider_set_value(slider, 54, LV_ANIM_OFF);
+    lv_obj_add_style(slider, &style_main, LV_PART_MAIN);
+    lv_obj_add_style(slider, &style_indicator, LV_PART_INDICATOR);
+    lv_obj_add_style(slider, &style_knob, LV_PART_KNOB);
+    lv_obj_align(slider, LV_ALIGN_TOP_MID, 0, 290);
+    lv_obj_add_flag(slider, LV_OBJ_FLAG_ADV_HITTEST);//仅旋钮模式
+    lv_obj_add_event_cb(slider, lv_start_agent_slider_event, LV_EVENT_ALL, NULL);
 
     return;
 }
@@ -138,24 +133,29 @@ static void lv_page_load(lv_obj_t *cont)
 static void lv_start_agent_slider_event(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *label = lv_event_get_user_data(e);
+    lv_obj_t *slider = lv_event_get_target(e);
+
+    if (LV_EVENT_RELEASED == code)
+    {
+        lv_slider_set_value(slider, 54, LV_ANIM_ON);
+        return;
+    }
 
     if (LV_EVENT_VALUE_CHANGED == code)
     {
-        int32_t value = lv_slider_get_value(slider_agent);
-        // printf("==== value: %d\n", value);
+        int32_t value = lv_slider_get_value(slider);
+        // printf("value = %d\n", value);
 
-        if (value < 41) lv_slider_set_value(slider_agent, 41, LV_ANIM_ON);//最小值限制
-        if (value > 378) lv_slider_set_value(slider_agent, 378, LV_ANIM_ON);//最大值限制
-
-        if (value < 378 && value > 41) {
-            uint16_t new_opa = (label_opa -= 4) <= 0? 0 : label_opa;
-            lv_obj_set_x(label, value);//设置标签坐标
-            lv_obj_set_style_text_opa(label_agent, new_opa, 0);
+        //9~347,54~388
+        if (value >= 388)
+        {
+            lv_slider_set_value(slider, 388, LV_ANIM_OFF);
+            lv_subject_set_int(&agent_start_subject, PAGE_SWITCH_NEXT);
         }
 
-        if (value == 378) {
-            lv_subject_set_int(&agent_start_subject, PAGE_SWITCH_NEXT);
+        if (value <= 54)
+        {
+            lv_slider_set_value(slider, 54, LV_ANIM_OFF);
         }
     }
 }

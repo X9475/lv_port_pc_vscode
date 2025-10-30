@@ -32,6 +32,9 @@ static lv_obj_t * flash_img;
 static lv_obj_t * zoom_label;
 static lv_scale_section_t * section;
 static lv_timer_t *zoom_timer = NULL;
+static lv_timer_t *photo_timer = NULL;
+static lv_timer_t *focus_timer = NULL;
+static lv_timer_t * enable_timer = NULL;
 lv_obj_t *up_indicator_area;
 
 static bool left_panel_visible = false;
@@ -61,6 +64,7 @@ static void multi_effect_filter_click_cb(lv_event_t * e);
 static void parameter_adj_click_cb(lv_event_t * e);
 static void enable_click_cb(lv_timer_t * timer);
 static void back_click_cb(lv_event_t * e);
+static void photo_click_cb(lv_event_t *e);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -114,8 +118,31 @@ static void lv_page_destruct(void)
         zoom_timer = NULL;
     }
 
-    lv_obj_remove_event_cb(act_screen, gesture_event_handler);
+    if (photo_timer) 
+    {
+        lv_timer_del(photo_timer);
+        photo_timer = NULL;
+    }
 
+    if (focus_timer) 
+    {
+        lv_timer_del(focus_timer);
+        focus_timer = NULL;
+    }
+
+    if (enable_timer) 
+    {
+        lv_timer_del(enable_timer);
+        enable_timer = NULL;
+    }
+
+    lv_obj_remove_event_cb(act_screen, gesture_event_handler);
+    lv_style_reset(&screen_style);
+    lv_style_reset(&up_area_style);
+    lv_style_reset(&down_area_style);
+    lv_style_reset(&btn_style);
+    lv_style_reset(&camera_button_style);
+    lv_style_reset(&realtime_style);
     lv_page_subject_deinit();
 }
 
@@ -126,9 +153,10 @@ static void lv_page_style_init()
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
-    lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
-    lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+    //lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
 
+    //up_area_style
     static lv_grad_dsc_t grad;
     grad.dir = LV_GRAD_DIR_VER;
     grad.stops_count = 2;
@@ -144,6 +172,7 @@ static void lv_page_style_init()
     lv_style_set_radius(&up_area_style, 0);
     lv_style_set_bg_grad(&up_area_style, &grad);
 
+    //down_area_style
     static lv_grad_dsc_t down_grad;
     down_grad.dir = LV_GRAD_DIR_VER;
     down_grad.stops_count = 2;
@@ -160,18 +189,21 @@ static void lv_page_style_init()
     lv_style_set_radius(&down_area_style, 0);
     lv_style_set_bg_grad(&down_area_style, &down_grad);
 
+    //btn_style
     lv_style_init(&btn_style);
     lv_style_set_bg_color(&btn_style, lv_color_white());
     lv_style_set_radius(&btn_style, 70);
     lv_style_set_shadow_opa(&btn_style, LV_OPA_TRANSP);
     lv_style_set_bg_opa(&btn_style, LV_OPA_TRANSP); // 设置背景透明度
 
+    //camera_button_style
     lv_style_init(&camera_button_style);
     lv_style_set_bg_color(&camera_button_style, lv_color_hex(0xFFFFFF));
     lv_style_set_radius(&camera_button_style, LV_RADIUS_CIRCLE);
     lv_style_set_shadow_opa(&camera_button_style, LV_OPA_TRANSP);
     lv_style_set_bg_opa(&camera_button_style, LV_OPA_10);
 
+    //realtime_style
     lv_style_init(&realtime_style);
     lv_style_set_bg_color(&realtime_style, lv_color_hex(0x1C1C1E));
     lv_style_set_bg_opa(&realtime_style, LV_OPA_COVER);
@@ -248,6 +280,23 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(label, LV_ALIGN_CENTER, 22, 0);
     lv_obj_add_event_cb(rec_btn, record_click_cb, LV_EVENT_CLICKED, NULL);
 
+    //临时调试代码， 创建拍照buton
+    lv_obj_t *photo_btn = lv_btn_create(down_indicator_area);
+    lv_obj_set_size(photo_btn, 70, 70);
+    lv_obj_align(photo_btn, LV_ALIGN_CENTER, 0, 15);
+    lv_obj_set_style_bg_color(photo_btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_set_style_radius(photo_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_opa(photo_btn, LV_OPA_COVER, 0);
+
+    lv_obj_t *photo_label = lv_label_create(photo_btn);
+    lv_label_set_text(photo_label, "拍照");
+
+    lv_obj_set_style_text_opa(photo_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(photo_label, font_get_regular(24), 0);
+    lv_obj_set_style_text_color(photo_label, lv_color_white(), 0);
+    lv_obj_align(photo_label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(photo_btn, photo_click_cb, LV_EVENT_CLICKED, NULL);
+
     // // 创建右下角摄像机图标
     lv_obj_t *camera_buton = lv_btn_create(down_indicator_area);
     lv_obj_set_size(camera_buton, 70, 70);
@@ -282,6 +331,37 @@ static void lv_page_load(lv_obj_t *cont)
     return;
 }
 
+// 延迟执行的拍照动作
+static void photo_delayed_action(lv_timer_t *timer)
+{   
+    printf("执行拍照操作\n");
+    
+    // 这里添加实际的拍照逻辑
+    // - 调用相机API进行拍照
+    // - 显示拍照动画效果
+    // - 保存照片等
+
+    // 删除定时器
+    if (photo_timer) 
+    {
+        lv_timer_del(photo_timer);
+        photo_timer = NULL;
+    }
+}
+
+// 拍照按钮点击事件回调函数
+static void photo_click_cb(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    
+    if (code == LV_EVENT_CLICKED) 
+    {
+        // 添加延迟效果 - 使用定时器实现
+        photo_timer = lv_timer_create(photo_delayed_action, 300, NULL); // 300ms延迟
+        lv_timer_set_repeat_count(photo_timer, 1); // 只执行一次
+    }
+}
+
 // 定时器回调函数
 static void focus_timer_cb(lv_timer_t * timer)
 {
@@ -297,7 +377,11 @@ static void focus_timer_cb(lv_timer_t * timer)
     }
     
     // 删除定时器
-    lv_timer_del(timer);
+    if (focus_timer) 
+    {
+        lv_timer_del(focus_timer);
+        focus_timer = NULL;
+    }
 }
 
 // 屏幕点击事件回调函数
@@ -331,7 +415,7 @@ static void screen_click_cb(lv_event_t * e)
         lv_obj_align(focus_icon, LV_ALIGN_TOP_LEFT, 192, 121);
 
         // 创建1秒定时器
-        lv_timer_t * focus_timer = lv_timer_create(focus_timer_cb, 3000, focus_icon);
+        focus_timer = lv_timer_create(focus_timer_cb, 3000, focus_icon);
     }
 }
 
@@ -557,6 +641,13 @@ static void multi_effect_filter_click_cb(lv_event_t * e)
     {
         printf("enter_multi_sffect\n");
         //todo:跳转到百变滤镜
+        if(right_panel) 
+        {
+            printf("删除右侧面板\n");
+            lv_obj_del(right_panel);
+            right_panel = NULL;
+            right_panel_visible = false;  // 更新状态标志
+        }
         lv_subject_set_int(&shooting_photo_subject, PAGE_SWITCH_SHOOTING_MULTI_FILTER);
     }
 }
@@ -567,6 +658,14 @@ static void parameter_adj_click_cb(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) 
     {
         printf("enter_parameter_adj\n");
+        if(right_panel) 
+        {
+            printf("删除右侧面板\n");
+            lv_obj_del(right_panel);
+            right_panel = NULL;
+            right_panel_visible = false;  // 更新状态标志
+        }
+    
         lv_subject_set_int(&shooting_photo_subject, PAGE_SWITCH_SHOOTING_ADJ_PARAM);
     }
 }
@@ -614,8 +713,8 @@ static void gesture_event_handler(lv_event_t * e)
         }
 
         // 设置定时器重新允许点击
-        lv_timer_t * timer = lv_timer_create(enable_click_cb, 300, NULL);
-        lv_timer_set_repeat_count(timer, 1);
+        enable_timer = lv_timer_create(enable_click_cb, 300, NULL);
+        lv_timer_set_repeat_count(enable_timer, 1);
     }
 }
 
@@ -623,7 +722,13 @@ static void enable_click_cb(lv_timer_t * timer)
 {
     click_allowed = true;
     printf("点击功能已重新启用\n");
-    lv_timer_del(timer);
+    
+    // 删除定时器
+    if (enable_timer) 
+    {
+        lv_timer_del(enable_timer);
+        enable_timer = NULL;
+    }
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)

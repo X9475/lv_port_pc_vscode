@@ -74,6 +74,11 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
+    lv_style_reset(&up_area_roller_style);
+    lv_style_reset(&separator_line_style);
+    lv_style_reset(&roller_style);
+    lv_style_reset(&select_roller_style);
     lv_page_subject_deinit();
 }
 
@@ -87,6 +92,7 @@ static void lv_page_style_init()
     lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
     lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
 
+    //up_area_roller_style
     lv_style_init(&up_area_roller_style);
     lv_style_set_border_opa(&up_area_roller_style, LV_OPA_TRANSP);
     lv_style_set_bg_color(&up_area_roller_style, lv_color_hex(0x000000));
@@ -118,12 +124,12 @@ static void lv_page_style_init()
     separator_line_grad.stops[4].color = lv_color_hex(0x38383A);
     separator_line_grad.stops[4].opa = LV_OPA_0;
     separator_line_grad.stops[4].frac = 255; // 结束位置（100%)
-
     lv_style_init(&separator_line_style);
     lv_style_set_bg_grad(&separator_line_style, &separator_line_grad);
     lv_style_set_bg_opa(&separator_line_style, LV_OPA_COVER);
 
-     lv_style_init(&roller_style);
+    //roller_style
+    lv_style_init(&roller_style);
     lv_style_set_bg_opa(&roller_style, LV_OPA_TRANSP);
     lv_style_set_bg_color(&roller_style, lv_color_black());
     lv_style_set_border_opa(&roller_style, LV_OPA_TRANSP);
@@ -131,8 +137,8 @@ static void lv_page_style_init()
     lv_style_set_text_line_space(&roller_style, 54);  // 行间距
     lv_style_set_text_align(&roller_style, LV_TEXT_ALIGN_LEFT);
     lv_style_set_pad_left(&roller_style, 0);      // 左内边距10px
-    
 
+    //select_roller_style
     lv_style_init(&select_roller_style);
     lv_style_set_bg_opa(&select_roller_style, LV_OPA_COVER);
     lv_style_set_bg_color(&select_roller_style, lv_color_black());

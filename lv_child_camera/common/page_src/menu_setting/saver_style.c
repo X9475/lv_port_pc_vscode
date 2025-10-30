@@ -88,6 +88,7 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
 
@@ -368,6 +369,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
     if (page_event == PAGE_SWITCH_BACK) {
         lv_obj_clear_flag(lv_page_menu_setting_info_get()->page, LV_OBJ_FLAG_HIDDEN);
+        lv_subject_set_int(&menu_setting_subject, PAGE_SWITCH_NONE);
         lv_obj_del(screensaver_style_page_info.page);
         return;
     }

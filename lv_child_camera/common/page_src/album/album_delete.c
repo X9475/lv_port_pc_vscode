@@ -76,6 +76,8 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&screen_style);
+    lv_style_reset(&up_area_style);
     lv_page_subject_deinit();
 }
 
@@ -225,7 +227,7 @@ static void create_video_list(lv_obj_t *cont)
     lv_obj_t * photo_icon_single = lv_img_create(up_indicator_area);
     lv_img_set_src(photo_icon_single, PHOTOGRAPH_ICON_SINGLE);
     lv_obj_set_size(photo_icon_single, 40, 40);
-    lv_obj_align(photo_icon_single, LV_ALIGN_TOP_LEFT, 30, 20);
+    lv_obj_align(photo_icon_single, LV_ALIGN_TOP_LEFT, 50, 20);
 
     lv_obj_add_flag(photo_icon_single, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(photo_icon_single, single_icon_click_event, LV_EVENT_CLICKED, NULL);
@@ -246,7 +248,7 @@ static void create_video_list(lv_obj_t *cont)
     lv_obj_t *delete_icon = lv_img_create(up_indicator_area);
     lv_img_set_src(delete_icon, PHOTOGRAPH_ICON_TRASH_FILLED); // 替换为实际的删除图标路径
     lv_obj_set_size(delete_icon, 40, 40);
-    lv_obj_align(delete_icon, LV_ALIGN_TOP_RIGHT, -30, 20);
+    lv_obj_align(delete_icon, LV_ALIGN_TOP_RIGHT, -50, 20);
     lv_obj_add_flag(delete_icon, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(delete_icon, delete_icon_click_event, LV_EVENT_CLICKED, cont);
 }

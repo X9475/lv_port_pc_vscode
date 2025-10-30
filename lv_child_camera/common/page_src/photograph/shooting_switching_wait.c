@@ -6,6 +6,7 @@ static lv_switch_page_pt switch_page;
 static lv_style_t screen_style;
 
 static lv_obj_t *screen = NULL;
+static lv_timer_t *switch_timer = NULL;
 
 static void lv_page_construct(void);
 static void lv_page_destruct(void);
@@ -59,6 +60,14 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    //删除定时器,会崩溃,所以注释掉
+    if(switch_timer) 
+    {
+        lv_timer_del(switch_timer);
+        switch_timer = NULL;
+    }
+
+    lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
 
@@ -105,8 +114,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 320);
 
     // 创建定时器，2秒后执行跳转
-    lv_timer_t * timer = lv_timer_create(timer_callback, 2000, NULL);
-    lv_timer_set_repeat_count(timer, 1);  // 只执行一次
+    switch_timer = lv_timer_create(timer_callback, 2000, NULL);
+    lv_timer_set_repeat_count(switch_timer, 1);  // 只执行一次
 
     return;
 }
@@ -114,11 +123,15 @@ static void lv_page_load(lv_obj_t *cont)
 // 定时器回调函数
 static void timer_callback(lv_timer_t * timer)
 {
+    //删除定时器
+    if(switch_timer) 
+    {
+        lv_timer_del(switch_timer);
+        switch_timer = NULL;
+    }
+
     // 跳转到其他页面的代码
     lv_subject_set_int(&shooting_switch_wait_subject, PAGE_SWITCH_NEXT);
-
-    // 清理定时器
-    lv_timer_del(timer);
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
