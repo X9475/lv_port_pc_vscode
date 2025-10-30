@@ -14,6 +14,8 @@ static lv_obj_t *screen = NULL;
 static lv_obj_t *line_cont;
 static lv_timer_t *anim_timer = NULL;
 
+static bool mutex_init_flag = false;
+static lv_mutex_t timer_mutex;
 static uint8_t exec_count = 0;
 
 static void lv_page_construct(void);
@@ -57,6 +59,9 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
+    //互斥锁初始化
+    if (!mutex_init_flag) lv_mutex_init(&timer_mutex);
+    mutex_init_flag = true;
 
     screen = lv_obj_create(act_screen);
     lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
@@ -66,18 +71,19 @@ static void lv_page_construct(void)
 
     //绘制当前页面
     lv_page_load(screen);
+    printf("--------- %d\n", shooting_mode_page.status);
     shooting_mode_page.page = screen;
     return;
 }
 
 static void lv_page_destruct(void)
 {
-    // 如果定时器存在，先删除
-    if (anim_timer) 
-    {
-        lv_timer_del(anim_timer);
-        anim_timer = NULL;
-    }
+    lv_mutex_lock(&timer_mutex);
+    if (anim_timer) lv_timer_del(anim_timer);
+    anim_timer = NULL;
+
+    shooting_mode_page.status = STATUS_EXITING;//准备离开
+    lv_mutex_unlock(&timer_mutex);
 
     lv_style_reset(&screen_style);
     lv_page_subject_deinit();
@@ -127,7 +133,6 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_scroll_dir(cont_col, LV_DIR_VER);
     lv_obj_set_scrollbar_mode(cont_col, LV_SCROLLBAR_MODE_OFF);
     lv_obj_add_event_cb(cont_col, scroll_saver_event_cb, LV_EVENT_SCROLL, NULL);
-
 
     for (uint8_t i = 0; i < 3; i++)
     {
@@ -317,23 +322,30 @@ static void circular_scroll_handle(lv_obj_t *cont, uint8_t dir)
 
 static void screen_saver_timer_cb(lv_timer_t *timer)
 {
-    uint8_t *pdir = lv_timer_get_user_data(timer);
-
-    circular_scroll_handle(line_cont, *pdir);
-    //次数控制
-    if(++exec_count >= 30) 
+    lv_mutex_lock(&timer_mutex);
+    if (STATUS_EXITING == shooting_mode_page.status)
     {
-        // 如果定时器存在，先删除
-        if (anim_timer) 
-        {
-            lv_timer_del(anim_timer);
-            anim_timer = NULL;
-        }
+        lv_mutex_unlock(&timer_mutex);
+        return;
     }
+    uint8_t *pdir = lv_timer_get_user_data(timer);
+    circular_scroll_handle(line_cont, *pdir);
+    if(++exec_count >= 30)
+    {
+        lv_timer_pause(anim_timer);
+    }
+    lv_mutex_unlock(&timer_mutex);
 }
 
 static void scroll_saver_event_cb(lv_event_t *e)
 {
+    lv_mutex_lock(&timer_mutex);
+    if (STATUS_EXITING == shooting_mode_page.status)
+    {
+        lv_mutex_unlock(&timer_mutex);
+        return;
+    }
+
     lv_obj_t *cont = lv_event_get_target(e);
     lv_obj_t *first = lv_obj_get_child(cont, 0);
     lv_area_t first_a;
@@ -387,14 +399,25 @@ static void scroll_saver_event_cb(lv_event_t *e)
 
     if (cur_idx != last_idx) 
     {
+        exec_count = 0;
         last_idx = cur_idx;
         if (!anim_timer) 
         {
             //创建定时器，每40ms执行滚动动态
             anim_timer = lv_timer_create(screen_saver_timer_cb, 40, &dir);
-            exec_count = 0;
+            lv_timer_set_auto_delete(anim_timer, false);
+        }
+        else
+        {
+            lv_timer_reset(anim_timer);
+            if (lv_timer_get_paused(anim_timer))
+            {
+                lv_timer_resume(anim_timer);
+            }
         }
     }
+
+    lv_mutex_unlock(&timer_mutex);
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
@@ -414,11 +437,9 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         case PAGE_SWITCH_NEXT:
             switch_page->new_page = lv_page_shooting_switch_wait_get();
             break;
-
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();
             break;
-
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);
             break;

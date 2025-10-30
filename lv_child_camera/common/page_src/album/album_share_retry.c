@@ -95,8 +95,6 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-
     lv_obj_t * photo_pic_fail_icon = lv_img_create(cont);
     lv_img_set_src(photo_pic_fail_icon, PHOTOGRAPH_PIC_FAIL);
     lv_obj_set_size(photo_pic_fail_icon, 258, 258);

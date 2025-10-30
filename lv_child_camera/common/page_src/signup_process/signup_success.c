@@ -5,7 +5,7 @@ static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
 static lv_style_t screen_style;
-static lv_timer_t *timer;
+static lv_timer_t *exit_timer = NULL;
 static uint32_t tick_sec = 5;
 
 static void lv_page_construct(void);
@@ -40,7 +40,6 @@ lv_page_info_pt *lv_page_signup_success_info_get()
 
 static void lv_page_construct(void)
 {
-    printf("======1\n");
     //样式初始化
     lv_page_style_init();
     //主题初始化
@@ -61,7 +60,9 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
-    if (NULL != timer) lv_timer_del(timer);
+    if (exit_timer) lv_timer_del(exit_timer);
+    exit_timer = NULL;
+
     lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
@@ -117,17 +118,16 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(tip2_label, LV_ALIGN_TOP_MID, 0, 297);
 
     //倒计时
-    timer = lv_timer_create(signup_success_countdown_timer_cb, 1000, tip2_label);
-    lv_timer_set_repeat_count(timer, 6);
-    lv_timer_set_auto_delete(timer, false);
-
+    exit_timer = lv_timer_create(signup_success_countdown_timer_cb, 1000, tip2_label);
+    lv_timer_set_repeat_count(exit_timer, 6);
+    lv_timer_set_auto_delete(exit_timer, false);
     return;
 }
 
 static void signup_success_countdown_timer_cb(lv_timer_t *timer)
 {
     lv_obj_t *label = lv_timer_get_user_data(timer);
-    lv_label_set_text_fmt(label, "即将进入探索之旅（%ds）", tick_sec);
+    lv_label_set_text_fmt(label, "即将进入探索之旅(%ds)", tick_sec);
 
     if (tick_sec == 0) {
         tick_sec = 5;

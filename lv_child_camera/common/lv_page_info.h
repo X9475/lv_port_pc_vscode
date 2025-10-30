@@ -13,6 +13,14 @@ extern "C" {
 typedef void (* construct_func)();
 typedef void (* destruct_func)();
 
+/// @brief 页面状态枚举
+typedef enum
+{
+    STATUS_NONE,    ///< 初始状态
+    STATUS_RUNNNIG, ///< 正在运行
+    STATUS_EXITING, ///< 退出中
+} LV_STATUS_ENUM;
+
 /// @brief 设备当前状态
 typedef enum
 {
@@ -104,6 +112,7 @@ typedef struct
     lv_obj_t *page;                 //页面指针，指向当前加载的页面
     construct_func construct_cb;    //构造函数, 初始化资源及加载页面
     destruct_func destruct_cb;      //析构函数, 退出时回收页面资源
+    LV_STATUS_ENUM status;          //页面状态，LV_STATUS_ENUM
     void *reserved;                 //保留字段
 } lv_page_info_t, *lv_page_info_pt;
 

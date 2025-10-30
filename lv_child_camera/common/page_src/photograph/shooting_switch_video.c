@@ -22,6 +22,8 @@ static lv_timer_t *record_timer = NULL;
 static lv_obj_t * zoom_label;
 static lv_obj_t * right_panel = NULL;   // 右侧面板
 
+static bool mutex_init_flag = false;
+static lv_mutex_t timer_mutex;
 static bool camera_state = false;
 static uint32_t record_sec = 0;
 static bool is_recording = false;
@@ -77,6 +79,9 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
+    //互斥锁初始化
+    if (!mutex_init_flag) lv_mutex_init(&timer_mutex);
+    mutex_init_flag = true;
     
     screen = lv_obj_create(act_screen);
     lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
@@ -92,18 +97,14 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
-     // 清理定时器
-    if(zoom_timer) 
-    {
-        lv_timer_del(zoom_timer);
-        zoom_timer = NULL;
-    }
+    lv_mutex_lock(&timer_mutex);
+    if(zoom_timer) lv_timer_del(zoom_timer);
+    zoom_timer = NULL;
 
-    if(record_timer) 
-    {
-        lv_timer_del(record_timer);
-        record_timer = NULL;
-    }
+    if(record_timer) lv_timer_del(record_timer);
+    record_timer = NULL;
+    shooting_switch_video_page.status = STATUS_EXITING;//准备离开
+    lv_mutex_unlock(&timer_mutex);
 
     if(right_panel) 
     {
@@ -194,8 +195,6 @@ static void lv_page_subject_deinit()
 }
 static void lv_page_load(lv_obj_t *cont)
 {
-    //lv_obj_add_style(cont, &screen_style, 0);
-
     // 添加手势检测到实时取景背景
     lv_obj_add_event_cb(act_screen, gesture_event_handler, LV_EVENT_GESTURE, NULL);
 
@@ -279,7 +278,7 @@ static void lv_page_load(lv_obj_t *cont)
 
     // 创建定时器更新焦距倍率
     zoom_timer = lv_timer_create(timer_cb, 1000, NULL);
-
+    lv_timer_set_auto_delete(zoom_timer, false);
     return;
 }
 
@@ -494,11 +493,9 @@ static void video_click_cb(lv_event_t * e)
             lv_obj_clear_flag(time_area, LV_OBJ_FLAG_HIDDEN);
             
             // 创建定时器更新录像时间
-            if(record_timer == NULL) 
-            {
-                record_timer = lv_timer_create(timer_callback_2, 1000, NULL);
-            }   
-        } 
+            record_timer = lv_timer_create(timer_callback_2, 1000, NULL);
+            lv_timer_set_auto_delete(record_timer, false);
+        }
         else 
         {
             // 第二次点击：停止录像，跳转到其他界面
@@ -522,10 +519,17 @@ static float get_zoom_level_from_hardware()
 }
 static void timer_cb(lv_timer_t * timer) 
 {
+    lv_mutex_lock(&timer_mutex);
+    if (shooting_switch_video_page.status == STATUS_EXITING)
+    {
+        lv_mutex_unlock(&timer_mutex);
+        return;
+    }
     float zoom_level = get_zoom_level_from_hardware();
     char zoom_str[16];
     snprintf(zoom_str, sizeof(zoom_str), "%.1fX", zoom_level);
     lv_label_set_text(zoom_label, zoom_str);
+    lv_mutex_unlock(&timer_mutex);
 }
 
 // static void camera_click_cb(lv_event_t * e) 
@@ -541,13 +545,18 @@ static void timer_cb(lv_timer_t * timer)
 
 static void timer_callback_2(lv_timer_t *timer)
 {
+    lv_mutex_lock(&timer_mutex);
+    if (shooting_switch_video_page.status == STATUS_EXITING)
+    {
+        lv_mutex_unlock(&timer_mutex);
+        return;
+    }
+
     lv_obj_t *label = lv_obj_get_child(time_area, 0);
-
     lv_label_set_text_fmt(label, "%02d:%02d:%02d", record_sec/3600, record_sec / 60, record_sec % 60);
-    record_sec++ ;
-    return;
+    record_sec++;
+    lv_mutex_unlock(&timer_mutex);
 }
-
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
 {

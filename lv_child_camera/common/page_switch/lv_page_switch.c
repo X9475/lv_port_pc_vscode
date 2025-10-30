@@ -51,6 +51,7 @@ static void page_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subje
     lv_page_info_pt new_page = switch_page->new_page;
 
     LV_LOG_INFO("page switch begin");
+    new_page->status = STATUS_RUNNNIG;
     new_page->construct_cb();
 
     if (g_device_state == LV_PAGE_STAGE_RUNNING)

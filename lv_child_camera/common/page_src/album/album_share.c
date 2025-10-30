@@ -7,13 +7,14 @@ lv_subject_t  album_share_subject;
 static lv_switch_page_pt switch_page;
 
 static lv_style_t screen_style;
-
 static lv_obj_t *screen = NULL;
 static lv_obj_t *line_cont;
 static lv_timer_t *anim_timer = NULL;
 // 存储联系人对象指针的数组
 static lv_obj_t *contact_objs[20];
 
+static bool mutex_init_flag = false;
+static lv_mutex_t timer_mutex;
 static uint8_t exec_count = 0;
 static uint8_t conctact_total = 20;
 
@@ -59,6 +60,9 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
+    //互斥锁初始化
+    if (!mutex_init_flag) lv_mutex_init(&timer_mutex);
+    mutex_init_flag = true;
 
     screen = lv_obj_create(act_screen);
     lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
@@ -74,11 +78,13 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
-    if (anim_timer) 
-    {
-        lv_timer_del(anim_timer);
-        anim_timer = NULL;
-    }
+    lv_mutex_lock(&timer_mutex);
+    if (anim_timer) lv_timer_del(anim_timer);
+    anim_timer = NULL;
+
+    album_page_share.status = STATUS_EXITING;//准备离开
+    lv_mutex_unlock(&timer_mutex);
+
     lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
@@ -275,17 +281,19 @@ static void circular_scroll_handle(lv_obj_t *cont, uint8_t dir)
 
 static void screen_saver_timer_cb(lv_timer_t *timer)
 {
-    uint8_t *pdir = lv_timer_get_user_data(timer);
-
-    circular_scroll_handle(line_cont, *pdir);
-    //次数控制
-    if(++exec_count >= 30) {
-        if(anim_timer)
-        {
-            lv_timer_del(anim_timer);
-            anim_timer = NULL;
-        }
+    lv_mutex_lock(&timer_mutex);
+    if (STATUS_EXITING == album_page_share.status)
+    {
+        lv_mutex_unlock(&timer_mutex);
+        return;
     }
+    uint8_t *pdir = lv_timer_get_user_data(timer);
+    circular_scroll_handle(line_cont, *pdir);
+    if (++exec_count >= 30)
+    {
+        lv_timer_pause(anim_timer);
+    }
+    lv_mutex_unlock(&timer_mutex);
 }
 
 static void update_center_contact_color(lv_obj_t *obj)
@@ -327,6 +335,13 @@ static void update_center_contact_color(lv_obj_t *obj)
 
 static void contact_scroll_event_cb(lv_event_t *e)
 {
+    lv_mutex_lock(&timer_mutex);
+    if (STATUS_EXITING == album_page_share.status)
+    {
+        lv_mutex_unlock(&timer_mutex);
+        return;
+    }
+
     lv_obj_t *cont = lv_event_get_target(e);
     lv_obj_t *first = lv_obj_get_child(cont, 0);
     lv_area_t first_a;
@@ -382,14 +397,26 @@ static void contact_scroll_event_cb(lv_event_t *e)
 
     if (cur_idx != last_idx) 
     {
+        exec_count = 0;
         last_idx = cur_idx;
-        if (!anim_timer) 
+
+        if (!anim_timer)
         {
             //创建定时器，每40ms执行滚动动态
             anim_timer = lv_timer_create(screen_saver_timer_cb, 40, &dir);
-            exec_count = 0;
+            lv_timer_set_auto_delete(anim_timer, false);
+        }
+        else
+        {
+            lv_timer_reset(anim_timer);
+            if (lv_timer_get_paused(anim_timer))
+            {
+                lv_timer_resume(anim_timer);
+            }
         }
     }
+
+    lv_mutex_unlock(&timer_mutex);
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)

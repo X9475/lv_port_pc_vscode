@@ -34,9 +34,11 @@ static lv_scale_section_t * section;
 static lv_timer_t *zoom_timer = NULL;
 static lv_timer_t *photo_timer = NULL;
 static lv_timer_t *focus_timer = NULL;
-static lv_timer_t * enable_timer = NULL;
+static lv_timer_t *enable_timer = NULL;
 lv_obj_t *up_indicator_area;
 
+static bool mutex_init_flag = false;
+static lv_mutex_t timer_mutex;
 static bool left_panel_visible = false;
 static bool right_panel_visible = false;
 static bool flash_state = false;
@@ -97,6 +99,9 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
+    //互斥锁初始化
+    if (!mutex_init_flag) lv_mutex_init(&timer_mutex);
+    mutex_init_flag = true;
 
     screen = lv_obj_create(act_screen);
     lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
@@ -112,29 +117,20 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
-    if (zoom_timer) 
-    {
-        lv_timer_del(zoom_timer);
-        zoom_timer = NULL;
-    }
+    lv_mutex_lock(&timer_mutex);
+    if (zoom_timer) lv_timer_del(zoom_timer);
+    zoom_timer = NULL;
 
-    if (photo_timer) 
-    {
-        lv_timer_del(photo_timer);
-        photo_timer = NULL;
-    }
+    if (photo_timer) lv_timer_del(photo_timer);
+    photo_timer = NULL;
 
-    if (focus_timer) 
-    {
-        lv_timer_del(focus_timer);
-        focus_timer = NULL;
-    }
+    if (focus_timer) lv_timer_del(focus_timer); 
+    focus_timer = NULL;
 
-    if (enable_timer) 
-    {
-        lv_timer_del(enable_timer);
-        enable_timer = NULL;
-    }
+    if (enable_timer) lv_timer_del(enable_timer);
+    enable_timer = NULL;
+    shooting_photo_page.status = STATUS_EXITING;//准备离开
+    lv_mutex_unlock(&timer_mutex);
 
     lv_obj_remove_event_cb(act_screen, gesture_event_handler);
     lv_style_reset(&screen_style);
@@ -226,8 +222,6 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-
     // 为整个屏幕添加点击事件
     lv_obj_add_event_cb(cont, screen_click_cb, LV_EVENT_CLICKED, NULL);
 
@@ -327,7 +321,7 @@ static void lv_page_load(lv_obj_t *cont)
 
     // 创建定时器更新焦距倍率
     zoom_timer = lv_timer_create(timer_cb, 500, NULL); // 每500ms更新一次
-
+    lv_timer_set_auto_delete(zoom_timer, false);
     return;
 }
 
@@ -340,13 +334,6 @@ static void photo_delayed_action(lv_timer_t *timer)
     // - 调用相机API进行拍照
     // - 显示拍照动画效果
     // - 保存照片等
-
-    // 删除定时器
-    if (photo_timer) 
-    {
-        lv_timer_del(photo_timer);
-        photo_timer = NULL;
-    }
 }
 
 // 拍照按钮点击事件回调函数
@@ -358,7 +345,8 @@ static void photo_click_cb(lv_event_t *e)
     {
         // 添加延迟效果 - 使用定时器实现
         photo_timer = lv_timer_create(photo_delayed_action, 300, NULL); // 300ms延迟
-        lv_timer_set_repeat_count(photo_timer, 1); // 只执行一次
+        lv_timer_set_repeat_count(photo_timer, 1);
+        lv_timer_set_auto_delete(photo_timer, false);
     }
 }
 
@@ -374,13 +362,6 @@ static void focus_timer_cb(lv_timer_t * timer)
     if (focus_icon && lv_obj_is_valid(focus_icon)) 
     {
         lv_obj_del(focus_icon); 
-    }
-    
-    // 删除定时器
-    if (focus_timer) 
-    {
-        lv_timer_del(focus_timer);
-        focus_timer = NULL;
     }
 }
 
@@ -416,6 +397,8 @@ static void screen_click_cb(lv_event_t * e)
 
         // 创建1秒定时器
         focus_timer = lv_timer_create(focus_timer_cb, 3000, focus_icon);
+        lv_timer_set_repeat_count(focus_timer, 1);
+        lv_timer_set_auto_delete(focus_timer, false);
     }
 }
 
@@ -429,23 +412,18 @@ static float get_zoom_level_from_hardware()
 // 定时器回调，更新焦距倍率
 static void timer_cb(lv_timer_t * timer) 
 {
-    // 检查zoom_label是否有效
-    if (zoom_label == NULL || !lv_obj_is_valid(zoom_label)) 
+    lv_mutex_lock(&timer_mutex);
+    if (shooting_photo_page.status == STATUS_EXITING)
     {
+        lv_mutex_unlock(&timer_mutex);
         return;
     }
-
-    // 检查zoom_label是否在当前屏幕中
-    lv_obj_t *screen = lv_obj_get_screen(zoom_label);
-    if (screen != lv_scr_act()) 
-    {
-        return;
-    }
-       
+    
     float zoom_level = get_zoom_level_from_hardware();
     char zoom_str[16];
     snprintf(zoom_str, sizeof(zoom_str), "%.1fX", zoom_level);
     lv_label_set_text(zoom_label, zoom_str);
+    lv_mutex_unlock(&timer_mutex);
 }
 
 static void zoom_btn_long_press_handler(lv_event_t * e) 
@@ -715,6 +693,7 @@ static void gesture_event_handler(lv_event_t * e)
         // 设置定时器重新允许点击
         enable_timer = lv_timer_create(enable_click_cb, 300, NULL);
         lv_timer_set_repeat_count(enable_timer, 1);
+        lv_timer_set_auto_delete(enable_timer, false);
     }
 }
 
@@ -722,13 +701,6 @@ static void enable_click_cb(lv_timer_t * timer)
 {
     click_allowed = true;
     printf("点击功能已重新启用\n");
-    
-    // 删除定时器
-    if (enable_timer) 
-    {
-        lv_timer_del(enable_timer);
-        enable_timer = NULL;
-    }
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
@@ -750,13 +722,11 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
 
         case PAGE_SWITCH_SHOOTING_ADJ_FOCUS:
-            //加入栈表
             lv_stack_push(&shooting_photo_page);
             switch_page->new_page = lv_page_shooting_adj_focus_get();
             break;
 
         case PAGE_SWITCH_SHOOTING_MODE:
-            //加入栈表
             lv_stack_push(&shooting_photo_page);
             switch_page->new_page = lv_page_shooting_mode_get();
             break;

@@ -80,11 +80,9 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
-    if (auto_switch_timer) 
-    {
-        lv_timer_del(auto_switch_timer);
-        auto_switch_timer = NULL;
-    }
+    if (auto_switch_timer) lv_timer_del(auto_switch_timer);
+    auto_switch_timer = NULL;
+
     lv_style_reset(&screen_style);
     lv_style_reset(&down_area_style);
     lv_style_reset(&indicator_style);
@@ -159,8 +157,6 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-    
     // 创建底部矩形渐变框
     lv_obj_t *down_indicator_area = lv_obj_create(cont);
     lv_obj_set_size(down_indicator_area, 502, 230);
@@ -249,45 +245,29 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_event_cb(btn_left, btn_left_event_cb, LV_EVENT_CLICKED, scale);
     lv_obj_add_event_cb(btn_right, btn_right_event_cb, LV_EVENT_CLICKED, scale);
 
-    // 创建2秒后自动跳转的定时器
-    auto_switch_timer = lv_timer_create(auto_switch_cb, 2000, NULL);
-
-    // 添加按钮点击事件来取消自动跳转
-    lv_obj_add_event_cb(btn_left, reset_auto_switch_timer, LV_EVENT_CLICKED, auto_switch_timer);
-    lv_obj_add_event_cb(btn_right, reset_auto_switch_timer, LV_EVENT_CLICKED, auto_switch_timer);
-
     return;
 }
 
 // 自动跳转回调函数
 static void auto_switch_cb(lv_timer_t * timer)
 {
-    // 基本验证
-    if (timer == NULL || timer != auto_switch_timer) 
-    {
-        return;
-    }
-    // 跳转到其他界面
     lv_subject_set_int(&shooting_adj_focus_subject, PAGE_SWITCH_BACK);
-    
-    auto_switch_timer = NULL;
 }
 
 // 取消自动跳转回调函数
 static void reset_auto_switch_timer(lv_event_t * e)
 {
-    LV_UNUSED(e);
-    
-    // 如果定时器存在，先删除
-    if (auto_switch_timer) 
+    //创建2秒定时器
+    if (NULL == auto_switch_timer)
     {
-        lv_timer_del(auto_switch_timer);
-        auto_switch_timer = NULL;
+        auto_switch_timer = lv_timer_create(auto_switch_cb, 2000, NULL);
+        lv_timer_set_auto_delete(auto_switch_timer, false);
     }
-    
-    // 重新创建2秒定时器
-    auto_switch_timer = lv_timer_create(auto_switch_cb, 2000, NULL);
-    printf("自动跳转定时器已重置\n");
+    else
+    {
+        lv_timer_reset(auto_switch_timer);
+        printf("自动跳转定时器已重置\n");
+    }
 }
 
 static void rotate_scale(lv_obj_t *scale, int16_t angle_change) 

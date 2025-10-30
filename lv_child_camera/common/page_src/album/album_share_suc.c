@@ -4,9 +4,7 @@ lv_subject_t  album_share_suc_subject;
 static lv_switch_page_pt switch_page;
 
 static lv_style_t screen_style;
-
 static lv_obj_t *screen = NULL;
-
 static lv_timer_t *return_timer = NULL;
 
 static void lv_page_construct(void);
@@ -45,8 +43,6 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
-    //加入栈表
-    // lv_stack_push(&agent_start_page_info);
 
     screen = lv_obj_create(act_screen);
     lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
@@ -62,12 +58,9 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
-    if (return_timer) 
-    {
-        lv_timer_del(return_timer);
-        return_timer = NULL;
-    }
-    
+    if (return_timer) lv_timer_del(return_timer);
+    return_timer = NULL;
+
     lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
@@ -97,18 +90,11 @@ static void lv_page_subject_deinit()
 
 static void timer_callback(lv_timer_t *timer) 
 {
-    if (return_timer) 
-    {
-        lv_timer_del(return_timer);
-        return_timer = NULL;
-    }
-
     lv_subject_set_int(&album_share_suc_subject, PAGE_SWITCH_NEXT);
 }
+
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-
     lv_obj_t *btn_obj = lv_obj_create(cont);
     lv_obj_set_size(btn_obj, 208, 92);
     lv_obj_set_style_radius(btn_obj, 16, 0);
@@ -127,6 +113,7 @@ static void lv_page_load(lv_obj_t *cont)
 
     // 创建定时器，1000ms后触发
     return_timer = lv_timer_create(timer_callback, 1000, NULL);
+    lv_timer_set_auto_delete(return_timer, false);
     return;
 }
 

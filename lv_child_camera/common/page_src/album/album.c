@@ -36,6 +36,8 @@ static lv_style_t style_bg;
 static lv_style_t style_indicator;
 static lv_style_t style_knob;
 
+static bool mutex_init_flag = false;
+static lv_mutex_t timer_mutex;
 static uint32_t record_total_play_sec = 0;
 static uint32_t record_play_sec = 0;
 static bool is_playing = false;    // 播放状态标志
@@ -56,7 +58,6 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 static void lv_start_agent_slider_event(lv_event_t *e);
 
 static void album_icon_click_event(lv_event_t * e);
-static void photo_timer_cb(lv_timer_t * timer);
 static void screen_click_event(lv_event_t * e);
 static void delete_click_event(lv_event_t * e);
 static void gesture_event_handler(lv_event_t * e);
@@ -105,7 +106,9 @@ static void lv_page_construct(void)
     lv_page_style_init();
     //主题初始化
     lv_page_subject_init();
-    
+    //互斥锁初始化
+    if (!mutex_init_flag) lv_mutex_init(&timer_mutex);
+    mutex_init_flag = true;
 
     screen = lv_obj_create(act_screen);
     lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
@@ -122,17 +125,15 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
-    if (play_timer) 
-    {
-        lv_timer_del(play_timer);
-        play_timer = NULL;
-    }
+    lv_mutex_lock(&timer_mutex);
+    if (play_timer) lv_timer_del(play_timer);
+    play_timer = NULL;
 
-    if (hidden_timer) 
-    {
-        lv_timer_del(hidden_timer);
-        hidden_timer = NULL;
-    }
+    if (hidden_timer) lv_timer_del(hidden_timer);
+    hidden_timer = NULL;
+
+    album_page.status = STATUS_EXITING;//准备离开
+    lv_mutex_unlock(&timer_mutex);
     
     lv_obj_remove_event_cb(act_screen, gesture_event_handler);
 
@@ -331,9 +332,6 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_color(video_time_label, lv_color_hex(0XFFFFFF), 0);
     lv_obj_align(video_time_label, LV_ALIGN_TOP_LEFT, 215, 95);
 
-    // 创建定时器更新界面显示
-    //lv_timer_create(photo_timer_cb, 500, NULL); // 每500ms更新一次
-
     return;
 }
 
@@ -363,25 +361,6 @@ static void gesture_event_handler(lv_event_t * e)
         }
     }
 }
-
-
-
-// static void get_curr_playback_cnt_and_totol(int* iCurrCnt, int* iTotal) 
-// {
-//     *iCurrCnt = 3;
-//     *iTotal = 98;
-// }
-
-// static void photo_timer_cb(lv_timer_t * timer) 
-// {
-//     int iCurrCnt = 0;
-//     int iTotal = 0;
-//     get_curr_playback_cnt_and_totol(&iCurrCnt, &iTotal);
-//     char photo_cnt[16];
-//     snprintf(photo_cnt, sizeof(photo_cnt), "全部%d/%d", iCurrCnt, iTotal);
-//     lv_label_set_text(photo_all_label, photo_cnt);
-// }
-
 
 static void delete_video_file(void)
 {
@@ -499,10 +478,11 @@ static void update_time_label(void)
 static void playback_finished(void)
 {
     is_playing = false;
-    if (play_timer) 
+
+    //处于运行状态则暂停定时器
+    if (play_timer && !lv_timer_get_paused(play_timer))
     {
-        lv_timer_del(play_timer);
-        play_timer = NULL;  // 重要：立即设为NULL
+        lv_timer_pause(play_timer);
     }
     
     // 确保滑动条在最大值位置
@@ -512,6 +492,13 @@ static void playback_finished(void)
 // 播放定时器回调函数
 static void play_timer_cb(lv_timer_t * timer)
 {
+    lv_mutex_lock(&timer_mutex);
+    if (album_page.status == STATUS_EXITING)
+    {
+        lv_mutex_unlock(&timer_mutex);
+        return;
+    }
+
     if(record_play_sec < record_total_play_sec) 
     {
         record_play_sec ++; // 每次增加1000毫秒
@@ -527,6 +514,7 @@ static void play_timer_cb(lv_timer_t * timer)
         // 播放完成处理
         playback_finished();
     }
+    lv_mutex_unlock(&timer_mutex);
 }
 
 // 屏幕点击事件处理函数
@@ -542,12 +530,6 @@ static void screen_click_event(lv_event_t * e)
         lv_obj_add_flag(video_play_time_label, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(slider, LV_OBJ_FLAG_HIDDEN);
 
-        // 删除定时器前检查有效性
-        if (play_timer) 
-        {
-            lv_timer_del(play_timer);
-            play_timer = NULL;
-        }
         is_playing = false;
         is_icon_hidden = false;
 
@@ -579,7 +561,7 @@ static void slider_event_cb(lv_event_t * e)
         update_time_label();
         
         // 如果正在播放，暂停播放（用户拖动时暂停）
-        if(is_playing) 
+        if (is_playing && !lv_timer_get_paused(play_timer))
         {
             lv_timer_pause(play_timer);
         }
@@ -587,7 +569,7 @@ static void slider_event_cb(lv_event_t * e)
     else if(code == LV_EVENT_RELEASED) 
     {
         // 滑动条释放后，如果之前是播放状态则继续播放
-        if(is_playing) 
+        if (is_playing && lv_timer_get_paused(play_timer))
         {
             lv_timer_resume(play_timer);
         }
@@ -597,6 +579,13 @@ static void slider_event_cb(lv_event_t * e)
 // 定时器回调函数，用于延迟隐藏播放按钮和显示进度条
 static void play_icon_timer_cb(lv_timer_t * timer)
 {
+    lv_mutex_lock(&timer_mutex);
+    if (album_page.status == STATUS_EXITING)
+    {
+        lv_mutex_unlock(&timer_mutex);
+        return;
+    }
+
     // 隐藏播放按钮
     lv_obj_add_flag(photo_icon_stop, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(photo_icon_info, LV_OBJ_FLAG_HIDDEN);
@@ -632,16 +621,23 @@ static void play_icon_timer_cb(lv_timer_t * timer)
     
     lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_ALL, NULL);
 
-
-    //创建播放定时器（初始为暂停状态）
-    play_timer = lv_timer_create(play_timer_cb, 1000, NULL); // 100ms间隔
-    
-    // 删除定时器
-    if (hidden_timer) 
+    //创建播放定时器
+    if (NULL == play_timer)
     {
-        lv_timer_del(hidden_timer);
-        hidden_timer = NULL;
+        play_timer = lv_timer_create(play_timer_cb, 1000, NULL);
+        lv_timer_set_auto_delete(play_timer, false);
     }
+    else if (play_timer && lv_timer_get_paused(play_timer))
+    {
+        lv_timer_reset(play_timer);
+        lv_timer_resume(play_timer);
+    }
+
+    //处于运行状态则暂停定时器
+    if (!lv_timer_get_paused(hidden_timer)) {
+        lv_timer_pause(hidden_timer);
+    }
+    lv_mutex_unlock(&timer_mutex);
 }
 
 // 统一处理点击事件函数
@@ -675,7 +671,16 @@ static void album_icon_click_event(lv_event_t * e)
                 lv_img_set_src(obj, PHOTOGRAPH_ICON_PLAY);
 
                 // 创建定时器，1秒后执行隐藏和显示操作
-                hidden_timer = lv_timer_create(play_icon_timer_cb, 1000, NULL);
+                if (NULL == hidden_timer)
+                {
+                    hidden_timer = lv_timer_create(play_icon_timer_cb, 1000, NULL);
+                    lv_timer_set_auto_delete(hidden_timer, false);
+                }
+                else if (hidden_timer && lv_timer_get_paused(hidden_timer))
+                {
+                    lv_timer_reset(hidden_timer);
+                    lv_timer_resume(hidden_timer);
+                }
             }
             break;
 

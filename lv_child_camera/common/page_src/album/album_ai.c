@@ -98,8 +98,6 @@ static void album_info_back_click_cb(lv_event_t *e)
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-
     lv_obj_t * live_view = lv_image_create(cont);
     lv_obj_set_size(live_view, LV_HOR_RES, LV_VER_RES);
     //todo:获取当前最新的录像流视频和图片信息，并将图片信息展示在界面上

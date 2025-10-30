@@ -81,7 +81,7 @@ int main(int argc, char **argv)
   /*Initialize the HAL (display, input devices, tick) for LVGL*/
   hal_init(LV_HAL_WIDTH, LV_HAL_HEIGHT);
 
-  #if LV_USE_OS == LV_OS_NONE
+  #if LV_USE_OS == LV_OS_PTHREAD
 
   lv_manager_init();
   lv_camera_init();

@@ -96,7 +96,6 @@ static void page_back_event_cb(lv_event_t *e)
 }
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
     //返回按钮
     lv_obj_t *back = lv_img_create(cont);
     lv_obj_set_size(back, 50, 50);

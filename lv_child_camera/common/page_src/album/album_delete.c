@@ -126,8 +126,6 @@ static void album_info_back_click_cb(lv_event_t *e)
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-
     create_video_list(cont);
 
     return;

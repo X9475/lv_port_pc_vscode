@@ -165,8 +165,6 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-
    //创建返回按钮
     lv_obj_t * back_icon = lv_img_create(cont);
     lv_img_set_src(back_icon, ICON_BACK);

@@ -151,8 +151,6 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_add_style(cont, &screen_style, 0);
-
     total_recod_cnt = 98;   //todo ：获取实际的录像个数
     photo_total = 89;       //todo ：获取实际的照片个数
     video_total = 7;        //todo ：获取实际的视频个数
