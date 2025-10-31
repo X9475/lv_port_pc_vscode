@@ -24,6 +24,8 @@ static int16_t current_rotation = 0;    // 当前相对于初始角度的偏移
 static int16_t max_left_rotation = -120; // 最大向左旋转角度
 static int16_t left_rotation_amount = 0; // 已向左旋转的角度
 
+static float current_focus_value = 0;  // 当前焦距值
+
 static void lv_page_construct(void);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
@@ -183,20 +185,20 @@ static void lv_page_load(lv_obj_t *cont)
     // 显示刻度标签
     lv_scale_set_label_show(scale, true);
 
-    // 设置总刻度数量为21个（0-20）
-    lv_scale_set_total_tick_count(scale, 21);
+    // 设置总刻度数量为11个（0-10）
+    lv_scale_set_total_tick_count(scale, 11);
     // 每10个刻度显示一个主刻度
-    lv_scale_set_major_tick_every(scale, 10);
+    lv_scale_set_major_tick_every(scale, 5);
 
-    // 定义小时刻度标签文本（模拟时钟的12小时制）
-    static const char * hour_ticks[] = {"1", "2", "3", NULL};
+    // 定义小时刻度标签文本
+    static const char * hour_ticks[] = {"1", "1.5", "2", NULL};
     // 设置刻度标签文本源
     lv_scale_set_text_src(scale, hour_ticks);
     lv_obj_add_style(scale, &indicator_style, LV_PART_INDICATOR);
     lv_obj_add_style(scale, &minor_ticks_style, LV_PART_ITEMS);
     lv_obj_add_style(scale, &main_line_style, LV_PART_MAIN);
 
-    lv_scale_set_range(scale, 0, 20);
+    lv_scale_set_range(scale, 0, 10);
     lv_scale_set_angle_range(scale, 120);
     lv_scale_set_rotation(scale, initial_rotation);
 
@@ -245,7 +247,16 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_event_cb(btn_left, btn_left_event_cb, LV_EVENT_CLICKED, scale);
     lv_obj_add_event_cb(btn_right, btn_right_event_cb, LV_EVENT_CLICKED, scale);
 
+    // 创建2秒后自动跳转的定时器
+    auto_switch_timer = lv_timer_create(auto_switch_cb, 2000, NULL);
+
     return;
+}
+
+// 添加获取焦距值的函数
+float get_current_focus_value(void)
+{
+    return current_focus_value;
 }
 
 // 自动跳转回调函数
@@ -319,26 +330,33 @@ static void rotate_scale(lv_obj_t *scale, int16_t angle_change)
     {
         // 初始角度：选定(0, 1)范围
         lv_scale_section_set_range(section, 0, 1);
+        current_focus_value = 1;  // 对应1.0倍焦距
         printf("Section range set to (0, 1) - Initial position\n");
     }
     else if (current_rotation == -60) 
     {
-        // 向左转动60度：选定(9, 11)范围
-        lv_scale_section_set_range(section, 9, 11);
-        printf("Section range set to (9, 11) - 60° left rotation\n");
+        // 向左转动60度：选定(5, 6)范围
+        lv_scale_section_set_range(section, 5, 6);
+        current_focus_value = 1.5;  // 对应10倍焦距
+        printf("Section range set to (5, 6) - 60° left rotation\n");
     }
     else if (current_rotation == -120) 
     {
-        // 向左转动120度：选定(19, 20)范围
-        lv_scale_section_set_range(section, 19, 20);
-        printf("Section range set to (19, 20) - 120° left rotation\n");
+        // 向左转动120度：选定(9, 10)范围
+        lv_scale_section_set_range(section, 9, 10);
+        current_focus_value = 2.0;  // 对应20倍焦距
+        printf("Section range set to (9, 10) - 120° left rotation\n");
     }
     else
     {
         // 非特殊角度：取消选中效果
         lv_scale_section_set_range(section, -1, -1);
-        printf("No selection at %d°\n", current_rotation);
+
+        // 线性计算焦距值：从1倍到20倍，对应0到-120度
+        float ratio = (float)abs(current_rotation) / 120.0f;
+        current_focus_value = 1 + ratio;
     }
+    printf("No selection at %d°, focus value: %.2f\n", current_rotation, current_focus_value);
 
     // 重置自动跳转定时器
     reset_auto_switch_timer(NULL);
@@ -349,14 +367,14 @@ static void rotate_scale(lv_obj_t *scale, int16_t angle_change)
 static void btn_left_event_cb(lv_event_t *e) 
 {
     lv_obj_t *scale = lv_event_get_user_data(e);
-    rotate_scale(scale, -6); // 向左旋转6度
+    rotate_scale(scale, -12); // 向左旋转6度
 }
 
 // 向右旋转按钮事件回调
 static void btn_right_event_cb(lv_event_t *e) 
 {
     lv_obj_t *scale = lv_event_get_user_data(e);
-    rotate_scale(scale, 6); // 向右旋转6度
+    rotate_scale(scale, 12); // 向右旋转6度
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
