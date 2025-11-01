@@ -234,14 +234,6 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     int32_t page_event = lv_subject_get_int(subject);
     LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
     if (page_event == PAGE_SWITCH_NONE) return;//注意首次触发
-    
-    // if (page_event == PAGE_SWITCH_BACK) {
-    //     lv_obj_clear_flag(lv_page_menu_setting_info_get()->page, LV_OBJ_FLAG_HIDDEN);
-    //     lv_subject_set_int(&menu_setting_subject, PAGE_SWITCH_NONE);
-    //     settings_more_page_info.destruct_cb();//销毁
-    //     lv_obj_del(settings_more_page_info.page);
-    //     return;
-    // }
 
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
     lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
