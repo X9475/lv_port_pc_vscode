@@ -169,7 +169,7 @@ static void lv_page_load(lv_obj_t *cont)
         image = lv_image_create(versatile_filters_item);
         lv_obj_set_size(image, 96, 96);
         lv_image_set_src(image, versatile_filters_icon_paths[i]);
-        lv_obj_set_user_data(image, versatile_filters_icon_paths[i]);
+        lv_obj_set_user_data(image, (void*)(intptr_t)i);
 
         // 使用绝对位置：每个图片垂直排列，水平位置为0（最左边）
         lv_obj_set_pos(image, 0, i * (96 + 12));  // 96是图片高度，12是间距
@@ -205,6 +205,8 @@ static void app_icon_event_cb(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) 
     {
         LV_LOG_USER("Clicked");
+        int icon_index = (int)(intptr_t)lv_obj_get_user_data(app_obj);
+        printf("点击了第 %d 个图标\n", icon_index + 1);
     }
 }
 

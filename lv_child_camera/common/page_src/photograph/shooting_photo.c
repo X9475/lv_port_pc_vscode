@@ -390,10 +390,32 @@ static void screen_click_cb(lv_event_t * e)
         lv_obj_add_flag(up_indicator_area, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(flash_img, LV_OBJ_FLAG_HIDDEN);
 
+        // 获取触摸点坐标
+        lv_point_t point;
+        lv_indev_t * indev = lv_event_get_indev(e);
+        lv_indev_get_point(indev, &point);
+        // 打印坐标值
+        printf("屏幕点击坐标: X=%d, Y=%d\n", point.x, point.y);
+
         //todo: 先传递一个实际坐标位置，后续根据BSP提供的屏幕坐标修改变焦框位置
         lv_obj_t * focus_icon = lv_img_create(screen);
         lv_img_set_src(focus_icon, FOCUS);
-        lv_obj_align(focus_icon, LV_ALIGN_TOP_LEFT, 192, 121);
+
+        // 强制刷新对象
+        lv_obj_update_layout(focus_icon);
+
+        // 现在获取尺寸
+        lv_coord_t icon_width = lv_obj_get_width(focus_icon);
+        lv_coord_t icon_height = lv_obj_get_height(focus_icon);
+
+        lv_coord_t top_left_x = point.x - icon_width / 2;
+        lv_coord_t top_left_y = point.y - icon_height / 2;
+        
+        printf("对焦图标左上角坐标: X=%d, Y=%d\n", top_left_x, top_left_y);
+        printf("对焦图标尺寸: 宽度=%d, 高度=%d\n", icon_width, icon_height);
+
+        // 以点击点为中心放置图标（减去图标尺寸的一半）
+        lv_obj_align(focus_icon, LV_ALIGN_TOP_LEFT,  top_left_x, top_left_y);
 
         // 创建1秒定时器
         focus_timer = lv_timer_create(focus_timer_cb, 3000, focus_icon);
