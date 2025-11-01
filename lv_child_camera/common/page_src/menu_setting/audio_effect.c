@@ -1,6 +1,6 @@
 #include "../lv_switch_interface.h"
 
-#define AUDIO_NUM       5
+#define AUDIO_NUM       7
 
 lv_subject_t audio_effect_subject;
 static lv_switch_page_pt switch_page;
@@ -20,7 +20,7 @@ static void audio_iterm_click_event_cb(lv_event_cb_t *e);
 static void *lv_audio_effect_iterm_create(lv_obj_t *cont, const char *name);
 
 static const char *audio_list[AUDIO_NUM] = {
-    "拍照音","呼叫铃声","接听铃声","消息提示音", "按键音"
+    "拍照音", "呼叫铃声", "接听铃声", "闹钟铃声", "消息提示音", "按键音", "超出区域"
 };
 
 //待跳转的页面种类
@@ -30,8 +30,10 @@ static enum PAGE_EVENT_ENUM
     PAGE_SWITCH_PHOTO_SOUND,    //拍照音
     PAGE_SWITCH_RING_BELL,      //呼叫铃声
     PAGE_SWITCH_ANSWER_BELL,    //接听铃声
+    PAGE_SWITCH_ALARM_CLOCK,    //闹钟铃声
     PAGE_SWITCH_NOTIFY_SOUND,   //消息提示音
     PAGE_SWITCH_KEYPAD_TONE,    //按键音
+    PAGE_SWITCH_BEYOND_AREA,    //超出区域
     PAGE_SWITCH_BACK
 };
 
@@ -142,23 +144,31 @@ static void audio_iterm_click_event_cb(lv_event_cb_t *e)
     {
         if (lv_strcmp(name, "拍照音") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&audio_effect_subject, PAGE_SWITCH_PHOTO_SOUND);
         }
         else if (lv_strcmp(name, "呼叫铃声") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&audio_effect_subject, PAGE_SWITCH_RING_BELL);
         }
         else if (lv_strcmp(name, "接听铃声") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&audio_effect_subject, PAGE_SWITCH_ANSWER_BELL);
+        }
+        else if (lv_strcmp(name, "闹钟铃声") == 0)
+        {
+            lv_subject_set_int(&audio_effect_subject, PAGE_SWITCH_ALARM_CLOCK);
         }
         else if (lv_strcmp(name, "消息提示音") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&audio_effect_subject, PAGE_SWITCH_NOTIFY_SOUND);
         }
         else if (lv_strcmp(name, "按键音") == 0)
         {
-            //TODO: 页面跳转
+            lv_subject_set_int(&audio_effect_subject, PAGE_SWITCH_KEYPAD_TONE);
+        }
+        else if (lv_strcmp(name, "超出区域") == 0)
+        {
+            lv_subject_set_int(&audio_effect_subject, PAGE_SWITCH_BEYOND_AREA);
         }
     }
 }
@@ -199,14 +209,6 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     int32_t page_event = lv_subject_get_int(subject);
     LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
     if (page_event == PAGE_SWITCH_NONE) return;//注意首次触发
-    
-    if (page_event == PAGE_SWITCH_BACK) {
-        lv_obj_clear_flag(lv_page_menu_setting_info_get()->page, LV_OBJ_FLAG_HIDDEN);
-        lv_subject_set_int(&menu_setting_subject, PAGE_SWITCH_NONE);
-        audio_effect_page_info.destruct_cb();//销毁
-        lv_obj_del(audio_effect_page_info.page);
-        return;
-    }
 
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
     lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
@@ -215,9 +217,37 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
     switch (page_event)
     {
-        // case PAGE_SWITCH_BACK:
-        //     switch_page->new_page = lv_stack_pop();
-        //     break;
+        case PAGE_SWITCH_PHOTO_SOUND:
+            // lv_stack_push(&audio_effect_page_info);
+            // switch_page->new_page = lv_page_record_time_info_get();
+            break;
+        case PAGE_SWITCH_RING_BELL:
+            // lv_stack_push(&audio_effect_page_info);
+            // switch_page->new_page = lv_page_record_time_info_get();
+            break;
+        case PAGE_SWITCH_ANSWER_BELL:
+            // lv_stack_push(&audio_effect_page_info);
+            // switch_page->new_page = lv_page_record_time_info_get();
+            break;
+        case PAGE_SWITCH_ALARM_CLOCK:
+            // lv_stack_push(&audio_effect_page_info);
+            // switch_page->new_page = lv_page_record_time_info_get();
+            break;
+        case PAGE_SWITCH_NOTIFY_SOUND:
+            // lv_stack_push(&audio_effect_page_info);
+            // switch_page->new_page = lv_page_record_time_info_get();
+            break;
+        case PAGE_SWITCH_KEYPAD_TONE:
+            // lv_stack_push(&audio_effect_page_info);
+            // switch_page->new_page = lv_page_record_time_info_get();
+            break;
+        case PAGE_SWITCH_BEYOND_AREA:
+            // lv_stack_push(&audio_effect_page_info);
+            // switch_page->new_page = lv_page_record_time_info_get();
+            break;
+        case PAGE_SWITCH_BACK:
+            switch_page->new_page = lv_stack_pop();
+            break;
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);
             break;
