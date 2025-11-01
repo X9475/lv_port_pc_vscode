@@ -1,6 +1,6 @@
 #include "../lv_switch_interface.h"
 
-#define SETTING_NUM     8
+#define SETTING_NUM     12
 
 lv_subject_t settings_more_subject;
 static lv_switch_page_pt switch_page;
@@ -20,8 +20,8 @@ static void *lv_more_setting_iterm_create(lv_obj_t *cont, const char *name);
 static void setting_iterm_click_event_cb(lv_event_cb_t *e);
 
 static const char *setting_list[SETTING_NUM] = {
-    "单次录像时长","熄屏时间","时间展示形式","存储管理", \
-    "振动幅度","关于相机","恢复出厂设置","认证标志"
+    "单次录像时长", "熄屏时间", "时间展示形式", "存储管理", "语音控制开关", "锁屏密码",
+    "滚轮振动开关", "振动幅度", "远程预览开关", "关于相机", "恢复出厂设置", "认证标志"
 };
 
 //待跳转的页面种类
@@ -32,7 +32,11 @@ static enum PAGE_EVENT_ENUM
     PAGE_SWITCH_SCREEN_OFF_TIME,        //熄屏时间
     PAGE_SWITCH_TIME_DISPLAY_FORMAT,    //时间展示形式
     PAGE_SWITCH_STORAGE_MANAGER,        //存储管理
+    PAGE_SWITCH_VOICE_CONTROL_SWITCH,   //语音控制开关
+    PAGE_SWITCH_VOICE_LOCK_PASSWORD,    //锁屏密码
+    PAGE_SWITCH_VOICE_ROLLER_VIBRAT,    //滚动振动开关
     PAGE_SWITCH_VIBRATION_AMPLITUDE,    //振动幅度
+    PAGE_SWITCH_REMOTE_PREVIEW_SWITCH,  //远程预览开关
     PAGE_SWITCH_CAMERA_ABOUT,           //关于相机
     PAGE_SWITCH_FACTORY_RESTORE,        //恢复出厂设置
     PAGE_SWITCH_CERTIFICATION_MARK,     //认证标志
@@ -189,9 +193,25 @@ static void setting_iterm_click_event_cb(lv_event_cb_t *e)
         {
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_STORAGE_MANAGER);
         }
+        else if (lv_strcmp(name, "语音控制开关") == 0)
+        {
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VOICE_CONTROL_SWITCH);
+        }
+        else if (lv_strcmp(name, "锁屏密码") == 0)
+        {
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VOICE_LOCK_PASSWORD);
+        }
+        else if (lv_strcmp(name, "滚轮振动开关") == 0)
+        {
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VOICE_ROLLER_VIBRAT);
+        }
         else if (lv_strcmp(name, "振动幅度") == 0)
         {
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VIBRATION_AMPLITUDE);
+        }
+        else if (lv_strcmp(name, "远程预览开关") == 0)
+        {
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_REMOTE_PREVIEW_SWITCH);
         }
         else if (lv_strcmp(name, "关于相机") == 0)
         {
@@ -246,9 +266,25 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             lv_stack_push(&settings_more_page_info);        
             switch_page->new_page = lv_page_storage_manage_info_get();
             break;
+        case PAGE_SWITCH_VOICE_CONTROL_SWITCH:
+            // lv_stack_push(&settings_more_page_info);
+            // switch_page->new_page = lv_page_hold_time_info_get();
+            break;
+        case PAGE_SWITCH_VOICE_LOCK_PASSWORD:
+            // lv_stack_push(&settings_more_page_info);     
+            // switch_page->new_page = lv_page_time_display_info_get();
+            break;
+        case PAGE_SWITCH_VOICE_ROLLER_VIBRAT:
+            // lv_stack_push(&settings_more_page_info);     
+            // switch_page->new_page = lv_page_storage_manage_info_get();
+            break;
         case PAGE_SWITCH_VIBRATION_AMPLITUDE:
             lv_stack_push(&settings_more_page_info);        
             switch_page->new_page = lv_page_vibrat_amplitude_info_get();
+            break;
+        case PAGE_SWITCH_REMOTE_PREVIEW_SWITCH:
+            // lv_stack_push(&settings_more_page_info);        
+            // switch_page->new_page = lv_page_vibrat_amplitude_info_get();
             break;
         case PAGE_SWITCH_CAMERA_ABOUT:
             lv_stack_push(&settings_more_page_info);        
