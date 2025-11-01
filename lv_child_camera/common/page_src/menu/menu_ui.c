@@ -366,12 +366,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
         case PAGE_SWITCH_AI_ANSWER:
             switch_page->new_page = lv_page_aidialog_info_get();
-        // case PAGE_SWITCH_FAILED:
-        //     // switch_page->new_page = lv_page_signup_failed_info_get();
-        //     break;
-        // case PAGE_SWITCH_BACK:
-        //     switch_page->new_page = lv_stack_pop();
-        //     break;
+            break;
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);
             break;
