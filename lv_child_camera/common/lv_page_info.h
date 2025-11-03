@@ -10,7 +10,7 @@ extern "C" {
 #include "page_switch/lv_page_switch.h"
 #include "../../lvgl/lvgl.h"
 
-typedef void (* construct_func)();
+typedef void (* construct_func)(void *);
 typedef void (* destruct_func)();
 
 /// @brief 页面状态枚举
@@ -64,6 +64,13 @@ typedef enum
 
 
     PAGE_FUNCTIONAL_AUDIO_EFFECT,       ///<< 音频效果
+    PAGE_FUNCTIONAL_AUDIO_PHOTO,        ///<< 拍照音
+    PAGE_FUNCTIONAL_AUDIO_RING_BELL,    ///<< 呼叫铃声
+    PAGE_FUNCTIONAL_AUDIO_ANSWER_BELL,  ///<< 接听铃声
+    PAGE_FUNCTIONAL_AUDIO_ALARM_CLOCK,  ///<< 闹钟铃声
+    PAGE_FUNCTIONAL_AUDIO_NOTIFY_SOUND, ///<< 消息提示音
+    PAGE_FUNCTIONAL_AUDIO_KEYPAD_TONE,  ///<< 按键音
+    PAGE_FUNCTIONAL_AUDIO_BEYOND_AREA,  ///<< 超出区域
     PAGE_FUNCTIONAL_SAVER_STYLE,        ///<< 屏保样式
     PAGE_FUNCTIONAL_RECORD_TIME,        ///<< 单次录像时长设置
     PAGE_FUNCTIONAL_HOLD_TIME,          ///<< 息屏时间设置

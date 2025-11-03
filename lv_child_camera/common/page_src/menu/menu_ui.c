@@ -16,7 +16,7 @@ typedef struct
     const char *grey_icon;
 } lv_menu_dev_t;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -67,7 +67,7 @@ lv_page_info_pt lv_page_menu_info_get()
     return &menu_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

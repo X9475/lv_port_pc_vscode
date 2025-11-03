@@ -7,7 +7,7 @@ static lv_obj_t *screen = NULL;
 static lv_style_t screen_style;
 static lv_style_t style_mask;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -37,7 +37,7 @@ lv_page_info_pt lv_page_cert_mask_info_get()
     return &cert_mask_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

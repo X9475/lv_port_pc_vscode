@@ -33,7 +33,7 @@ static bool right_panel_visible = false;
 #define LEFT_EDGE_THRESHOLD 200
 #define RIGHT_EDGE_THRESHOLD (LV_HOR_RES - LEFT_EDGE_THRESHOLD)
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -73,7 +73,7 @@ lv_page_info_pt lv_page_shooting_switch_video_get()
     return &shooting_switch_video_page;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

@@ -20,7 +20,7 @@ static lv_obj_t *more;
 static lv_obj_t *bright_slider;
 static lv_obj_t *volume_slider;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -53,7 +53,7 @@ lv_page_info_pt lv_page_menu_setting_info_get()
     return &menu_setting_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

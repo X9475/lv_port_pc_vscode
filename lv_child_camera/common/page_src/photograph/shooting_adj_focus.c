@@ -26,7 +26,7 @@ static int16_t left_rotation_amount = 0; // 已向左旋转的角度
 
 static float current_focus_value = 0;  // 当前焦距值
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -61,7 +61,7 @@ lv_page_info_pt lv_page_shooting_adj_focus_get()
     return &shooting_adj_focus_page;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

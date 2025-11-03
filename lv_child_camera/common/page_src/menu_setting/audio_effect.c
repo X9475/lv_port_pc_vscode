@@ -8,7 +8,7 @@ static lv_switch_page_pt switch_page;
 static lv_obj_t *screen = NULL;
 static lv_style_t screen_style;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -50,7 +50,7 @@ lv_page_info_pt lv_page_audio_effect_info_get()
     return &audio_effect_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();
@@ -218,32 +218,32 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch (page_event)
     {
         case PAGE_SWITCH_PHOTO_SOUND:
-            // lv_stack_push(&audio_effect_page_info);
-            // switch_page->new_page = lv_page_record_time_info_get();
+            lv_stack_push(&audio_effect_page_info);
+            switch_page->new_page = lv_page_audio_photo_info_get();
             break;
         case PAGE_SWITCH_RING_BELL:
-            // lv_stack_push(&audio_effect_page_info);
-            // switch_page->new_page = lv_page_record_time_info_get();
+            lv_stack_push(&audio_effect_page_info);
+            switch_page->new_page = lv_page_audio_ring_bell_info_get();
             break;
         case PAGE_SWITCH_ANSWER_BELL:
-            // lv_stack_push(&audio_effect_page_info);
-            // switch_page->new_page = lv_page_record_time_info_get();
+            lv_stack_push(&audio_effect_page_info);
+            switch_page->new_page = lv_page_audio_answer_bell_info_get();
             break;
         case PAGE_SWITCH_ALARM_CLOCK:
-            // lv_stack_push(&audio_effect_page_info);
-            // switch_page->new_page = lv_page_record_time_info_get();
+            lv_stack_push(&audio_effect_page_info);
+            switch_page->new_page = lv_page_audio_alarm_clock_info_get();
             break;
         case PAGE_SWITCH_NOTIFY_SOUND:
-            // lv_stack_push(&audio_effect_page_info);
-            // switch_page->new_page = lv_page_record_time_info_get();
+            lv_stack_push(&audio_effect_page_info);
+            switch_page->new_page = lv_page_audio_notify_sound_info_get();
             break;
         case PAGE_SWITCH_KEYPAD_TONE:
-            // lv_stack_push(&audio_effect_page_info);
-            // switch_page->new_page = lv_page_record_time_info_get();
+            lv_stack_push(&audio_effect_page_info);
+            switch_page->new_page = lv_page_audio_keypad_tone_info_get();
             break;
         case PAGE_SWITCH_BEYOND_AREA:
-            // lv_stack_push(&audio_effect_page_info);
-            // switch_page->new_page = lv_page_record_time_info_get();
+            lv_stack_push(&audio_effect_page_info);
+            switch_page->new_page = lv_page_audio_beyond_area_info_get();
             break;
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();

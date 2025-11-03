@@ -14,7 +14,7 @@ static bool mutex_init_flag = false;
 static lv_mutex_t timer_mutex;
 static uint8_t exec_count = 0;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -69,7 +69,7 @@ lv_page_info_pt lv_page_screensaver_style_info_get()
     return &screensaver_style_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();
