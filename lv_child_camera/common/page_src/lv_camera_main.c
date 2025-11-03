@@ -23,8 +23,6 @@ void lv_camera_init()
     act_screen = lv_screen_active();
     //lv_obj_set_style_bg_opa(act_screen, LV_OPA_TRANSP, 0);
 
-
-
     return;
 }
 

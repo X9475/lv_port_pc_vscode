@@ -208,7 +208,7 @@ static void set_arc_value(void *obj, int32_t v)
 
 static void anim_finish_cb(lv_anim_t *anim)
 {
-    lv_anim_del_all();
+    lv_anim_delete(anim, NULL);
     lv_subject_set_int(&inital_startup_subject, PAGE_SWITCH_NEXT);
 }
 

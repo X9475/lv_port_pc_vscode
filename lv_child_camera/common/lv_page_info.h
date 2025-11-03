@@ -107,6 +107,8 @@ typedef enum
     PAGE_TOAST_FACTORY_RESTORE_SUCCESS, ///<< 恢复出厂设置成功
     PAGE_TOAST_FACTORY_RESTORE_ERROR,   ///<< 恢复出厂设置失败
     PAGE_TOAST_STORAGE_EXHAUSTED,       ///<< 存储已耗尽，无法拍摄
+    PAGE_TOAST_SETTING_MENU_SLIDE,      ///<< 设置菜单滑动提示
+    PAGE_TOAST_MENU_SLIDE,              ///<< 菜单滑动提示
     PAGE_TOAST_CONFIRM,                 ///<< toast确认
 
     //aivoice
