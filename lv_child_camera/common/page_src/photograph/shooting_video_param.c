@@ -5,7 +5,7 @@
 static const char * video_left_options = "分辨率\n画面比例\n帧率";
 static const char * ratio_options = "1:1\n4:3\n16:9";
 static const char * resolution_options ="4K\n1080P";
-static const char * frame_options ="25\n30\n50";
+static const char * frame_options ="24\n25\n30\n50";
 
 lv_subject_t shooting_video_param_subject;
 static lv_switch_page_pt switch_page;
@@ -18,6 +18,7 @@ static lv_style_t select_roller_style;
 
 static lv_obj_t *screen = NULL;
 static lv_obj_t * right_roller;
+static lv_obj_t * left_roller;
 
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
@@ -181,7 +182,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_style(up_roller_indicator_area, &up_area_roller_style, 0);
 
     /* 创建左边滚轮 */
-    lv_obj_t * left_roller = lv_roller_create(cont);
+    left_roller = lv_roller_create(cont);
 
     lv_roller_set_options(left_roller, video_left_options, LV_ROLLER_MODE_NORMAL);
 
@@ -239,21 +240,61 @@ static void right_roller_event_cb(lv_event_t * e)
     {//选项发生变化
         last_index = lv_roller_get_selected(right_roller);
 
-        char selected_text[32] = {0};
-        lv_roller_get_selected_str(right_roller, selected_text, sizeof(selected_text));
-        LV_LOG_USER("Roller changed: Index=%d, Text=%s", selected, selected_text);
+        uint16_t left_selected = lv_roller_get_selected(left_roller);
 
         /* 根据左边滚轮的选择更新右边滚轮内容 */
         switch(selected) 
         {
-            case 0: 
-                LV_LOG_WARN("This is a event message");
+            case 0:
+                if(left_selected == 0)
+                {
+                    LV_LOG_WARN("This is a resolition event message, resolution:4K");
+                }
+                else if(left_selected == 1)
+                {
+                    LV_LOG_WARN("This is a photo event message, photo:1:1");
+                }
+                else if(left_selected == 2)
+                {
+                    LV_LOG_WARN("This is a frame event message, frame:24");
+                }
                 break;
+
             case 1: 
-                LV_LOG_WARN("This is a event1 message");
+                if(left_selected == 0)
+                {
+                    LV_LOG_WARN("This is a resolition event message, resolution:1080P");
+                }
+                else if(left_selected == 1)
+                {
+                    LV_LOG_WARN("This is a photo event message, photo:4:3");
+                }
+                else if(left_selected == 2)
+                {
+                    LV_LOG_WARN("This is a frame event message, frame:25");
+                }
                 break;
+
             case 2: 
-                LV_LOG_WARN("This is a event2 message");
+                if(left_selected == 0)
+                {
+                    LV_LOG_WARN("This is a resolition event message, resolution:none");
+                }
+                else if(left_selected == 1)
+                {
+                    LV_LOG_WARN("This is a photo event message, photo:16:9");
+                }
+                else if(left_selected == 2)
+                {
+                    LV_LOG_WARN("This is a frame event message, frame:30");
+                }
+                break;
+
+            case 3: 
+                if(left_selected == 2)
+                {
+                    LV_LOG_WARN("This is a frame event message, frame:50");
+                }
                 break;
         }
     }
@@ -283,7 +324,7 @@ static void left_roller_event_cb(lv_event_t * e)
 
             case 2: 
                 lv_roller_set_options(right_roller, frame_options, LV_ROLLER_MODE_NORMAL);
-                lv_roller_set_selected(right_roller, 1, LV_ANIM_OFF); // 默认选择30
+                lv_roller_set_selected(right_roller, 0, LV_ANIM_OFF); // 默认选择24
                 break;
         }
     }
