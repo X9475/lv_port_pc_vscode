@@ -1,6 +1,6 @@
 #include "../lv_switch_interface.h"
 
-#define SETTING_NUM     12
+#define SETTING_NUM     11
 
 lv_subject_t settings_more_subject;
 static lv_switch_page_pt switch_page;
@@ -20,7 +20,7 @@ static void *lv_more_setting_iterm_create(lv_obj_t *cont, const char *name);
 static void setting_iterm_click_event_cb(lv_event_cb_t *e);
 
 static const char *setting_list[SETTING_NUM] = {
-    "单次录像时长", "熄屏时间", "时间展示形式", "存储管理", "语音控制开关", "锁屏密码",
+    "熄屏时间", "时间展示形式", "存储管理", "语音控制开关", "锁屏密码",
     "滚轮振动开关", "振动幅度", "远程预览开关", "关于相机", "恢复出厂设置", "认证标志"
 };
 
@@ -28,7 +28,6 @@ static const char *setting_list[SETTING_NUM] = {
 static enum PAGE_EVENT_ENUM
 {
     PAGE_SWITCH_NONE,
-    PAGE_SWITCH_SINGLE_RECORD_DURATION, //单次录像时长设置
     PAGE_SWITCH_SCREEN_OFF_TIME,        //熄屏时间
     PAGE_SWITCH_TIME_DISPLAY_FORMAT,    //时间展示形式
     PAGE_SWITCH_STORAGE_MANAGER,        //存储管理
@@ -177,11 +176,7 @@ static void setting_iterm_click_event_cb(lv_event_cb_t *e)
 
     if (LV_EVENT_CLICKED == code)
     {
-        if (lv_strcmp(name, "单次录像时长") == 0)
-        {
-            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_SINGLE_RECORD_DURATION);
-        }
-        else if (lv_strcmp(name, "熄屏时间") == 0)
+        if (lv_strcmp(name, "熄屏时间") == 0)
         {
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_SCREEN_OFF_TIME);
         }
@@ -242,10 +237,6 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
     switch (page_event)
     {
-        case PAGE_SWITCH_SINGLE_RECORD_DURATION:
-            lv_stack_push(&settings_more_page_info);
-            switch_page->new_page = lv_page_record_time_info_get();
-            break;
         case PAGE_SWITCH_SCREEN_OFF_TIME:
             lv_stack_push(&settings_more_page_info);
             switch_page->new_page = lv_page_hold_time_info_get();

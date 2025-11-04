@@ -69,8 +69,8 @@ static void lv_page_style_init()
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
-    lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
-    lv_style_set_bg_opa(&screen_style, LV_OPA_90);
+    lv_style_set_bg_image_opa(&screen_style, LV_OPA_COVER);
+    lv_style_set_bg_image_src(&screen_style, "../lv_port_pc_vscode/assert/icon/background.png");
 }
 
 static void lv_page_subject_init()
@@ -97,10 +97,12 @@ static void lv_page_load(lv_obj_t *cont)
 
     lv_obj_t *description = lv_obj_create(cont);
     lv_obj_set_size(description, 450, 180);
-    lv_obj_add_style(description, &screen_style, 0);
-    lv_obj_clear_flag(description, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_pad_all(description, 0, LV_PART_MAIN);
+    lv_obj_set_style_border_width(description, 0, LV_PART_MAIN);
     lv_obj_set_style_radius(description, 18, LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(description, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(description, lv_color_hex(0x000000), LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(description, LV_OPA_40, 0);
+    lv_obj_clear_flag(description, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_align(description, LV_ALIGN_CENTER, 0, 0);
 
     const char *text = "CMIIT ID：XXXXXXXXXXXX\n版本：V100-1M88SF4G-Z\nTD-LTE无线数据终端\n中国制造";

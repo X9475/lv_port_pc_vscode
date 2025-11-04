@@ -11,6 +11,7 @@ extern "C" {
 #if (LV_CHILD_CAMERA != 0) && (LV_USE_FONT_MANAGER != 0)
 
 //瘦体
+extern const lv_font_t *fzlthr_20;
 extern const lv_font_t *fzlthr_22;
 extern const lv_font_t *fzlthr_24;
 extern const lv_font_t *fzlthr_26;
@@ -19,8 +20,10 @@ extern const lv_font_t *fzlthr_30;
 extern const lv_font_t *fzlthr_32;
 extern const lv_font_t *fzlthr_34;
 extern const lv_font_t *fzlthr_40;
+extern const lv_font_t *fzlthr_50;
 extern const lv_font_t *fzlthr_170;
 //粗体
+extern const lv_font_t *fzlthb_20;
 extern const lv_font_t *fzlthb_22;
 extern const lv_font_t *fzlthb_24;
 extern const lv_font_t *fzlthb_26;
@@ -29,6 +32,7 @@ extern const lv_font_t *fzlthb_30;
 extern const lv_font_t *fzlthb_32;
 extern const lv_font_t *fzlthb_34;
 extern const lv_font_t *fzlthb_40;
+extern const lv_font_t *fzlthb_50;
 extern const lv_font_t *fzlthb_170;
 
 void lv_font_init();
