@@ -387,7 +387,6 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
         case PAGE_SWITCH_AI_ANSWER:
             lv_page_reserve_del();
-            lv_stack_push(&menu_page_info);
             switch_page->new_page = lv_page_aidialog_info_get();
             break;
         default:
