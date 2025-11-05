@@ -29,6 +29,8 @@ static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 static void lv_event_handler_code(lv_event_cb_t *e);
+static void slider_press_event(lv_event_t *e);
+static void slider_release_event(lv_event_t *e);
 static void lv_menu_setting_slider_event(lv_event_cb_t *e);
 static void lv_page_reserve_del(void);
 
@@ -242,6 +244,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_style(bright_slider, &style_knob, LV_PART_KNOB);
     lv_obj_align(bright_slider, LV_ALIGN_TOP_LEFT, 269, 35);
     lv_obj_add_event_cb(bright_slider, lv_menu_setting_slider_event, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(bright_slider, slider_press_event, LV_EVENT_PRESSED, NULL);
+    lv_obj_add_event_cb(bright_slider, slider_release_event, LV_EVENT_RELEASED, NULL);
 
     lv_obj_t *bright_icon = lv_img_create(bright_slider);
     lv_img_set_src(bright_icon, "../lv_port_pc_vscode/assert/icon/icon_bright.png");
@@ -258,6 +262,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_style(volume_slider, &style_knob, LV_PART_KNOB);
     lv_obj_align(volume_slider, LV_ALIGN_TOP_RIGHT, -38, 35);
     lv_obj_add_event_cb(volume_slider, lv_menu_setting_slider_event, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_add_event_cb(volume_slider, slider_press_event, LV_EVENT_PRESSED, NULL);
+    lv_obj_add_event_cb(volume_slider, slider_release_event, LV_EVENT_RELEASED, NULL);
 
     lv_obj_t *volume_icon = lv_img_create(volume_slider);
     lv_img_set_src(volume_icon, "../lv_port_pc_vscode/assert/icon/icon_volume.png");
@@ -265,6 +271,20 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(volume_icon, LV_ALIGN_BOTTOM_MID, 0, 10);
 
     return;
+}
+
+static void slider_press_event(lv_event_t *e)
+{
+    //禁用父容器手势冒泡
+    lv_obj_t *parent = lv_obj_get_parent(lv_event_get_target(e));
+    lv_obj_clear_flag(parent, LV_OBJ_FLAG_GESTURE_BUBBLE);
+}
+
+static void slider_release_event(lv_event_t *e)
+{
+    //恢复父容器手势冒泡
+    lv_obj_t *parent = lv_obj_get_parent(lv_event_get_target(e));
+    lv_obj_add_flag(parent, LV_OBJ_FLAG_GESTURE_BUBBLE);
 }
 
 static void lv_menu_setting_slider_event(lv_event_cb_t *e)

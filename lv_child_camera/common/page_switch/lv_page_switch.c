@@ -159,11 +159,12 @@ static void page_gesture_event_cb(lv_event_t *e)
                     lv_page_info_pt last_page = lv_stack_pop();
                     lv_obj_clear_flag(last_page->page, LV_OBJ_FLAG_HIDDEN);
                 }
+
                 //删除菜单页
                 lv_page_menu_info_get()->destruct_cb();
                 lv_page_menu_info_get()->reserved = NULL;
                 lv_obj_del(lv_page_menu_info_get()->page);
-                // lv_page_type_set(TYPE_FUNCTIONAL);//回到功能页
+                lv_page_type_set(TYPE_FUNCTIONAL);//回到功能页(不可少)
             }
             else if (lv_page_type_get() == TYPE_NONE && menu_flag == true)
             {
