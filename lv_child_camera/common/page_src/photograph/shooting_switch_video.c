@@ -2,8 +2,10 @@
 
 #define CAMERA_ICON "V:tk1/realtime_shooting/photograph_icon_switchcamera.png"
 #define ICON_BACK "V:tk1/realtime_shooting/photograph_icon_back.png"
+#define RECORD_ICON "V:tk1/realtime_shooting/photograph_icon_record.png"
 #define PHOTOS_ICON_LUT "V:tk1/realtime_shooting/photograph_icon_lut.png"
 #define PHOTOS_ICON_PARAMETER "V:tk1/realtime_shooting/photograph_icon_parameter.png"
+#define VIDEO_BACKGROUND "V:tk1/realtime_shooting/video_background.png"
 
 lv_subject_t shooting_switch_video_subject;
 static lv_switch_page_pt switch_page;
@@ -11,6 +13,7 @@ static lv_switch_page_pt switch_page;
 static lv_style_t screen_style;
 static lv_style_t up_area_style;
 static lv_style_t down_area_style;
+static lv_style_t btn_style;
 static lv_style_t camera_button_style;
 static lv_style_t realtime_style;
 
@@ -43,12 +46,14 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
 static void timer_callback_2(lv_timer_t *timer);
 static void video_click_cb(lv_event_t * e);
-//static void camera_click_cb(lv_event_t * e);
+static void record_click_cb(lv_event_t * e);
+static void camera_click_cb(lv_event_t * e);
 static void timer_cb(lv_timer_t * timer);
 static void gesture_event_handler(lv_event_t * e);
 static void multi_effect_filter_click_cb(lv_event_t * e);
 static void parameter_adj_click_cb(lv_event_t * e);
 static void back_click_cb(lv_event_t * e);
+static void zoom_btn_long_press_handler(lv_event_t * e);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -57,6 +62,9 @@ static enum PAGE_EVENT_ENUM
     PAGE_SWITCH_NEXT,
     PAGE_SWITCH_ADJ_PARAM,
     PAGE_SWITCH_MULTI_FILTER,
+    PAGE_SWITCH_SHOOTING_ADJ_FOCUS,
+    PAGE_SWITCH_ALBUM,
+    PAGE_SWITCH_SHOOTING_MODE,
     PAGE_SWITCH_BACK
 };
 
@@ -118,6 +126,7 @@ static void lv_page_destruct(void)
     lv_style_reset(&screen_style);
     lv_style_reset(&up_area_style);
     lv_style_reset(&down_area_style);
+    lv_style_reset(&btn_style);
     lv_style_reset(&camera_button_style);
     lv_style_reset(&realtime_style);
     lv_page_subject_deinit();
@@ -165,6 +174,13 @@ static void lv_page_style_init()
     lv_style_set_border_opa(&down_area_style, LV_OPA_TRANSP);
     lv_style_set_radius(&down_area_style, 0);
     lv_style_set_bg_grad(&down_area_style, &down_grad);
+
+    //btn_style
+    lv_style_init(&btn_style);
+    lv_style_set_bg_color(&btn_style, lv_color_white());
+    lv_style_set_radius(&btn_style, 70);
+    lv_style_set_shadow_opa(&btn_style, LV_OPA_TRANSP);
+    lv_style_set_bg_opa(&btn_style, LV_OPA_TRANSP); // 设置背景透明度
 
     //camera_button_style
     lv_style_init(&camera_button_style);
@@ -234,6 +250,31 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(down_indicator_area, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_add_style(down_indicator_area, &down_area_style, 0);
 
+    // 创建左下角录像buton区域
+    lv_obj_t *rec_btn = lv_btn_create(down_indicator_area);
+    lv_obj_set_size(rec_btn, 140, 70);
+    lv_obj_align(rec_btn, LV_ALIGN_BOTTOM_LEFT, 30, -30);
+    lv_obj_add_style(rec_btn, &btn_style, LV_PART_MAIN);
+
+    lv_obj_t * record_background = lv_img_create(down_indicator_area);
+    lv_img_set_src(record_background, VIDEO_BACKGROUND);
+    lv_obj_align(record_background, LV_ALIGN_BOTTOM_LEFT, 30, -30);
+
+    // 录像图标
+    lv_obj_t * record_icon = lv_img_create(rec_btn);
+    lv_img_set_src(record_icon, RECORD_ICON);
+    lv_obj_align(record_icon, LV_ALIGN_CENTER, -30, 0);
+
+    //录像文本
+    lv_obj_t *record_label = lv_label_create(rec_btn);
+    lv_label_set_text(record_label, "录像");
+
+    lv_obj_set_style_text_opa(record_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(record_label, font_get_regular(24), 0);
+    lv_obj_set_style_text_color(record_label, lv_color_white(), 0);
+    lv_obj_align(record_label, LV_ALIGN_CENTER, 22, 0);
+    lv_obj_add_event_cb(rec_btn, record_click_cb, LV_EVENT_CLICKED, NULL);
+
     //临时调试代码， 创建录像buton
     lv_obj_t *photo_btn = lv_btn_create(down_indicator_area);
     lv_obj_set_size(photo_btn, 70, 70);
@@ -260,8 +301,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_t * camera_icon = lv_img_create(camera_buton);
     lv_img_set_src(camera_icon, CAMERA_ICON);
     lv_obj_align(camera_icon, LV_ALIGN_CENTER, 0, 0);
-    // lv_obj_add_flag(camera_icon, LV_OBJ_FLAG_CLICKABLE);
-    // lv_obj_add_event_cb(camera_icon, camera_click_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(camera_icon, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(camera_icon, camera_click_cb, LV_EVENT_CLICKED, NULL);
 
     // 创建右侧焦距倍率显示
     lv_obj_t * zoom_container = lv_btn_create(down_indicator_area);
@@ -275,6 +316,9 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_font(zoom_label, font_get_regular(16), 0);
     lv_obj_set_style_text_color(zoom_label, lv_color_white(), 0);
     lv_obj_align(zoom_label, LV_ALIGN_CENTER, 0, 0);
+
+    // 为zoom_container添加事件处理
+    lv_obj_add_event_cb(zoom_container, zoom_btn_long_press_handler, LV_EVENT_ALL, NULL);
 
     // 创建定时器更新焦距倍率
     zoom_timer = lv_timer_create(timer_cb, 1000, NULL);
@@ -454,7 +498,7 @@ static void gesture_event_handler(lv_event_t * e)
         {
             printf("左边缘向右滑动 - 切换到其他界面\n");
             // 切换到其他界面（根据您的实际界面管理方式调整）
-            //lv_subject_set_int(&shooting_photo_subject, PAGE_SWITCH_ALBUM);
+            lv_subject_set_int(&shooting_switch_video_subject, PAGE_SWITCH_ALBUM);
         }
         // 2. 右边缘向左滑动 - 显示右侧面板
         else if(dir == LV_DIR_LEFT && point.x > RIGHT_EDGE_THRESHOLD) 
@@ -532,16 +576,65 @@ static void timer_cb(lv_timer_t * timer)
     lv_mutex_unlock(&timer_mutex);
 }
 
-// static void camera_click_cb(lv_event_t * e) 
-// {
-//     lv_event_code_t code = lv_event_get_code(e);
-//     if(code == LV_EVENT_CLICKED) 
-//     {
-//         camera_state = !camera_state;
-//         // 这里实现切换物理镜头的逻辑
-//         printf("切换物理镜头: %s\n", camera_state ? "后置" : "前置");
-//     }
-// }
+static void record_click_cb(lv_event_t * e) 
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_CLICKED) 
+    {
+        printf("record mode clicked\n");
+        //这里实现跳转到录像界面的逻辑
+        lv_subject_set_int(&shooting_switch_video_subject, PAGE_SWITCH_SHOOTING_MODE);
+    }
+}
+
+static void camera_click_cb(lv_event_t * e) 
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_CLICKED) 
+    {
+        if(is_recording)
+        {
+            printf("record videos without switching camera!!!\n");
+            return;
+        }
+        //判断录像是否开始开始，不开始可以翻转，开始无法翻转
+        camera_state = !camera_state;
+        // 这里实现切换物理镜头的逻辑
+        printf("切换物理镜头: %s\n", camera_state ? "后置" : "前置");
+    }
+}
+
+static void zoom_btn_long_press_handler(lv_event_t * e) 
+{
+    static bool is_long_pressed = false;  // 全局标志位，用于标记是否已处理长按
+    lv_event_code_t code = lv_event_get_code(e);
+    if (code == LV_EVENT_LONG_PRESSED) 
+    {
+        if(is_recording)
+        {
+            printf("record videos without adj focus!!!\n");
+            return;
+        }
+
+        is_long_pressed = true;  // 标记已处理长按
+        printf("长按出现调整倍率\n");
+        lv_subject_set_int(&shooting_switch_video_subject, PAGE_SWITCH_SHOOTING_ADJ_FOCUS);
+            
+    }
+    else if (code == LV_EVENT_CLICKED)
+    {
+        // 如果是长按后的点击事件，则忽略
+        if (is_long_pressed) 
+        {
+            is_long_pressed = false;  // 重置标志位
+            return;
+        }
+
+        printf("点击提示长按\n");
+        //todo：提示长按出现变焦转盘
+    }
+    
+}
 
 static void timer_callback_2(lv_timer_t *timer)
 {
@@ -582,6 +675,20 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
         case PAGE_SWITCH_MULTI_FILTER:
             switch_page->new_page = lv_page_shooting_multi_filter_get();
+            break;
+
+        case PAGE_SWITCH_SHOOTING_ADJ_FOCUS:
+            lv_stack_push(&shooting_switch_video_page);
+            switch_page->new_page = lv_page_shooting_adj_focus_get();
+            break;
+
+        case PAGE_SWITCH_ALBUM:
+            lv_stack_push(&shooting_switch_video_page);
+            switch_page->new_page = lv_page_album_get();
+            break;
+
+        case PAGE_SWITCH_SHOOTING_MODE:
+            switch_page->new_page = lv_page_shooting_mode_get();
             break;
 
         case PAGE_SWITCH_BACK:

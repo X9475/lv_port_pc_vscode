@@ -352,8 +352,8 @@ static void gesture_event_handler(lv_event_t * e)
         //右边缘向左滑动 - 切换到拍摄界面
         if(dir == LV_DIR_LEFT && point.x > RIGHT_EDGE_THRESHOLD) 
         {
-            printf("右边缘向左滑动,切换到拍摄界面\n");
-            lv_subject_set_int(&album_subject, PAGE_SWITCH_SHOOT_PHOTO);
+            printf("右边缘向左滑动,切换到拍摄或界面\n");
+            lv_subject_set_int(&album_subject, PAGE_SWITCH_BACK);
         }
         else 
         {
@@ -523,6 +523,12 @@ static void screen_click_event(lv_event_t * e)
     // 如果图标被隐藏，点击屏幕恢复暂停图标
     if (is_icon_hidden) 
     {
+        // 暂停播放定时器，防止record_play_sec继续增加
+        if (play_timer && !lv_timer_get_paused(play_timer))
+        {
+            lv_timer_pause(play_timer);
+        }
+
         // 显示播放图标
         lv_obj_clear_flag(photo_icon_stop, LV_OBJ_FLAG_HIDDEN);
         lv_img_set_src(photo_icon_stop, PHOTOGRAPH_ICON_STOP);
@@ -534,7 +540,7 @@ static void screen_click_event(lv_event_t * e)
         is_icon_hidden = false;
 
         //录像时长和当前进度恢复为0
-        record_play_sec = 0;
+        //record_play_sec = 0;
 
         // 恢复部分控件
         lv_obj_clear_flag(photo_icon_stop, LV_OBJ_FLAG_HIDDEN);
@@ -618,8 +624,17 @@ static void play_icon_timer_cb(lv_timer_t * timer)
     lv_obj_add_style(slider, &style_indicator, LV_PART_INDICATOR);
     lv_obj_add_style(slider, &style_knob, LV_PART_KNOB);
     lv_slider_set_range(slider, 0, 100);
+
+    // 设置滑动条为不可交互状态
+    lv_obj_clear_flag(slider, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(slider, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(slider, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+
     
-    lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_ALL, NULL);
+    //lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_ALL, NULL);
+
+    // 设置滑动条初始值为当前播放进度
+    lv_slider_set_value(slider, record_play_sec * 100 / record_total_play_sec, LV_ANIM_OFF);
 
     //创建播放定时器
     if (NULL == play_timer)
