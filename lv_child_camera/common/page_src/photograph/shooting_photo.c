@@ -758,6 +758,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
 
         case PAGE_SWITCH_ALBUM:
+            lv_stack_push(&shooting_photo_page);
             switch_page->new_page = lv_page_album_get();
             break;
 

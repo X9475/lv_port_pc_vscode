@@ -286,11 +286,15 @@ static void recreate_content_layout(lv_obj_t *cont)
             lv_obj_add_flag(item_cont, LV_OBJ_FLAG_CLICKABLE);
             lv_obj_add_event_cb(item_cont, item_click_event, LV_EVENT_CLICKED, (void*)(intptr_t)item_index);
 
-            // lv_obj_t * photo_icon = lv_img_create(item_cont);
-            // lv_img_set_src(photo_icon, PHOTOGRAPH_ICON_SINGLE);
-            // //lv_img_set_src(photo_icon,  "V:png/img_camera_backup.png");
-            // lv_obj_set_size(photo_icon, 238, 194);
-            // lv_obj_align(photo_icon, LV_ALIGN_CENTER, 0, 0);
+            lv_obj_t * photo_icon = lv_img_create(item_cont);
+            lv_obj_set_size(photo_icon, 238, 194);
+            lv_img_set_src(photo_icon,  "V:png/img_camera_backup.png");
+
+            // 计算合适的缩放比例（保持比例）
+            float scale = LV_MIN(238.0f / 502.0f, 194.0f / 410.0f);
+            int zoom_level = (int)(scale * 256);
+            // 设置缩放
+            lv_img_set_zoom(photo_icon, zoom_level);
 
             // 时间标签
             lv_obj_t *time_label = lv_label_create(item_cont);
