@@ -14,7 +14,7 @@ static lv_style_t style_knob;
 static float use_storage = 89.0;//GB
 static float total_storage = 128.0;//GB
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -46,7 +46,7 @@ lv_page_info_pt lv_page_storage_manage_info_get()
     return &storage_manage_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

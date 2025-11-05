@@ -7,7 +7,7 @@ static lv_obj_t *screen = NULL;
 static lv_style_t screen_style;
 static uint32_t tick_sec = 5;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -37,7 +37,7 @@ lv_page_info_pt *lv_page_signup_failed_info_get()
     return &signup_failed_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

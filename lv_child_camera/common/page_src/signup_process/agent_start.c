@@ -9,7 +9,7 @@ static lv_style_t style_main;
 static lv_style_t style_indicator;
 static lv_style_t style_knob;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -39,7 +39,7 @@ lv_page_info_pt lv_page_agent_start_info_get()
     return &agent_start_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

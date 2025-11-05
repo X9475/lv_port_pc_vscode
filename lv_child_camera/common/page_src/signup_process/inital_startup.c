@@ -9,7 +9,7 @@ static lv_style_t indc_style;
 static lv_style_t main_style;
 static lv_anim_t arc_anim;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -41,7 +41,7 @@ lv_page_info_pt lv_page_inital_startup_info_get()
     return &inital_startup_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();
@@ -208,7 +208,7 @@ static void set_arc_value(void *obj, int32_t v)
 
 static void anim_finish_cb(lv_anim_t *anim)
 {
-    lv_anim_del_all();
+    lv_anim_delete(anim, NULL);
     lv_subject_set_int(&inital_startup_subject, PAGE_SWITCH_NEXT);
 }
 

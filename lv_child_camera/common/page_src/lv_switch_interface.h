@@ -45,14 +45,24 @@ lv_page_info_pt lv_page_agent_start_info_get();
 extern lv_subject_t network_error_subject;
 lv_page_info_pt lv_page_network_error_info_get();
 
+/***************************音频效果*************************************/
+//音频效果
+extern lv_subject_t audio_effect_subject;
+lv_page_info_pt lv_page_audio_effect_info_get();
+
+extern lv_subject_t audio_option_subject;
+lv_page_info_pt lv_page_audio_photo_info_get();
+lv_page_info_pt lv_page_audio_ring_bell_info_get();
+lv_page_info_pt lv_page_audio_answer_bell_info_get();
+lv_page_info_pt lv_page_audio_alarm_clock_info_get();
+lv_page_info_pt lv_page_audio_notify_sound_info_get();
+lv_page_info_pt lv_page_audio_keypad_tone_info_get();
+lv_page_info_pt lv_page_audio_beyond_area_info_get();
+
 /***************************设备设置*************************************/
 //更多设置
 extern lv_subject_t settings_more_subject;
 lv_page_info_pt lv_page_settings_more_info_get();
-
-//音频效果
-extern lv_subject_t audio_effect_subject;
-lv_page_info_pt lv_page_audio_effect_info_get();
 
 //单次录像时长
 extern lv_subject_t record_time_subject;

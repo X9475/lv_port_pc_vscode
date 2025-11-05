@@ -35,7 +35,7 @@ static int photo_total = 0;
 static int video_total = 0;
 static int time_lapse_total = 0;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -82,7 +82,7 @@ lv_page_info_pt lv_page_album_four_grid_get()
     return &album_page_four_grid;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

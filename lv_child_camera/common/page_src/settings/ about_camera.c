@@ -5,8 +5,11 @@ static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
 static lv_style_t screen_style;
+static lv_style_t label1_style;
+static lv_style_t label2_style;
+static lv_style_t label3_style;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -35,7 +38,7 @@ lv_page_info_pt lv_page_about_camera_info_get()
     return &about_camera_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();
@@ -57,6 +60,9 @@ static void lv_page_construct(void)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&label1_style);
+    lv_style_reset(&label2_style);
+    lv_style_reset(&label3_style);
     lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
@@ -70,6 +76,27 @@ static void lv_page_style_init()
     lv_style_set_border_width(&screen_style, 0);
     lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
     lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+
+    //label1_style
+    lv_style_init(&label1_style);
+    lv_style_set_text_opa(&label1_style, LV_OPA_COVER);
+    lv_style_set_text_color(&label1_style, lv_color_hex(0xFFFFFF));
+    lv_style_set_text_font(&label1_style, fzlthb_50);
+    lv_style_set_text_align(&label1_style, LV_TEXT_ALIGN_CENTER);
+
+    //label2_style
+    lv_style_init(&label2_style);
+    lv_style_set_text_opa(&label2_style, LV_OPA_COVER);
+    lv_style_set_text_color(&label2_style, lv_color_hex(0xFFFFFF));
+    lv_style_set_text_font(&label2_style, fzlthr_26);
+    lv_style_set_text_align(&label2_style, LV_TEXT_ALIGN_LEFT);
+
+    //label3_style
+    lv_style_init(&label3_style);
+    lv_style_set_text_opa(&label3_style, LV_OPA_COVER);
+    lv_style_set_text_color(&label3_style, lv_color_hex(0xFFFFFF));
+    lv_style_set_text_font(&label3_style, fzlthr_20);
+    lv_style_set_text_align(&label3_style, LV_TEXT_ALIGN_LEFT);
 }
 
 static void lv_page_subject_init()
@@ -94,12 +121,35 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
-    lv_obj_t *label = lv_label_create(cont);
-    lv_label_set_text(label, "关于相机");
-    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(label, fzlthr_26, 0);
-    lv_obj_set_style_text_color(label, lv_color_white(), 0);
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_t *label1 = lv_label_create(cont);
+    lv_obj_set_size(label1, 222, 61);
+    lv_label_set_text(label1, "P I K A");
+    lv_obj_add_style(label1, &label1_style, 0);
+    lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 23, 92);
+
+    lv_obj_t *label2 = lv_label_create(cont);
+    lv_obj_set_size(label2, 158, 37);
+    lv_label_set_text(label2, "序列号");
+    lv_obj_add_style(label2, &label2_style, 0);
+    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 55, 182);
+
+    lv_obj_t *label3 = lv_label_create(cont);
+    lv_obj_set_size(label3, 158, 37);
+    lv_label_set_text(label3, "仓版本");
+    lv_obj_add_style(label3, &label2_style, 0);
+    lv_obj_align(label3, LV_ALIGN_TOP_LEFT, 55, 268);
+
+    lv_obj_t *label4 = lv_label_create(cont);
+    lv_obj_set_size(label4, 184, 30);
+    lv_label_set_text(label4, "V2.0 build 1111111");
+    lv_obj_add_style(label4, &label3_style, 0);
+    lv_obj_align(label4, LV_ALIGN_TOP_LEFT, 55, 223);
+
+    lv_obj_t *label5 = lv_label_create(cont);
+    lv_obj_set_size(label5, 184, 30);
+    lv_label_set_text(label5, "V2.0 build 1111111");
+    lv_obj_add_style(label5, &label3_style, 0);
+    lv_obj_align(label5, LV_ALIGN_TOP_LEFT, 55, 305);
 
     return;
 }

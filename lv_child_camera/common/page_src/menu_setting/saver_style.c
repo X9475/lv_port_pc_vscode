@@ -1,6 +1,6 @@
 #include "../lv_switch_interface.h"
 
-#define SAVER_NUM       5
+#define SAVER_NUM       3
 
 lv_subject_t screensaver_style_subject;
 static lv_switch_page_pt switch_page;
@@ -14,7 +14,7 @@ static bool mutex_init_flag = false;
 static lv_mutex_t timer_mutex;
 static uint8_t exec_count = 0;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -32,22 +32,8 @@ static void circular_scroll_handle(lv_obj_t *cont, uint8_t dir);
 static const char *saver_list[SAVER_NUM] = {
     "../lv_port_pc_vscode/assert/icon/screen_saver.png",
     "../lv_port_pc_vscode/assert/icon/screen_saver.png",
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png",
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png",
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png",
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png",
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png",
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png",
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png",
     "../lv_port_pc_vscode/assert/icon/screen_saver.png"
 };
-
-typedef struct
-{
-    lv_obj_t *option;
-    uint8_t select_flag; //0：未选择；1：已选择
-} saver_option_t;
-static saver_option_t saver_option_list[SAVER_NUM];
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -69,7 +55,7 @@ lv_page_info_pt lv_page_screensaver_style_info_get()
     return &screensaver_style_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();
@@ -159,13 +145,7 @@ static void lv_page_load(lv_obj_t *cont)
     for (uint8_t i = 0; i < SAVER_NUM; i++)
     {
         lv_obj_t *saver = screen_saver_create(cont_col, saver_list[i]);
-        saver_option_list[i].option = lv_obj_get_child(saver, 1);
-        if (i == 0) {
-            saver_option_list[i].select_flag = 1;
-            lv_img_set_src(saver_option_list[i].option, "../lv_port_pc_vscode/assert/icon/photograph_icon_select_green.png");
-            continue;
-        }
-        saver_option_list[i].select_flag = 0;
+        lv_obj_add_event_cb(saver, screen_saver_click_event_cb, LV_EVENT_CLICKED, cont_col);
     }
 
     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, 0), LV_ANIM_OFF);
@@ -285,46 +265,49 @@ static void *screen_saver_create(lv_obj_t *cont, const char *path)
     lv_obj_t *saver = lv_obj_create(cont);
     lv_obj_remove_style_all(saver);
     lv_obj_set_size(saver, 280, 220);
+    lv_obj_add_flag(saver, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(saver, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_radius(saver, 20, 0);
     lv_obj_set_style_clip_corner(saver, true, 0);
     lv_obj_align(saver, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_t *image = lv_img_create(saver);
-    lv_obj_set_size(image, 280, 220);
-    lv_img_set_src(image, path);
-    lv_obj_align(image, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_t *style_image = lv_img_create(saver);
+    lv_obj_set_size(style_image, 280, 220);
+    lv_img_set_src(style_image, path);
+    lv_obj_align(style_image, LV_ALIGN_CENTER, 0, 0);
 
-    //未选择
-    lv_obj_t *option = lv_img_create(saver);
-    lv_img_set_src(option, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
-    lv_obj_align(option, LV_ALIGN_TOP_RIGHT, -20, 20);
-    lv_obj_add_flag(option, LV_OBJ_FLAG_CHECKABLE);
-
-    lv_obj_add_event_cb(saver, screen_saver_click_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t *img = lv_img_create(saver);
+    if (saver == lv_obj_get_child(cont, 0))
+    {
+        lv_img_set_src(img, "../lv_port_pc_vscode/assert/icon/photograph_icon_select_green.png");
+    }
+    else
+    {
+        lv_img_set_src(img, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
+    }
+    lv_obj_align(img, LV_ALIGN_TOP_RIGHT, -20, 20);
 
     return saver;
 }
 
 static void screen_saver_click_event_cb(lv_event_t *e)
 {
-    lv_obj_t *saver = lv_event_get_target(e);
     lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *cont_col = lv_event_get_user_data(e);
 
-    lv_obj_t *option = lv_obj_get_child(saver, 1);
-    for (uint8_t i = 0; i < SAVER_NUM; i++)
+    if (LV_EVENT_CLICKED == code)
     {
-        saver_option_t *saver_option = &saver_option_list[i];
-        if (option == saver_option->option) {
-            if (saver_option->select_flag == 0) {
-                saver_option->select_flag = 1;
-                lv_img_set_src(saver_option->option, "../lv_port_pc_vscode/assert/icon/photograph_icon_select_green.png");
-            }
-            else {
-                saver_option->select_flag = 0;
-                lv_img_set_src(saver_option->option, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
-            }
-            break;
+        for (uint8_t i = 0; i < lv_obj_get_child_cnt(cont_col); i++)
+        {
+            lv_obj_t *iterm = lv_obj_get_child(cont_col, i);
+            lv_obj_t *img = lv_obj_get_child(iterm, 1);
+            lv_img_set_src(img, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
         }
+
+        lv_obj_t *checkbox = lv_event_get_target(e);
+        lv_obj_t *img = lv_obj_get_child(checkbox, 1);
+        lv_img_set_src(img, "../lv_port_pc_vscode/assert/icon/photograph_icon_select_green.png");
+        lv_obj_scroll_to_view(checkbox, LV_ANIM_ON);
     }
 }
 

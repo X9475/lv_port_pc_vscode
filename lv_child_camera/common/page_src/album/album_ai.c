@@ -12,7 +12,7 @@ static lv_style_t screen_style;
 
 static lv_obj_t *screen = NULL;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -41,7 +41,7 @@ lv_page_info_pt lv_page_album_ai_get()
     return &album_page_ai;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

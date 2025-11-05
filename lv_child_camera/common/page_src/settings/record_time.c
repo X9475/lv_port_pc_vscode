@@ -8,7 +8,7 @@ static lv_style_t screen_style;
 static lv_style_t style_roller;
 static lv_style_t style_select_roller;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -39,7 +39,7 @@ lv_page_info_pt lv_page_record_time_info_get()
     return &record_time_page_info;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

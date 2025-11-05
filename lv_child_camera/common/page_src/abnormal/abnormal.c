@@ -104,6 +104,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         case PAGE_ABNORMAL_CONFIRM:
             lv_page_style_deinit();
             if (lv_obj_is_valid(top_screen)) lv_obj_clean(top_screen);
+            lv_subject_set_int(&anormal_subject, PAGE_ABNORMAL_NONE);//重置为初始状态
             break;
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);

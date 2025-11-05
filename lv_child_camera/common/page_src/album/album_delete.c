@@ -19,7 +19,7 @@ static bool selection_mode = false;
 static bool *item_selected = NULL; // 记录每个项目的选中状态
 static int total_recod_cnt = 8; //todo ：获取实际的录像个数
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -55,7 +55,7 @@ lv_page_info_pt lv_page_album_delete_get()
     return &album_page_delete;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();

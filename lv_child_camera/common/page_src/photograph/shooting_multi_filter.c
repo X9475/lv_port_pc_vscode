@@ -21,7 +21,7 @@ static lv_style_t style_multi_filter;
 
 static lv_obj_t *screen = NULL;
 
-static void lv_page_construct(void);
+static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
 static void lv_page_subject_init();
@@ -55,7 +55,7 @@ lv_page_info_pt lv_page_shooting_multi_filter_get()
     return &shooting_multi_filter_page;
 }
 
-static void lv_page_construct(void)
+static void lv_page_construct(void *this)
 {
     //样式初始化
     lv_page_style_init();
