@@ -38,7 +38,7 @@ static enum PAGE_EVENT_ENUM
 };
 
 static lv_page_info_t aidialog_page_info = {
-    .page_id = PAGE_FUNCTIONAL_AGENT_START,
+    .page_id = PAGE_AIVOICE_DIALOG,
     .page = NULL,
     .reserved = NULL,
     .construct_cb = lv_page_construct,

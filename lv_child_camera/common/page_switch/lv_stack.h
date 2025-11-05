@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#define LV_STACK_DEPTH      5 //嵌套深度
+#define LV_STACK_DEPTH      10 //嵌套深度
 
 /// @brief 初始化栈列表
 void lv_stack_list_init();

@@ -30,6 +30,7 @@ static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 static void lv_event_handler_code(lv_event_cb_t *e);
 static void lv_menu_setting_slider_event(lv_event_cb_t *e);
+static void lv_page_reserve_del(void);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -62,7 +63,7 @@ static void lv_page_construct(void *this)
     //主题初始化
     lv_page_subject_init();
 
-    screen = lv_obj_create(top_screen);
+    screen = lv_obj_create(act_screen);
     lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
@@ -70,6 +71,11 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
+
+    if (lv_page_type_get() != TYPE_NONE)
+    {
+        lv_page_type_set(TYPE_MENU_SETTING);
+    }
 
     menu_setting_page_info.page = screen;
     return;
@@ -340,6 +346,19 @@ static void lv_event_handler_code(lv_event_cb_t *e)
     }
 }
 
+static void lv_page_reserve_del(void)
+{
+    if (menu_setting_page_info.reserved != NULL)
+    {
+        lv_page_info_pt reserved = (lv_page_info_pt)menu_setting_page_info.reserved;
+        printf("[%s:%d] -- delete page id: %d\n", __FILE__, __LINE__, reserved->page_id);
+        reserved->destruct_cb();
+        if (reserved->page) lv_obj_del(reserved->page);
+        menu_setting_page_info.reserved = NULL;
+        lv_stack_pop();//移除栈顶元素
+    }
+}
+
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
 {
     LV_UNUSED(observer);
@@ -355,23 +374,23 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch (page_event)
     {
         case PAGE_SWITCH_SINGLE_RECORD:
+            lv_page_reserve_del();
             lv_stack_push(&menu_setting_page_info);
-            // lv_obj_add_flag(menu_setting_page_info.page, LV_OBJ_FLAG_HIDDEN);
             switch_page->new_page = lv_page_record_time_info_get();
             break;
         case PAGE_SWITCH_AUDIO_EFFECT:
+            lv_page_reserve_del();
             lv_stack_push(&menu_setting_page_info);
-            // lv_obj_add_flag(menu_setting_page_info.page, LV_OBJ_FLAG_HIDDEN);
             switch_page->new_page = lv_page_audio_effect_info_get();
             break;
         case PAGE_SWITCH_SCREENSAVER:
+            lv_page_reserve_del();
             lv_stack_push(&menu_setting_page_info);
-            // lv_obj_add_flag(menu_setting_page_info.page, LV_OBJ_FLAG_HIDDEN);
             switch_page->new_page = lv_page_screensaver_style_info_get();
             break;
         case PAGE_SWITCH_MORE:
+            lv_page_reserve_del();
             lv_stack_push(&menu_setting_page_info);
-            // lv_obj_add_flag(menu_setting_page_info.page, LV_OBJ_FLAG_HIDDEN);
             switch_page->new_page = lv_page_settings_more_info_get();
             break;
         default:
