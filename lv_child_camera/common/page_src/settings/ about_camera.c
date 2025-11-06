@@ -8,6 +8,7 @@ static lv_style_t screen_style;
 static lv_style_t label1_style;
 static lv_style_t label2_style;
 static lv_style_t label3_style;
+static lv_style_t style_mask;
 
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
@@ -63,6 +64,7 @@ static void lv_page_destruct(void)
     lv_style_reset(&label1_style);
     lv_style_reset(&label2_style);
     lv_style_reset(&label3_style);
+    lv_style_reset(&style_mask);
     lv_style_reset(&screen_style);
     lv_page_subject_deinit();
 }
@@ -93,10 +95,24 @@ static void lv_page_style_init()
 
     //label3_style
     lv_style_init(&label3_style);
-    lv_style_set_text_opa(&label3_style, LV_OPA_COVER);
-    lv_style_set_text_color(&label3_style, lv_color_hex(0xFFFFFF));
+    lv_style_set_text_opa(&label3_style, LV_OPA_50);
+    lv_style_set_text_color(&label3_style, lv_color_hex(0xEBEBF5));
     lv_style_set_text_font(&label3_style, fzlthr_20);
     lv_style_set_text_align(&label3_style, LV_TEXT_ALIGN_LEFT);
+
+    //图层蒙板
+    static lv_grad_dsc_t grad;
+    grad.dir = LV_GRAD_DIR_HOR;
+    grad.stops_count = 2;
+    grad.stops[0].color = lv_color_hex(0x000000);
+    grad.stops[0].opa = LV_OPA_TRANSP;
+    grad.stops[1].color = lv_color_hex(0x000000);
+    grad.stops[1].opa = LV_OPA_90;
+    grad.stops[0].frac = 0;
+    grad.stops[1].frac = 255;
+    lv_style_init(&style_mask);
+    lv_style_copy(&style_mask, &screen_style);
+    lv_style_set_bg_grad(&style_mask, &grad);
 }
 
 static void lv_page_subject_init()
@@ -150,6 +166,19 @@ static void lv_page_load(lv_obj_t *cont)
     lv_label_set_text(label5, "V2.0 build 1111111");
     lv_obj_add_style(label5, &label3_style, 0);
     lv_obj_align(label5, LV_ALIGN_TOP_LEFT, 55, 305);
+
+    //产品图
+    lv_obj_t *image = lv_img_create(cont);
+    lv_obj_set_size(image, 240, 272);
+    lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/product_illustration.png");
+    lv_img_set_zoom(image, 128);
+    lv_obj_align(image, LV_ALIGN_TOP_LEFT, 262, 89);
+
+    lv_obj_t *mask = lv_obj_create(cont);
+    lv_obj_remove_style_all(mask);
+    lv_obj_add_style(mask, &style_mask, 0);
+    lv_obj_set_size(mask, 150, lv_pct(100));
+    lv_obj_align(mask, LV_ALIGN_RIGHT_MID, 0, 0);
 
     return;
 }
