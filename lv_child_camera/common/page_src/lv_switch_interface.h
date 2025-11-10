@@ -80,9 +80,17 @@ lv_page_info_pt lv_page_time_display_info_get();
 extern lv_subject_t storage_manage_subject;
 lv_page_info_pt lv_page_storage_manage_info_get();
 
+//滚动振动开关
+extern lv_subject_t roller_vibrat_subject;
+lv_page_info_pt lv_page_roller_vibrat_info_get();
+
 //振动幅度
 extern lv_subject_t vibrat_amplitude_subject;
 lv_page_info_pt lv_page_vibrat_amplitude_info_get();
+
+//远程预览开关
+extern lv_subject_t remote_preview_subject;
+lv_page_info_pt lv_page_remote_preview_info_get();
 
 //关于相机
 extern lv_subject_t about_camera_subject;

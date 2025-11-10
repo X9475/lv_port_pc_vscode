@@ -76,7 +76,9 @@ typedef enum
     PAGE_FUNCTIONAL_HOLD_TIME,          ///<< 息屏时间设置
     PAGE_FUNCTIONAL_DISPLAY_TIME,       ///<< 时间展示格式设置
     PAGE_FUNCTIONAL_STORAGE_MGR,        ///<< 存储管理
+    PAGE_FUNCTIONAL_ROLLER_VIBRAT,      ///<< 滚轮振动开关
     PAGE_FUNCTIONAL_VIBRAT_AMPLITUDE,   ///<< 振动幅度
+    PAGE_FUNCTIONAL_REMOTE_PREVIEW,     ///<< 远程预览开关
     PAGE_FUNCTIONAL_ABOUT_CAMERA,       ///<< 关于相机
     PAGE_FUNCTIONAL_FACTORY_RESTORE,    ///<< 恢复出厂设置
     PAGE_FUNCTIONAL_CERT_MASK,          ///<< 认证标志

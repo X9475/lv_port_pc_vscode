@@ -258,16 +258,16 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             // switch_page->new_page = lv_page_time_display_info_get();
             break;
         case PAGE_SWITCH_VOICE_ROLLER_VIBRAT:
-            // lv_stack_push(&settings_more_page_info);     
-            // switch_page->new_page = lv_page_storage_manage_info_get();
+            lv_stack_push(&settings_more_page_info);
+            switch_page->new_page = lv_page_roller_vibrat_info_get();
             break;
         case PAGE_SWITCH_VIBRATION_AMPLITUDE:
-            lv_stack_push(&settings_more_page_info);        
+            lv_stack_push(&settings_more_page_info);
             switch_page->new_page = lv_page_vibrat_amplitude_info_get();
             break;
         case PAGE_SWITCH_REMOTE_PREVIEW_SWITCH:
-            // lv_stack_push(&settings_more_page_info);        
-            // switch_page->new_page = lv_page_vibrat_amplitude_info_get();
+            lv_stack_push(&settings_more_page_info);
+            switch_page->new_page = lv_page_remote_preview_info_get();
             break;
         case PAGE_SWITCH_CAMERA_ABOUT:
             lv_stack_push(&settings_more_page_info);        
