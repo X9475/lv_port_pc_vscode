@@ -196,10 +196,6 @@ static void lv_page_subject_deinit()
     lv_subject_deinit(&aidialog_adj_param_subject);
 }
 
-static void lv_back_iamge_event(lv_event_t *e)
-{
-    lv_obj_clear_flag(dialog_obj, LV_OBJ_FLAG_HIDDEN);
-}
 static void lv_back_button_event(lv_event_t *e)
 {
     lv_obj_t *back = lv_event_get_target(e);
@@ -373,8 +369,6 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_size(image1, lv_pct(100), lv_pct(100));
     lv_img_set_zoom(image1, 128);
     lv_obj_center(image1);
-    lv_obj_add_flag(image1, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(image1, lv_back_iamge_event, LV_EVENT_CLICKED, NULL);
 
     // 加阴影
     dialog_obj = lv_obj_create(cont);

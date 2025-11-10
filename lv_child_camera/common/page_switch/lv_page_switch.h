@@ -15,6 +15,21 @@ typedef enum
     TYPE_MENU,
 } LV_PAGE_TYPE_ENUM;
 
+typedef struct
+{
+    lv_coord_t start_y;  //按下开始
+    lv_coord_t end_y;    //释放结束
+    uint32_t start_time; //开始时间
+    bool is_pressed;     //是否按下
+} lv_page_move_area_t;
+
+//当前页面信息结构体
+typedef struct
+{
+    uint32_t page_id; //页面ID
+    void *current_page; //当前页面信息
+} lv_page_info_current_t, *lv_page_info_current_pt;
+
 /// @brief 初始化页面切换主题
 void page_switch_subject_init();
 
@@ -23,6 +38,9 @@ uint8_t lv_dev_stage_get(void);
 
 void lv_page_type_set(int32_t type);
 int32_t lv_page_type_get();
+
+lv_page_info_current_pt lv_current_page_info_get();
+void lv_current_page_info_set(uint32_t id, void *ptr);
 
 #ifdef __cplusplus
 }

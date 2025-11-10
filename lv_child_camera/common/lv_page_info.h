@@ -121,6 +121,7 @@ typedef enum
     PAGE_AIVOICE_LISTENING,             ///<< 听到声音
     PAGE_AIVOICE_ANSWER_QUESTION,       ///<< 通话回复问题
     PAGE_AIVOICE_CALL_MUTED,            ///<< 静音
+
     PAGE_NONE
 } LV_PAGE_ENUM;
 

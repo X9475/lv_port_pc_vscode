@@ -67,6 +67,8 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             lv_obj_set_size(cont, LV_HOR_RES, LV_VER_RES);
             lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
             lv_obj_center(cont);
+
+            lv_current_page_info_set(page_event, NULL);
         }
     }
 

@@ -30,6 +30,7 @@ static void *lv_app_create(int i, lv_obj_t *cont, const char *name, const char *
 static void set_gray_app_style(lv_obj_t *obj, lv_menu_dev_t *iterm_ptr);
 static void set_color_app_style(int i, lv_obj_t *obj, lv_menu_dev_t *iterm_ptr);
 static void set_indicator_light(int i);
+// static void lv_menu_rotate_cb(lv_timer_t *timer);
 
 static lv_menu_dev_t menu_app_list[APP_NUM] = {
     {"拍摄", "../lv_port_pc_vscode/assert/icon/photograph_icon_screenshot_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_screenshot.png"},
@@ -180,8 +181,67 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_send_event(cont_col, LV_EVENT_SCROLL, NULL);
     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, 0), LV_ANIM_OFF);
 
+    //顶部滑动触发区域
+    lv_obj_t *gesture_area = lv_obj_create(cont);
+    lv_obj_set_size(gesture_area, lv_pct(100), 30);
+    lv_obj_align(gesture_area, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_add_style(gesture_area, &screen_style, 0);
+    lv_obj_set_style_bg_opa(gesture_area, LV_OPA_TRANSP, 0);
+    lv_obj_add_flag(gesture_area, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_clear_flag(gesture_area, LV_OBJ_FLAG_SCROLLABLE);
+
     return;
 }
+
+// static void lv_menu_rotate_cb(lv_timer_t *timer)
+// {
+//     static int count = 0;
+//     static lv_obj_t *obj = NULL;
+//     static bool init_flag = false;
+
+//     if (!init_flag)
+//     {
+//         //创建透明屏幕禁止屏幕响应
+//         obj = lv_obj_create(menu_page_info.page);
+//         lv_obj_remove_style_all(obj);
+//         lv_obj_set_size(obj, lv_pct(100), lv_pct(100));
+//         lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, 0);
+//         lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+//         lv_obj_clear_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
+//         init_flag = true;
+//     }
+
+//     // if (count++ > 5)
+//     // {
+//     //     lv_obj_del(obj);
+//     //     lv_timer_del(timer);
+//     //     lv_obj_add_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
+//     //     return;
+//     // }
+
+//     static int current_index = 0;
+//     static int direction = 1; // 1:正向，-1:反向
+
+//     lv_obj_t *cont_col = lv_timer_get_user_data(timer);
+//     const int child_count = lv_obj_get_child_cnt(cont_col);
+
+//     // 更新索引
+//     current_index += direction;
+
+//     // 边界检测
+//     if (current_index >= child_count) {
+//         direction = -1;          // 切换为反向
+//         current_index = child_count - 2; // 跳转到倒数第二个元素
+//     } 
+//     else if (current_index < 0) {
+//         direction = 1;           // 切换为正向
+//         current_index = 1;       // 跳转到第二个元素
+//     }
+
+//     // 滚动到当前元素
+//     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, current_index), LV_ANIM_OFF);
+//     printf("Current index: %d\n", current_index);
+// }
 
 static void app_icon_event_cb(lv_event_t * e)
 {
@@ -219,20 +279,26 @@ static void *lv_app_create(int i, lv_obj_t *cont, const char *name, const char *
     lv_obj_set_style_bg_opa(btn, LV_OPA_50, 0);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0x2A3534), 0);
     lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
-    // //圆形
-    // lv_obj_t *image1 = lv_img_create(btn);
-    // lv_obj_set_size(image1, 80, 80);
-    // if ((i % 2) == 0) {
-    //     lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/purple_circle.png");
-    // } else {
-    //     lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/green_circle.png");
-    // }
-    // lv_obj_align_to(image1, btn, LV_ALIGN_LEFT_MID, 20, 0);
-    // //叠加图标
-    // lv_obj_t *image2 = lv_img_create(btn);
-    // lv_obj_set_size(image2, 50, 50);
-    // lv_img_set_src(image2, path);
-    // lv_obj_align_to(image2, btn, LV_ALIGN_LEFT_MID, 35, 0);
+
+    //圆形
+    lv_obj_t *image1 = lv_img_create(btn);
+    lv_obj_set_size(image1, 80, 80);
+    if ((i % 2) == 0)
+    {
+        lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/purple_circle.png");
+    }
+    else
+    {
+        lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/green_circle.png");
+    }
+    lv_obj_align_to(image1, btn, LV_ALIGN_LEFT_MID, 20, 0);
+
+    //叠加图标
+    lv_obj_t *image2 = lv_img_create(btn);
+    lv_obj_set_size(image2, 50, 50);
+    lv_img_set_src(image2, path);
+    lv_obj_align_to(image2, btn, LV_ALIGN_LEFT_MID, 35, 0);
+
     //文字
     lv_obj_t *label = lv_label_create(btn);
     lv_label_set_text(label, name);
@@ -327,7 +393,7 @@ static void scroll_app_item_event_cb(lv_event_t * e)
         lv_obj_set_style_transform_pivot_y(child, 205, 0);
         if (LV_ABS(diff_y) >= 50)//阈值范围可调
         {
-            // set_gray_app_style(child, &menu_app_list[i]);
+            set_gray_app_style(child, &menu_app_list[i]);
             int32_t angle = -(diff_y) / 2;
             if (diff_y < 0)
             {
@@ -343,7 +409,7 @@ static void scroll_app_item_event_cb(lv_event_t * e)
         else
         {
             set_indicator_light(i);
-            // set_color_app_style(i, child, &menu_app_list[i]);
+            set_color_app_style(i, child, &menu_app_list[i]);
             lv_obj_set_style_translate_x(child, x, 0);
             lv_obj_set_style_transform_rotation(child, 0, LV_PART_MAIN);
         }
