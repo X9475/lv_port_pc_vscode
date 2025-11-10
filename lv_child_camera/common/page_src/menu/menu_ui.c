@@ -1,4 +1,5 @@
 #include "../lv_switch_interface.h"
+#include <stdio.h>
 
 #define APP_NUM     7
 
@@ -30,7 +31,25 @@ static void *lv_app_create(int i, lv_obj_t *cont, const char *name, const char *
 static void set_gray_app_style(lv_obj_t *obj, lv_menu_dev_t *iterm_ptr);
 static void set_color_app_style(int i, lv_obj_t *obj, lv_menu_dev_t *iterm_ptr);
 static void set_indicator_light(int i);
-// static void lv_menu_rotate_cb(lv_timer_t *timer);
+//test旋钮转动菜单
+typedef struct {
+    int command;
+} MenuCommand;
+static MenuCommand g_cmd;
+
+typedef struct
+{
+    bool init_flag;
+    lv_timer_t *timer;
+    lv_obj_t *mask;
+    int index;
+} rotate_ctl_s;
+static rotate_ctl_s g_rotate_ctl_s = {false, NULL, NULL, 0};
+
+static lv_mutex_t mutex;
+static void *input_thread(void* arg);
+static void delete_mask_page(lv_timer_t *timer);
+static void async_rotate_cb(void *cmd);
 
 static lv_menu_dev_t menu_app_list[APP_NUM] = {
     {"拍摄", "../lv_port_pc_vscode/assert/icon/photograph_icon_screenshot_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_screenshot.png"},
@@ -190,58 +209,107 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_flag(gesture_area, LV_OBJ_FLAG_EVENT_BUBBLE);
     lv_obj_clear_flag(gesture_area, LV_OBJ_FLAG_SCROLLABLE);
 
+    //起线程获取指令 test
+    pthread_t tid;
+    lv_mutex_init(&mutex);
+    pthread_create(&tid, NULL, input_thread, NULL);
     return;
 }
 
-// static void lv_menu_rotate_cb(lv_timer_t *timer)
-// {
-//     static int count = 0;
-//     static lv_obj_t *obj = NULL;
-//     static bool init_flag = false;
+/***********************************************test start************************************************************/
+static void* input_thread(void* arg)
+{
+    while(1)
+    {
+        char buf[64];
+        if(fgets(buf, sizeof(buf), stdin))
+        {
+            sscanf(buf, "%d", &g_cmd.command);
+            printf("input cmd: %d\n", g_cmd.command);
+            if (!g_rotate_ctl_s.init_flag)
+            {
+                //创建透明屏幕禁止屏幕响应
+                g_rotate_ctl_s.mask = lv_obj_create(menu_page_info.page);
+                lv_obj_remove_style_all(g_rotate_ctl_s.mask);
+                lv_obj_set_size(g_rotate_ctl_s.mask, lv_pct(100), lv_pct(100));
+                lv_obj_set_style_bg_opa(g_rotate_ctl_s.mask, LV_OPA_TRANSP, 0);
+                lv_obj_align(g_rotate_ctl_s.mask, LV_ALIGN_CENTER, 0, 0);
+                lv_obj_clear_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
+                g_rotate_ctl_s.init_flag = true;
 
-//     if (!init_flag)
-//     {
-//         //创建透明屏幕禁止屏幕响应
-//         obj = lv_obj_create(menu_page_info.page);
-//         lv_obj_remove_style_all(obj);
-//         lv_obj_set_size(obj, lv_pct(100), lv_pct(100));
-//         lv_obj_set_style_bg_opa(obj, LV_OPA_TRANSP, 0);
-//         lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
-//         lv_obj_clear_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
-//         init_flag = true;
-//     }
+                if (NULL == g_rotate_ctl_s.timer)
+                {
+                    g_rotate_ctl_s.timer = lv_timer_create(delete_mask_page, 2000, NULL);
+                }
 
-//     // if (count++ > 5)
-//     // {
-//     //     lv_obj_del(obj);
-//     //     lv_timer_del(timer);
-//     //     lv_obj_add_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
-//     //     return;
-//     // }
+                //获取当前中间项目索引
+                lv_obj_t *cont_col = lv_obj_get_child(menu_page_info.page, 0);
+                const int child_count = lv_obj_get_child_cnt(cont_col);
+                for (int i = 0; i < child_count; i++)
+                {
+                    lv_obj_t *child = lv_obj_get_child(cont_col, i);
+                    lv_area_t child_a;
+                    lv_obj_get_coords(child, &child_a);
+                    int32_t child_y_center = child_a.y1 + lv_area_get_height(&child_a) / 2;
+                    if (LV_ABS(child_y_center - 205) < 5) 
+                    {
+                        g_rotate_ctl_s.index = i;
+                        break;
+                    }
+                }
+            }
 
-//     static int current_index = 0;
-//     static int direction = 1; // 1:正向，-1:反向
+            lv_mutex_lock(&mutex);
+            lv_async_call(async_rotate_cb, &g_cmd.command);
+            lv_mutex_unlock(&mutex);
 
-//     lv_obj_t *cont_col = lv_timer_get_user_data(timer);
-//     const int child_count = lv_obj_get_child_cnt(cont_col);
+            lv_timer_reset(g_rotate_ctl_s.timer);
+        }
+    }
 
-//     // 更新索引
-//     current_index += direction;
+    return NULL;
+}
 
-//     // 边界检测
-//     if (current_index >= child_count) {
-//         direction = -1;          // 切换为反向
-//         current_index = child_count - 2; // 跳转到倒数第二个元素
-//     } 
-//     else if (current_index < 0) {
-//         direction = 1;           // 切换为正向
-//         current_index = 1;       // 跳转到第二个元素
-//     }
+static void async_rotate_cb(void *cmd)
+{
+    lv_mutex_lock(&mutex);
+    static int current_index = 0;
+    current_index = g_rotate_ctl_s.index;
+    static int offset = 0; //1:正向，-1:反向
 
-//     // 滚动到当前元素
-//     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, current_index), LV_ANIM_OFF);
-//     printf("Current index: %d\n", current_index);
-// }
+    //更新索引
+    offset = *(int*)cmd > 1 ? 1 : -1;
+    current_index += offset;
+
+    //边界检查
+    if (current_index >= (APP_NUM - 1))
+    {
+        current_index = APP_NUM - 1;
+    } 
+    else if (current_index <= 0)
+    {
+        current_index = 0;
+    }
+
+    g_rotate_ctl_s.index = current_index;
+    lv_obj_t *cont_col = lv_obj_get_child(menu_page_info.page, 0);
+    lv_obj_scroll_to_view(lv_obj_get_child(cont_col, current_index), LV_ANIM_OFF);
+    lv_mutex_unlock(&mutex);
+    return;
+}
+
+static void delete_mask_page(lv_timer_t *timer)
+{
+    printf("delete_mask_page\n");
+    lv_obj_del(g_rotate_ctl_s.mask);
+    lv_timer_del(g_rotate_ctl_s.timer);
+    g_rotate_ctl_s.timer = NULL;
+    g_rotate_ctl_s.init_flag = false;
+    lv_obj_add_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
+
+    return;
+}
+/***********************************************test end************************************************************/
 
 static void app_icon_event_cb(lv_event_t * e)
 {
