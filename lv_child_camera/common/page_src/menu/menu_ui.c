@@ -226,44 +226,49 @@ static void* input_thread(void* arg)
         {
             sscanf(buf, "%d", &g_cmd.command);
             printf("input cmd: %d\n", g_cmd.command);
-            if (!g_rotate_ctl_s.init_flag)
+
+            lv_page_info_current_pt current_page = lv_current_page_info_get();
+            if (current_page->page_id == PAGE_FUNCTIONAL_MENU)
             {
-                //创建透明屏幕禁止屏幕响应
-                g_rotate_ctl_s.mask = lv_obj_create(menu_page_info.page);
-                lv_obj_remove_style_all(g_rotate_ctl_s.mask);
-                lv_obj_set_size(g_rotate_ctl_s.mask, lv_pct(100), lv_pct(100));
-                lv_obj_set_style_bg_opa(g_rotate_ctl_s.mask, LV_OPA_TRANSP, 0);
-                lv_obj_align(g_rotate_ctl_s.mask, LV_ALIGN_CENTER, 0, 0);
-                lv_obj_clear_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
-                g_rotate_ctl_s.init_flag = true;
-
-                if (NULL == g_rotate_ctl_s.timer)
+                if (!g_rotate_ctl_s.init_flag)
                 {
-                    g_rotate_ctl_s.timer = lv_timer_create(delete_mask_page, 2000, NULL);
-                }
+                    //创建透明屏幕禁止屏幕响应
+                    g_rotate_ctl_s.mask = lv_obj_create(menu_page_info.page);
+                    lv_obj_remove_style_all(g_rotate_ctl_s.mask);
+                    lv_obj_set_size(g_rotate_ctl_s.mask, lv_pct(100), lv_pct(100));
+                    lv_obj_set_style_bg_opa(g_rotate_ctl_s.mask, LV_OPA_TRANSP, 0);
+                    lv_obj_align(g_rotate_ctl_s.mask, LV_ALIGN_CENTER, 0, 0);
+                    lv_obj_clear_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
+                    g_rotate_ctl_s.init_flag = true;
 
-                //获取当前中间项目索引
-                lv_obj_t *cont_col = lv_obj_get_child(menu_page_info.page, 0);
-                const int child_count = lv_obj_get_child_cnt(cont_col);
-                for (int i = 0; i < child_count; i++)
-                {
-                    lv_obj_t *child = lv_obj_get_child(cont_col, i);
-                    lv_area_t child_a;
-                    lv_obj_get_coords(child, &child_a);
-                    int32_t child_y_center = child_a.y1 + lv_area_get_height(&child_a) / 2;
-                    if (LV_ABS(child_y_center - 205) < 5) 
+                    if (NULL == g_rotate_ctl_s.timer)
                     {
-                        g_rotate_ctl_s.index = i;
-                        break;
+                        g_rotate_ctl_s.timer = lv_timer_create(delete_mask_page, 2000, NULL);
+                    }
+
+                    //获取当前中间项目索引
+                    lv_obj_t *cont_col = lv_obj_get_child(menu_page_info.page, 0);
+                    const int child_count = lv_obj_get_child_cnt(cont_col);
+                    for (int i = 0; i < child_count; i++)
+                    {
+                        lv_obj_t *child = lv_obj_get_child(cont_col, i);
+                        lv_area_t child_a;
+                        lv_obj_get_coords(child, &child_a);
+                        int32_t child_y_center = child_a.y1 + lv_area_get_height(&child_a) / 2;
+                        if (LV_ABS(child_y_center - 205) < 5) 
+                        {
+                            g_rotate_ctl_s.index = i;
+                            break;
+                        }
                     }
                 }
+
+                lv_mutex_lock(&mutex);
+                lv_async_call(async_rotate_cb, &g_cmd.command);
+                lv_mutex_unlock(&mutex);
+
+                lv_timer_reset(g_rotate_ctl_s.timer);
             }
-
-            lv_mutex_lock(&mutex);
-            lv_async_call(async_rotate_cb, &g_cmd.command);
-            lv_mutex_unlock(&mutex);
-
-            lv_timer_reset(g_rotate_ctl_s.timer);
         }
     }
 
