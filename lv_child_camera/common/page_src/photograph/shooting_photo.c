@@ -242,6 +242,32 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_flag(flash_img, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(flash_img, flash_click_cb, LV_EVENT_CLICKED, NULL);
 
+    static lv_style_t style_line;
+    lv_style_init(&style_line);
+    lv_style_set_line_width(&style_line, 1);
+    lv_style_set_line_color(&style_line, lv_color_white());
+    lv_style_set_line_rounded(&style_line, false);
+
+    static lv_point_precise_t line_points1[] = { {0, 135}, {502, 135} };
+    lv_obj_t *line1 = lv_line_create(cont);
+    lv_line_set_points(line1, line_points1, 2);
+    lv_obj_add_style(line1, &style_line, 0);
+
+    static lv_point_precise_t line_points2[] = { {0, 268}, {502, 268} };
+    lv_obj_t *line2 = lv_line_create(cont);
+    lv_line_set_points(line2, line_points2, 2);
+    lv_obj_add_style(line2, &style_line, 0);
+
+    static lv_point_precise_t line_points3[] = { {162, 0}, {162, 410} };
+    lv_obj_t *line3 = lv_line_create(cont);
+    lv_line_set_points(line3, line_points3, 2);
+    lv_obj_add_style(line3, &style_line, 0);
+
+    static lv_point_precise_t line_points4[] = { {334, 0}, {334, 410} };
+    lv_obj_t *line4 = lv_line_create(cont);
+    lv_line_set_points(line4, line_points4, 2);
+    lv_obj_add_style(line4, &style_line, 0);
+
     // 创建底部矩形渐变框
     lv_obj_t *down_indicator_area = lv_obj_create(cont);
     lv_obj_set_size(down_indicator_area, 502, 156);

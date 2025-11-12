@@ -40,9 +40,9 @@ void lv_main()
 
     if (lv_dev_stage_get() == LV_PAGE_STAGE_ADDING)
     {//添加流程阶段
-        // switch_page->new_page = lv_page_menu_setting_info_get();
-        switch_page->new_page = lv_page_agent_start_info_get();
-        //switch_page->new_page = lv_page_shooting_photo_get();
+        switch_page->new_page = lv_page_menu_setting_info_get();
+        // switch_page->new_page = lv_page_agent_start_info_get();
+        // switch_page->new_page = lv_page_shooting_photo_get();
         //switch_page->new_page = lv_page_album_get();
     }
     else if (lv_dev_stage_get() == LV_PAGE_STAGE_RUNNING)
@@ -51,5 +51,7 @@ void lv_main()
     }
 
     lv_subject_set_pointer(&switch_subject, switch_page);
+
+    // lv_subject_set_int(&toast_subject, PAGE_TOAST_MENU_SLIDE);
     return;
 }

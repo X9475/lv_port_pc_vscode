@@ -1,6 +1,6 @@
 #include "../lv_switch_interface.h"
 
-#define SAVER_NUM       3
+#define SAVER_NUM       2
 
 lv_subject_t screensaver_style_subject;
 static lv_switch_page_pt switch_page;
@@ -30,9 +30,8 @@ static void *line_container_create(lv_obj_t *cont);
 static void circular_scroll_handle(lv_obj_t *cont, uint8_t dir);
 
 static const char *saver_list[SAVER_NUM] = {
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png",
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png",
-    "../lv_port_pc_vscode/assert/icon/screen_saver.png"
+    "../lv_port_pc_vscode/assert/icon/screensaver.png",
+    "../lv_port_pc_vscode/assert/icon/screensaver.png",
 };
 
 //待跳转的页面种类
@@ -274,6 +273,7 @@ static void *screen_saver_create(lv_obj_t *cont, const char *path)
     lv_obj_t *style_image = lv_img_create(saver);
     lv_obj_set_size(style_image, 280, 220);
     lv_img_set_src(style_image, path);
+    lv_img_set_zoom(style_image, 64);
     lv_obj_align(style_image, LV_ALIGN_CENTER, 0, 0);
 
     lv_obj_t *img = lv_img_create(saver);
