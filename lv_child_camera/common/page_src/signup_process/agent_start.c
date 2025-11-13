@@ -80,7 +80,7 @@ static void lv_page_style_init()
 
     //style_main
     lv_style_init(&style_main);
-    lv_style_set_bg_image_src(&style_main, "../lv_port_pc_vscode/assert/icon/welcome_slider_bar.png");
+    // lv_style_set_bg_image_src(&style_main, "../lv_port_pc_vscode/assert/icon/welcome_slider_bar.png");
     lv_style_set_bg_opa(&style_main, LV_OPA_TRANSP);
     lv_style_set_radius(&style_main, 50);
 
@@ -114,6 +114,11 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_src(agent_bg, "../lv_port_pc_vscode/assert/icon/start_agent_2x.png");
     lv_img_set_zoom(agent_bg, 128);
     lv_obj_align(agent_bg, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_t *slider_bg = lv_img_create(cont);
+    lv_img_set_src(slider_bg, "../lv_port_pc_vscode/assert/icon/welcome_slider_bar.png");
+    lv_img_set_zoom(slider_bg, 128);
+    lv_obj_align(slider_bg, LV_ALIGN_TOP_MID, 0, 240);
 
     //创建滑动条
     lv_obj_t *slider = lv_slider_create(cont);
