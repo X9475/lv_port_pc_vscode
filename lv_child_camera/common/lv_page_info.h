@@ -99,16 +99,27 @@ typedef enum
 
     //toast
     PAGE_TOAST_NONE,
-    PAGE_TOAST_FORMAT_DOING,            ///<< 格式化中
+    PAGE_TOAST_FORMAT_DOING,            ///<< 格式化中…
     PAGE_TOAST_FORMAT_SUCCESS,          ///<< 格式化成功
     PAGE_TOAST_FORMAT_ERROR,            ///<< 格式化失败
-    PAGE_TOAST_SWICTH_DOING,            ///<< 切换中
+    PAGE_TOAST_SWICTH_DOING,            ///<< 切换中…
     PAGE_TOAST_SWICTH_SUCCESS,          ///<< 切换成功
     PAGE_TOAST_SWICTH_ERROR,            ///<< 切换失败
-    PAGE_TOAST_FACTORY_RESTORE_DOING,   ///<< 恢复出厂设置中
-    PAGE_TOAST_FACTORY_RESTORE_SUCCESS, ///<< 恢复出厂设置成功
-    PAGE_TOAST_FACTORY_RESTORE_ERROR,   ///<< 恢复出厂设置失败
-    PAGE_TOAST_STORAGE_EXHAUSTED,       ///<< 存储已耗尽，无法拍摄
+    PAGE_TOAST_FACTORY_RESTORE_DOING,   ///<< 恢复出厂设置中…
+    PAGE_TOAST_FACTORY_RESTORE_SUCCESS, ///<< 恢复成功
+    PAGE_TOAST_FACTORY_RESTORE_ERROR,   ///<< 恢复失败
+    PAGE_TOAST_STORAGE_EXHAUSTED,       ///<< 存储容量耗尽无法拍摄
+    PAGE_TOAST_NO_SDCARD,               ///<< 无SD卡无法拍摄和查看
+    PAGE_TOAST_SDCARD_ABNORMAL,         ///<< SD卡异常无法拍摄和查看
+    PAGE_TOAST_DEV_OFFLINE,             ///<< 设备离线，无法使用
+    PAGE_TOAST_CALL_FAILED_NET_BAD,     ///<< 呼叫失败，网络异常
+    PAGE_TOAST_ADD_SUCCESS,             ///<< 添加成功
+    PAGE_TOAST_ADD_FAILED_RETRY,        ///<< 添加失败，请重试
+    PAGE_TOAST_MAX_VALUME,              ///<< 已达到最大音量
+    PAGE_TOAST_MIN_VALUME,              ///<< 已达到最小音量
+    PAGE_TOAST_NETWORK_INSTABILITY,     ///<< 当前网络不稳定
+    PAGE_TOAST_MESSAGE_FAILED,          ///<< 留言失败，网络异常
+    PAGE_TOAST_SEND_FAILED,             ///<< 发送失败
     PAGE_TOAST_SETTING_MENU_SLIDE,      ///<< 设置菜单滑动提示
     PAGE_TOAST_MENU_SLIDE,              ///<< 菜单滑动提示
     PAGE_TOAST_CONFIRM,                 ///<< toast确认
