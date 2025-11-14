@@ -3,6 +3,8 @@
 lv_subject_t toast_subject;
 static lv_style_t screen_style;
 static lv_style_t page_style_bg;
+static lv_style_t style_slider_down;
+static lv_style_t style_slider_up;
 static lv_anim_t anim;
 
 static void lv_page_style_init();
@@ -46,12 +48,40 @@ static void lv_page_style_init()
     lv_style_copy(&page_style_bg, &screen_style);
     lv_style_set_bg_color(&page_style_bg, lv_color_hex(0x000000));
     lv_style_set_bg_opa(&page_style_bg, LV_OPA_80);
+
+    //style_slider_down
+    static lv_grad_dsc_t grad_down;
+    grad_down.dir = LV_GRAD_DIR_VER;
+    grad_down.stops_count = 2;
+    grad_down.stops[0].color = lv_color_hex(0xAFF99C);
+    grad_down.stops[0].opa = LV_OPA_TRANSP;
+    grad_down.stops[1].color = lv_color_hex(0xAFF99C);
+    grad_down.stops[1].opa = LV_OPA_COVER;
+    grad_down.stops[0].frac = 0;
+    grad_down.stops[1].frac = 255;
+    lv_style_init(&style_slider_down);
+    lv_style_set_bg_grad(&style_slider_down, &grad_down);
+
+    //style_slider_up
+    static lv_grad_dsc_t grad_up;
+    grad_up.dir = LV_GRAD_DIR_VER;
+    grad_up.stops_count = 2;
+    grad_up.stops[0].color = lv_color_hex(0xAFF99C);
+    grad_up.stops[0].opa = LV_OPA_COVER;
+    grad_up.stops[1].color = lv_color_hex(0xAFF99C);
+    grad_up.stops[1].opa = LV_OPA_TRANSP;
+    grad_up.stops[0].frac = 0;
+    grad_up.stops[1].frac = 255;
+    lv_style_init(&style_slider_up);
+    lv_style_set_bg_grad(&style_slider_up, &grad_up);
 }
 
 static void lv_page_style_deinit()
 {
     lv_style_reset(&screen_style);
     lv_style_reset(&page_style_bg);
+    lv_style_reset(&style_slider_up);
+    lv_style_reset(&style_slider_down);
 }
 
 void lv_toast_page_subject_init()
@@ -798,8 +828,8 @@ static void lv_menu_setting_down_slide_toast(lv_obj_t *cont)
     lv_obj_t *slide = lv_obj_create(cont);
     lv_obj_remove_style_all(slide);
     lv_obj_set_size(slide, 13, 70);
+    lv_obj_add_style(slide, &style_slider_down, 0);
     lv_obj_set_style_radius(slide, 5, 0);
-    lv_obj_set_style_bg_color(slide, lv_color_hex(0xAFF99C), 0);
     lv_obj_set_style_bg_opa(slide, LV_OPA_COVER, 0);
     lv_obj_align_to(slide, cont, LV_ALIGN_TOP_MID, 0, 0);
 
@@ -850,8 +880,8 @@ static void lv_menu_up_slide_toast(lv_obj_t *cont)
     lv_obj_t *slide = lv_obj_create(cont);
     lv_obj_remove_style_all(slide);
     lv_obj_set_size(slide, 13, 70);
+    lv_obj_add_style(slide, &style_slider_up, 0);
     lv_obj_set_style_radius(slide, 5, 0);
-    lv_obj_set_style_bg_color(slide, lv_color_hex(0xAFF99C), 0);
     lv_obj_set_style_bg_opa(slide, LV_OPA_COVER, 0);
     lv_obj_align_to(slide, cont, LV_ALIGN_BOTTOM_MID, 0, -80);
 
