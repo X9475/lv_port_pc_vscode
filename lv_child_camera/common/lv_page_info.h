@@ -122,6 +122,8 @@ typedef enum
     PAGE_TOAST_SEND_FAILED,             ///<< 发送失败
     PAGE_TOAST_SETTING_MENU_SLIDE,      ///<< 设置菜单滑动提示
     PAGE_TOAST_MENU_SLIDE,              ///<< 菜单滑动提示
+    PAGE_TOAST_ALBUM_RIGHT_SLIDE,       ///<< 拍摄页右滑进相册提示
+    PAGE_TOAST_ALBUM_LEFT_SLIDE,        ///<< 拍摄页左滑进页面调整
     PAGE_TOAST_CONFIRM,                 ///<< toast确认
 
     //aivoice

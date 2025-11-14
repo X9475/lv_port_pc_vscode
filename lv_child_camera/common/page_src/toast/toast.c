@@ -5,6 +5,8 @@ static lv_style_t screen_style;
 static lv_style_t page_style_bg;
 static lv_style_t style_slider_down;
 static lv_style_t style_slider_up;
+static lv_style_t style_slider_right;
+static lv_style_t style_slider_left;
 static lv_anim_t anim;
 
 static void lv_page_style_init();
@@ -35,6 +37,9 @@ static void lv_menu_setting_down_slide_toast(lv_obj_t *cont);
 static void lv_menu_up_slide_toast(lv_obj_t *cont);
 static void anim_set_hand_pos(void *obj, int32_t v);
 static void page_click_event_cb(lv_event_t *e);
+static void lv_album_right_slide_toast(lv_obj_t *cont);
+static void lv_album_left_slide_toast(lv_obj_t *cont);
+static void anim_set_right_hand_pos(void *obj, int32_t v);
 
 static void lv_page_style_init()
 {
@@ -74,6 +79,32 @@ static void lv_page_style_init()
     grad_up.stops[1].frac = 255;
     lv_style_init(&style_slider_up);
     lv_style_set_bg_grad(&style_slider_up, &grad_up);
+
+    //style_slider_right
+    static lv_grad_dsc_t grad_right;
+    grad_right.dir = LV_GRAD_DIR_HOR;
+    grad_right.stops_count = 2;
+    grad_right.stops[0].color = lv_color_hex(0xAFF99C);
+    grad_right.stops[0].opa = LV_OPA_TRANSP;
+    grad_right.stops[1].color = lv_color_hex(0xAFF99C);
+    grad_right.stops[1].opa = LV_OPA_COVER;
+    grad_right.stops[0].frac = 0;
+    grad_right.stops[1].frac = 255;
+    lv_style_init(&style_slider_right);
+    lv_style_set_bg_grad(&style_slider_right, &grad_right);
+
+    //style_slider_left
+    static lv_grad_dsc_t grad_left;
+    grad_left.dir = LV_GRAD_DIR_HOR;
+    grad_left.stops_count = 2;
+    grad_left.stops[0].color = lv_color_hex(0xAFF99C);
+    grad_left.stops[0].opa = LV_OPA_COVER;
+    grad_left.stops[1].color = lv_color_hex(0xAFF99C);
+    grad_left.stops[1].opa = LV_OPA_TRANSP;
+    grad_left.stops[0].frac = 0;
+    grad_left.stops[1].frac = 255;
+    lv_style_init(&style_slider_left);
+    lv_style_set_bg_grad(&style_slider_left, &grad_left);
 }
 
 static void lv_page_style_deinit()
@@ -82,6 +113,9 @@ static void lv_page_style_deinit()
     lv_style_reset(&page_style_bg);
     lv_style_reset(&style_slider_up);
     lv_style_reset(&style_slider_down);
+    lv_style_reset(&style_slider_right);
+    lv_style_reset(&style_slider_left);
+    return;
 }
 
 void lv_toast_page_subject_init()
@@ -181,11 +215,17 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         case PAGE_TOAST_SEND_FAILED:
             lv_setting_send_failed_toast(cont);
             break;
-        case PAGE_TOAST_SETTING_MENU_SLIDE://滑动出设置菜单提示
+        case PAGE_TOAST_SETTING_MENU_SLIDE:
             lv_menu_setting_down_slide_toast(cont);
             break;
-        case PAGE_TOAST_MENU_SLIDE://滑动出菜单提示
+        case PAGE_TOAST_MENU_SLIDE:
             lv_menu_up_slide_toast(cont);
+            break;
+        case PAGE_TOAST_ALBUM_RIGHT_SLIDE:
+            lv_album_right_slide_toast(cont);
+            break;
+        case PAGE_TOAST_ALBUM_LEFT_SLIDE:
+            lv_album_left_slide_toast(cont);
             break;
         case PAGE_TOAST_CONFIRM:
             lv_page_style_deinit();
@@ -827,11 +867,19 @@ static void lv_menu_setting_down_slide_toast(lv_obj_t *cont)
 
     lv_obj_t *slide = lv_obj_create(cont);
     lv_obj_remove_style_all(slide);
-    lv_obj_set_size(slide, 13, 70);
+    lv_obj_set_size(slide, 15, 85);
     lv_obj_add_style(slide, &style_slider_down, 0);
-    lv_obj_set_style_radius(slide, 5, 0);
+    lv_obj_set_style_radius(slide, 8, 0);
     lv_obj_set_style_bg_opa(slide, LV_OPA_COVER, 0);
     lv_obj_align_to(slide, cont, LV_ALIGN_TOP_MID, 0, 0);
+
+    //盖板
+    lv_obj_t *mask = lv_obj_create(cont);
+    lv_obj_remove_style_all(mask);
+    lv_obj_set_size(mask, 100, 15);
+    lv_obj_set_style_bg_color(mask, lv_color_hex(0x121212), 0);
+    lv_obj_set_style_bg_opa(mask, LV_OPA_COVER, 0);
+    lv_obj_align(mask, LV_ALIGN_TOP_MID, 0, 0);
 
     lv_obj_t *label = lv_label_create(cont);
     lv_obj_set_size(label, 402, 74);
@@ -845,7 +893,7 @@ static void lv_menu_setting_down_slide_toast(lv_obj_t *cont)
     //移动手势
     lv_obj_t *hand = lv_img_create(cont);
     lv_img_set_src(hand, "../lv_port_pc_vscode/assert/icon/common_icon_hand_up.png");
-    lv_obj_align_to(hand, cont, LV_ALIGN_TOP_MID, 68, 0);
+    lv_obj_align_to(hand, cont, LV_ALIGN_TOP_MID, 68, 15);
     lv_obj_set_user_data(hand, slide);
 
     lv_anim_init(&anim);
@@ -853,7 +901,7 @@ static void lv_menu_setting_down_slide_toast(lv_obj_t *cont)
     lv_anim_set_exec_cb(&anim, anim_set_hand_pos);
     lv_anim_set_time(&anim, 1500);
     lv_anim_set_repeat_count(&anim, LV_ANIM_REPEAT_INFINITE);
-    lv_anim_set_values(&anim, -60, 0);
+    lv_anim_set_values(&anim, -85, 0);
     lv_anim_start(&anim);
 
     lv_obj_add_flag(obj, LV_EVENT_CLICKED);
@@ -879,19 +927,19 @@ static void lv_menu_up_slide_toast(lv_obj_t *cont)
 
     lv_obj_t *slide = lv_obj_create(cont);
     lv_obj_remove_style_all(slide);
-    lv_obj_set_size(slide, 13, 70);
+    lv_obj_set_size(slide, 15, 85);
     lv_obj_add_style(slide, &style_slider_up, 0);
-    lv_obj_set_style_radius(slide, 5, 0);
+    lv_obj_set_style_radius(slide, 8, 0);
     lv_obj_set_style_bg_opa(slide, LV_OPA_COVER, 0);
-    lv_obj_align_to(slide, cont, LV_ALIGN_BOTTOM_MID, 0, -80);
+    lv_obj_align_to(slide, cont, LV_ALIGN_BOTTOM_MID, 0, -120);
 
     //盖板
     lv_obj_t *mask = lv_obj_create(cont);
     lv_obj_remove_style_all(mask);
-    lv_obj_set_size(mask, 15, 100);
+    lv_obj_set_size(mask, 100, 100);
     lv_obj_set_style_bg_color(mask, lv_color_hex(0x121212), 0);
     lv_obj_set_style_bg_opa(mask, LV_OPA_COVER, 0);
-    lv_obj_align(mask, LV_ALIGN_BOTTOM_MID, 0, -40);
+    lv_obj_align(mask, LV_ALIGN_BOTTOM_MID, 0, -20);
 
     lv_obj_t *label = lv_label_create(cont);
     lv_obj_set_size(label, 402, 74);
@@ -905,7 +953,7 @@ static void lv_menu_up_slide_toast(lv_obj_t *cont)
     //移动手势
     lv_obj_t *hand = lv_img_create(cont);
     lv_img_set_src(hand, "../lv_port_pc_vscode/assert/icon/common_icon_hand_up.png");
-    lv_obj_align_to(hand, cont, LV_ALIGN_BOTTOM_MID, 68, -30);
+    lv_obj_align_to(hand, cont, LV_ALIGN_BOTTOM_MID, 68, -85);
     lv_obj_set_user_data(hand, slide);
 
     lv_anim_init(&anim);
@@ -913,7 +961,7 @@ static void lv_menu_up_slide_toast(lv_obj_t *cont)
     lv_anim_set_exec_cb(&anim, anim_set_hand_pos);
     lv_anim_set_time(&anim, 1500);
     lv_anim_set_repeat_count(&anim, LV_ANIM_REPEAT_INFINITE);
-    lv_anim_set_values(&anim, 0, -60);
+    lv_anim_set_values(&anim, 100, 0);
     lv_anim_start(&anim);
 
     lv_obj_add_flag(obj, LV_EVENT_CLICKED);
@@ -927,6 +975,134 @@ static void anim_set_hand_pos(void *obj, int32_t v)
 
     lv_obj_t *slide = lv_obj_get_user_data((lv_obj_t *)obj);
     lv_obj_set_style_translate_y(slide, v, 0);
+}
+
+static void lv_album_right_slide_toast(lv_obj_t *cont)
+{
+    lv_obj_t *background = lv_obj_create(cont);
+    lv_obj_remove_style_all(background);
+    lv_obj_set_size(background, lv_pct(100), lv_pct(100));
+    lv_obj_add_style(background, &page_style_bg, 0);
+    lv_obj_align(background, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 500, 500);
+    lv_obj_set_style_radius(obj, 500, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_align(obj, LV_ALIGN_LEFT_MID, -210, 0);
+
+    lv_obj_t *slide = lv_obj_create(cont);
+    lv_obj_remove_style_all(slide);
+    lv_obj_set_size(slide, 160, 15);
+    lv_obj_add_style(slide, &style_slider_right, 0);
+    lv_obj_set_style_radius(slide, 8, 0);
+    lv_obj_set_style_bg_opa(slide, LV_OPA_COVER, 0);
+    lv_obj_align_to(slide, cont, LV_ALIGN_TOP_LEFT, 0, 104);
+
+    //盖板
+    lv_obj_t *mask = lv_obj_create(cont);
+    lv_obj_remove_style_all(mask);
+    lv_obj_set_size(mask, 15, 100);
+    lv_obj_set_style_bg_color(mask, lv_color_hex(0x121212), 0);
+    lv_obj_set_style_bg_opa(mask, LV_OPA_COVER, 0);
+    lv_obj_align(mask, LV_ALIGN_TOP_LEFT, 0, 52);
+
+    lv_obj_t *label = lv_label_create(cont);
+    lv_obj_set_size(label, 240, 74);
+    lv_label_set_text(label, "向右滑动\n进入相册页面");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, fzlthr_28, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label, cont, LV_ALIGN_BOTTOM_LEFT, 10, -78);
+
+    //移动手势
+    lv_obj_t *hand = lv_img_create(cont);
+    lv_img_set_src(hand, "../lv_port_pc_vscode/assert/icon/common_icon_hand_right.png");
+    lv_obj_align_to(hand, cont, LV_ALIGN_TOP_LEFT, 25, 78);
+    lv_obj_set_user_data(hand, slide);
+
+    lv_anim_init(&anim);
+    lv_anim_set_var(&anim, hand);
+    lv_anim_set_exec_cb(&anim, anim_set_right_hand_pos);
+    lv_anim_set_time(&anim, 1500);
+    lv_anim_set_repeat_count(&anim, LV_ANIM_REPEAT_INFINITE);
+    lv_anim_set_values(&anim, -160, 0);
+    lv_anim_start(&anim);
+
+    lv_obj_add_flag(obj, LV_EVENT_CLICKED);
+    lv_obj_add_event_cb(obj, page_click_event_cb, LV_EVENT_CLICKED, &anim);
+    return;
+}
+
+static void lv_album_left_slide_toast(lv_obj_t *cont)
+{
+    lv_obj_t *background = lv_obj_create(cont);
+    lv_obj_remove_style_all(background);
+    lv_obj_set_size(background, lv_pct(100), lv_pct(100));
+    lv_obj_add_style(background, &page_style_bg, 0);
+    lv_obj_align(background, LV_ALIGN_CENTER, 0, 0);
+
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 500, 500);
+    lv_obj_set_style_radius(obj, 500, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_align(obj, LV_ALIGN_RIGHT_MID, 210, 0);
+
+    lv_obj_t *slide = lv_obj_create(cont);
+    lv_obj_remove_style_all(slide);
+    lv_obj_set_size(slide, 160, 15);
+    lv_obj_add_style(slide, &style_slider_left, 0);
+    lv_obj_set_style_radius(slide, 8, 0);
+    lv_obj_set_style_bg_opa(slide, LV_OPA_COVER, 0);
+    lv_obj_align_to(slide, cont, LV_ALIGN_TOP_RIGHT, 0, 104);
+
+    //盖板
+    lv_obj_t *mask = lv_obj_create(cont);
+    lv_obj_remove_style_all(mask);
+    lv_obj_set_size(mask, 15, 100);
+    lv_obj_set_style_bg_color(mask, lv_color_hex(0x121212), 0);
+    lv_obj_set_style_bg_opa(mask, LV_OPA_COVER, 0);
+    lv_obj_align(mask, LV_ALIGN_TOP_RIGHT, 0, 52);
+
+    lv_obj_t *label = lv_label_create(cont);
+    lv_obj_set_size(label, 240, 74);
+    lv_label_set_text(label, "向左滑动\n进入画面调整");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, fzlthr_28, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label, cont, LV_ALIGN_BOTTOM_RIGHT, -10, -78);
+
+    //移动手势
+    lv_obj_t *hand = lv_img_create(cont);
+    lv_img_set_src(hand, "../lv_port_pc_vscode/assert/icon/common_icon_hand_left.png");
+    lv_obj_align_to(hand, cont, LV_ALIGN_TOP_RIGHT, -25, 78);
+    lv_obj_set_user_data(hand, slide);
+
+    lv_anim_init(&anim);
+    lv_anim_set_var(&anim, hand);
+    lv_anim_set_exec_cb(&anim, anim_set_right_hand_pos);
+    lv_anim_set_time(&anim, 1500);
+    lv_anim_set_repeat_count(&anim, LV_ANIM_REPEAT_INFINITE);
+    lv_anim_set_values(&anim, 160, 0);
+    lv_anim_start(&anim);
+
+    lv_obj_add_flag(obj, LV_EVENT_CLICKED);
+    lv_obj_add_event_cb(obj, page_click_event_cb, LV_EVENT_CLICKED, &anim);
+    return;
+}
+
+static void anim_set_right_hand_pos(void *obj, int32_t v)
+{
+    lv_obj_set_style_translate_x((lv_obj_t *)obj, v, 0);
+
+    lv_obj_t *slide = lv_obj_get_user_data((lv_obj_t *)obj);
+    lv_obj_set_style_translate_x(slide, v, 0);
 }
 
 static void page_click_event_cb(lv_event_t *e)
