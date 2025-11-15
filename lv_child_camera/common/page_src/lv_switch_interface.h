@@ -20,6 +20,14 @@ lv_page_info_pt lv_page_menu_info_get();
 extern lv_subject_t menu_setting_subject;
 lv_page_info_pt lv_page_menu_setting_info_get();
 
+//锁屏界面
+extern lv_subject_t screenlock_subject;
+lv_page_info_pt lv_page_screenlock_info_get();
+
+//关机界面
+extern lv_subject_t poweroff_subject;
+lv_page_info_pt lv_page_poweroff_info_get();
+
 /***************************添加流程开始*************************************/
 //扫描二维码
 extern lv_subject_t qrcode_subject;

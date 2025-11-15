@@ -82,6 +82,8 @@ typedef enum
     PAGE_FUNCTIONAL_ABOUT_CAMERA,       ///<< 关于相机
     PAGE_FUNCTIONAL_FACTORY_RESTORE,    ///<< 恢复出厂设置
     PAGE_FUNCTIONAL_CERT_MASK,          ///<< 认证标志
+    PAGE_FUNCTIONAL_SCREENLOCK,         ///<< 锁屏界面
+    PAGE_FUNCTIONAL_POWEROFF,           ///<< 关机界面
 
     //abnormal
     PAGE_ABNORMAL_NONE,
