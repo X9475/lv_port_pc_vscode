@@ -40,7 +40,7 @@ void *lv_stack_pop()
     stack_list[cur_depth - 1] = NULL;
     cur_depth--;
 
-    printf("[%s:%d] ==> stack pop page id: %d\n", __FILE__, __LINE__, page_ptr->page_id);
+    // printf("[%s:%d] ==> stack pop page id: %d\n", __FILE__, __LINE__, page_ptr->page_id);
 
     return page_ptr;
 }

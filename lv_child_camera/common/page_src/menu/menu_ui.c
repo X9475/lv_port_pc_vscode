@@ -517,15 +517,15 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch (page_event)
     {
         case PAGE_SWITCH_ALBUM:
-            lv_page_reserve_del();
+            // lv_page_reserve_del();
             switch_page->new_page = lv_page_album_get();
             break;
         case PAGE_SWITCH_SHOOT:
-            lv_page_reserve_del();
+            // lv_page_reserve_del();
             switch_page->new_page = lv_page_shooting_photo_get();
             break;
         case PAGE_SWITCH_AI_ANSWER:
-            lv_page_reserve_del();
+            // lv_page_reserve_del();
             switch_page->new_page = lv_page_aidialog_info_get();
             break;
         default:

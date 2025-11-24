@@ -206,20 +206,6 @@ static void page_gesture_event_hander(lv_event_t *e)
                 lv_subject_set_pointer(&switch_subject, switch_menu_setting);
                 lv_page_type_set(TYPE_MENU_SETTING);
             }
-            else if (lv_page_type_get() == TYPE_MENU)
-            {
-                if (lv_page_menu_info_get()->reserved != NULL)
-                {
-                    lv_page_info_pt last_page = lv_stack_pop();
-                    lv_obj_clear_flag(last_page->page, LV_OBJ_FLAG_HIDDEN);
-                }
-
-                //删除菜单页
-                lv_page_menu_info_get()->destruct_cb();
-                lv_page_menu_info_get()->reserved = NULL;
-                lv_obj_del(lv_page_menu_info_get()->page);
-                lv_page_type_set(TYPE_FUNCTIONAL);//回到功能页(不可少)
-            }
             else if (lv_page_type_get() == TYPE_NONE && menu_flag == true)
             {
                 menu_setting_flag = true;
@@ -239,17 +225,17 @@ static void page_gesture_event_hander(lv_event_t *e)
 
             if (lv_page_type_get() == TYPE_FUNCTIONAL)
             {
-                lv_stack_push(last_page);
-                lv_obj_add_flag(last_page->page, LV_OBJ_FLAG_HIDDEN);
-
                 //显示菜单页
                 switch_menu = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
                 LV_ASSERT_MALLOC(switch_menu);
                 lv_memset(switch_menu, 0, sizeof(lv_switch_page_t));
                 switch_menu->new_page = lv_page_menu_info_get();
-                switch_menu->new_page->reserved = last_page;
+                switch_menu->old_page = last_page;
                 lv_subject_set_pointer(&switch_subject, switch_menu);
-                lv_page_type_set(TYPE_MENU);
+
+                lv_page_type_set(TYPE_NONE);//全局设置页和菜单页循环切
+                menu_flag = true;
+                menu_setting_flag = false;
             }
             else if (lv_page_type_get() == TYPE_MENU_SETTING)
             {
