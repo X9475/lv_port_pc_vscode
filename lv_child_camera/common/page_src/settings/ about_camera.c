@@ -157,13 +157,15 @@ static void lv_page_load(lv_obj_t *cont)
 
     lv_obj_t *label4 = lv_label_create(cont);
     lv_obj_set_size(label4, 184, 30);
-    lv_label_set_text(label4, "V2.0 build 1111111");
+    lv_label_set_long_mode(label4, LV_LABEL_LONG_SCROLL);
+    lv_label_set_text(label4, "V2.0 build 11111111111");
     lv_obj_add_style(label4, &label3_style, 0);
     lv_obj_align(label4, LV_ALIGN_TOP_LEFT, 55, 208);
 
     lv_obj_t *label5 = lv_label_create(cont);
     lv_obj_set_size(label5, 184, 30);
-    lv_label_set_text(label5, "V2.0 build 1111111");
+    lv_label_set_long_mode(label5, LV_LABEL_LONG_SCROLL);
+    lv_label_set_text(label5, "V2.0 build 11111111111");
     lv_obj_add_style(label5, &label3_style, 0);
     lv_obj_align(label5, LV_ALIGN_TOP_LEFT, 55, 293);
 
