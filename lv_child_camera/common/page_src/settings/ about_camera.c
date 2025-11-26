@@ -141,31 +141,31 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_size(label1, 222, 61);
     lv_label_set_text(label1, "P I K A");
     lv_obj_add_style(label1, &label1_style, 0);
-    lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 23, 92);
+    lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 28, 82);
 
     lv_obj_t *label2 = lv_label_create(cont);
     lv_obj_set_size(label2, 158, 37);
-    lv_label_set_text(label2, "序列号");
+    lv_label_set_text(label2, "设备版本号");
     lv_obj_add_style(label2, &label2_style, 0);
-    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 55, 182);
+    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 55, 171);
 
     lv_obj_t *label3 = lv_label_create(cont);
-    lv_obj_set_size(label3, 158, 37);
-    lv_label_set_text(label3, "仓版本");
+    lv_obj_set_size(label3, 134, 37);
+    lv_label_set_text(label3, "设备型号");
     lv_obj_add_style(label3, &label2_style, 0);
-    lv_obj_align(label3, LV_ALIGN_TOP_LEFT, 55, 268);
+    lv_obj_align(label3, LV_ALIGN_TOP_LEFT, 55, 256);
 
     lv_obj_t *label4 = lv_label_create(cont);
     lv_obj_set_size(label4, 184, 30);
     lv_label_set_text(label4, "V2.0 build 1111111");
     lv_obj_add_style(label4, &label3_style, 0);
-    lv_obj_align(label4, LV_ALIGN_TOP_LEFT, 55, 223);
+    lv_obj_align(label4, LV_ALIGN_TOP_LEFT, 55, 208);
 
     lv_obj_t *label5 = lv_label_create(cont);
     lv_obj_set_size(label5, 184, 30);
     lv_label_set_text(label5, "V2.0 build 1111111");
     lv_obj_add_style(label5, &label3_style, 0);
-    lv_obj_align(label5, LV_ALIGN_TOP_LEFT, 55, 305);
+    lv_obj_align(label5, LV_ALIGN_TOP_LEFT, 55, 293);
 
     //产品图
     lv_obj_t *image = lv_img_create(cont);
@@ -179,6 +179,22 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_style(mask, &style_mask, 0);
     lv_obj_set_size(mask, 150, lv_pct(100));
     lv_obj_align(mask, LV_ALIGN_RIGHT_MID, 0, 0);
+
+    lv_obj_t *btn = lv_btn_create(cont);
+    lv_obj_set_size(btn, 130, 58);
+    lv_obj_align(btn, LV_ALIGN_BOTTOM_MID, 0, -20);
+    lv_obj_set_style_radius(btn, 29, 0);
+    lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_set_style_shadow_opa(btn, LV_OPA_TRANSP, 0);
+
+    lv_obj_t *label6 = lv_label_create(btn);
+    lv_label_set_text(label6, "新版本");
+    lv_obj_set_style_text_opa(label6, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label6, fzlthr_26, 0);
+    lv_obj_set_style_text_color(label6, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_align(label6, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label6, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }

@@ -21,6 +21,8 @@ static void lv_page_subject_init();
 static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_async_time_calcula();
+static void click_event_handler(lv_event_t *e);
+static void gesture_event_handler(lv_event_t *e);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 
 //待跳转的页面种类
@@ -53,10 +55,13 @@ static void lv_page_construct(void *this)
     lv_obj_set_size(screen, LV_HOR_RES, LV_VER_RES);
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(screen, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_center(screen);
 
     //绘制当前页面
     lv_page_load(screen);
+    lv_obj_add_event_cb(screen, click_event_handler, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_event_cb(act_screen, gesture_event_handler, LV_EVENT_GESTURE, NULL);
 
     //异步获取时间
     lv_async_call(lv_async_time_calcula, NULL);
@@ -78,9 +83,7 @@ static void lv_page_style_init()
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
-    // lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
-    lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
-    lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+    lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
 }
 
 static void lv_page_subject_init()
@@ -99,31 +102,16 @@ static void lv_page_load(lv_obj_t *cont)
 {
     //状态栏
     lv_obj_t *status_bar = lv_obj_create(cont);
-    lv_obj_set_size(status_bar, lv_pct(100), 95);
+    lv_obj_set_size(status_bar, lv_pct(100), 120);
     lv_obj_add_style(status_bar, &screen_style, 0);
     lv_obj_align(status_bar, LV_ALIGN_TOP_MID, 0, 0);
     lv_obj_clear_flag(status_bar, LV_OBJ_FLAG_SCROLLABLE);
 
-    //存储卡
-    lv_obj_t *sdcard = lv_img_create(status_bar);
-    lv_obj_set_size(sdcard, 50, 50);
-    lv_img_set_src(sdcard, "../lv_port_pc_vscode/assert/icon/memory_card.png");
-    lv_img_set_zoom(sdcard, 128);
-    lv_obj_align(sdcard, LV_ALIGN_TOP_LEFT, 15, 16);
-
-    capacity = lv_label_create(status_bar);
-    lv_label_set_text(capacity, "32GB");
-    lv_obj_set_style_text_font(capacity, fzlthr_24, 0);
-    lv_obj_set_style_text_opa(capacity, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_color(capacity, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_align(capacity, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(capacity, sdcard, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
-
     //电池图标
     battery = lv_img_create(status_bar);
-    lv_obj_set_size(battery, 50, 50);
+    lv_obj_set_size(battery, 40, 40);
     lv_img_set_src(battery, "../lv_port_pc_vscode/assert/icon/battery_80.png");
-    lv_obj_align_to(battery, capacity, LV_ALIGN_OUT_RIGHT_MID, 21, 0);
+    lv_obj_align(battery, LV_ALIGN_TOP_LEFT, 50,20);
 
     percent = lv_label_create(status_bar);
     lv_label_set_text(percent, "10%");
@@ -131,7 +119,22 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_opa(percent, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(percent, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(percent, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(percent, battery, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
+    lv_obj_align_to(percent, battery, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
+
+    //存储卡
+    lv_obj_t *sdcard = lv_img_create(status_bar);
+    lv_obj_set_size(sdcard, 40, 40);
+    lv_img_set_src(sdcard, "../lv_port_pc_vscode/assert/icon/memory_card.png");
+    lv_img_set_zoom(sdcard, 128);
+    lv_obj_align_to(sdcard, percent, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
+
+    capacity = lv_label_create(status_bar);
+    lv_label_set_text(capacity, "32GB");
+    lv_obj_set_style_text_font(capacity, fzlthr_24, 0);
+    lv_obj_set_style_text_opa(capacity, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(capacity, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(capacity, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(capacity, sdcard, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
 
     week = lv_label_create(status_bar);
     lv_label_set_text(week, "周日");
@@ -139,7 +142,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_opa(week, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(week, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(week, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(week, LV_ALIGN_TOP_RIGHT, -26, 25);
+    lv_obj_align(week, LV_ALIGN_TOP_RIGHT, -50, 35);
 
     date = lv_label_create(status_bar);
     lv_label_set_text(date, "01|01");
@@ -147,7 +150,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_opa(date, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(date, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -26, 59);
+    lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -50, 69);
 
     times = lv_label_create(cont);
     lv_label_set_text(times, "00\n00");
@@ -197,6 +200,18 @@ static void lv_async_time_calcula()
     lv_label_set_text(times, time_text);
 
     return;
+}
+
+static void click_event_handler(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    printf("[%s:%d] -- click event:%d\n", __FILE__, __LINE__, code);
+}
+
+static void gesture_event_handler(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    printf("[%s:%d] -- gesture event:%d\n", __FILE__, __LINE__, code);
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)

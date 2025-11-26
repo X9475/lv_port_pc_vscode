@@ -924,6 +924,7 @@ static void lv_menu_up_slide_toast(lv_obj_t *cont)
     lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
     lv_obj_align(obj, LV_ALIGN_BOTTOM_MID, 0, 350);
+    lv_obj_add_flag(obj, LV_EVENT_CLICKED);
 
     lv_obj_t *slide = lv_obj_create(cont);
     lv_obj_remove_style_all(slide);
@@ -949,6 +950,7 @@ static void lv_menu_up_slide_toast(lv_obj_t *cont)
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align_to(label, cont, LV_ALIGN_BOTTOM_MID, 0, -40);
+    lv_obj_add_flag(label, LV_EVENT_CLICKED);
 
     //移动手势
     lv_obj_t *hand = lv_img_create(cont);
@@ -964,7 +966,7 @@ static void lv_menu_up_slide_toast(lv_obj_t *cont)
     lv_anim_set_values(&anim, 100, 0);
     lv_anim_start(&anim);
 
-    lv_obj_add_flag(obj, LV_EVENT_CLICKED);
+    lv_obj_add_event_cb(label, page_click_event_cb, LV_EVENT_CLICKED, &anim);
     lv_obj_add_event_cb(obj, page_click_event_cb, LV_EVENT_CLICKED, &anim);
     return;
 }
