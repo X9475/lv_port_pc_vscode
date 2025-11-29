@@ -1,6 +1,6 @@
 #include "../lv_switch_interface.h"
 
-#define SAVER_NUM       2
+#define SAVER_NUM       4
 
 lv_subject_t screensaver_style_subject;
 static lv_switch_page_pt switch_page;
@@ -31,7 +31,9 @@ static void circular_scroll_handle(lv_obj_t *cont, uint8_t dir);
 
 static const char *saver_list[SAVER_NUM] = {
     "../lv_port_pc_vscode/assert/icon/screensaver.png",
-    "../lv_port_pc_vscode/assert/icon/screensaver.png",
+    "../lv_port_pc_vscode/assert/icon/screensaver2.png",
+    "../lv_port_pc_vscode/assert/icon/screensaver4.png",
+    "../lv_port_pc_vscode/assert/icon/screensaver5.png",
 };
 
 //待跳转的页面种类
@@ -212,10 +214,10 @@ static void scroll_saver_event_cb(lv_event_t *e)
         lv_obj_set_style_transform_pivot_x(child, 610, 0);
         lv_obj_set_style_transform_pivot_y(child, 205, 0);
 
-        int32_t angle = -(diff_y) / 3;
-        angle = LV_ABS(diff_y) >= 60? angle : 0;
-        lv_obj_set_style_translate_x(child, x - 20, 0);
-        lv_obj_set_style_transform_rotation(child, angle, LV_PART_MAIN);
+        // int32_t angle = -(diff_y) / 3;
+        // angle = LV_ABS(diff_y) >= 60? angle : 0;
+        lv_obj_set_style_translate_x(child, x, 0);
+        // lv_obj_set_style_transform_rotation(child, angle, LV_PART_MAIN);
     }
 
     if (cur_idx != last_idx)

@@ -23,6 +23,7 @@ extern const lv_font_t *fzlthr_36;
 extern const lv_font_t *fzlthr_40;
 extern const lv_font_t *fzlthr_50;
 extern const lv_font_t *fzlthr_56;
+extern const lv_font_t *fzlthr_118;
 extern const lv_font_t *fzlthr_170;
 //粗体
 extern const lv_font_t *fzlthb_20;
@@ -37,6 +38,7 @@ extern const lv_font_t *fzlthb_36;
 extern const lv_font_t *fzlthb_40;
 extern const lv_font_t *fzlthb_50;
 extern const lv_font_t *fzlthb_56;
+extern const lv_font_t *fzlthb_118;
 extern const lv_font_t *fzlthb_170;
 
 void lv_font_init();

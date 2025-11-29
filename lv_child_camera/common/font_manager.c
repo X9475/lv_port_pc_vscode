@@ -33,6 +33,7 @@ const lv_font_t *fzlthr_36;
 const lv_font_t *fzlthr_40;
 const lv_font_t *fzlthr_50;
 const lv_font_t *fzlthr_56;
+const lv_font_t *fzlthr_118;
 const lv_font_t *fzlthr_170;
 //粗体
 const lv_font_t *fzlthb_20;
@@ -47,6 +48,7 @@ const lv_font_t *fzlthb_36;
 const lv_font_t *fzlthb_40;
 const lv_font_t *fzlthb_50;
 const lv_font_t *fzlthb_56;
+const lv_font_t *fzlthb_118;
 const lv_font_t *fzlthb_170;
 
 /// @brief 字体管理器
@@ -90,6 +92,7 @@ static void lv_fzlth_font_generic()
     fzlthr_40 = lv_font_generic("fzlthr", 40);
     fzlthr_50 = lv_font_generic("fzlthr", 50);
     fzlthr_56 = lv_font_generic("fzlthr", 56);
+    fzlthr_118 = lv_font_generic("fzlthr", 118);
     fzlthr_170 = lv_font_generic("fzlthr", 170);
 
     fzlthb_20 = lv_font_generic("fzlthb", 20);
@@ -104,6 +107,7 @@ static void lv_fzlth_font_generic()
     fzlthb_40 = lv_font_generic("fzlthb", 40);
     fzlthb_50 = lv_font_generic("fzlthb", 50);
     fzlthb_56 = lv_font_generic("fzlthb", 56);
+    fzlthb_118 = lv_font_generic("fzlthb", 118);
     fzlthb_170 = lv_font_generic("fzlthb", 170);
 }
 

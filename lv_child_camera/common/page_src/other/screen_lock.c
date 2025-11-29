@@ -1,5 +1,9 @@
 #include "../lv_switch_interface.h"
 
+#define SCREENLOCK_2 "../lv_port_pc_vscode/assert/icon/screensaver2.png"
+#define SCREENLOCK_4 "../lv_port_pc_vscode/assert/icon/screensaver4.png"
+#define SCREENLOCK_5 "../lv_port_pc_vscode/assert/icon/screensaver5.png"
+
 lv_subject_t screenlock_subject;
 static lv_switch_page_pt switch_page;
 
@@ -13,6 +17,8 @@ lv_obj_t *week;
 lv_obj_t *date;
 lv_obj_t *times;
 struct tm *time_info;
+
+int screenlock_style = 4;//选择样式
 
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
@@ -100,6 +106,25 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
+    lv_obj_t *img_bg = lv_img_create(cont);
+    // if (screenlock_style == 1)
+    // {
+    //     lv_img_set_src(img_bg, SCREENLOCK_1);
+    // }
+    if (screenlock_style == 2)
+    {
+        lv_img_set_src(img_bg, SCREENLOCK_2);
+    }
+    if (screenlock_style == 4)
+    {
+        lv_img_set_src(img_bg, SCREENLOCK_4);
+    }
+    if (screenlock_style == 5)
+    {
+        lv_img_set_src(img_bg, SCREENLOCK_5);
+    }
+    lv_obj_align(img_bg, LV_ALIGN_CENTER, 0, 0);
+
     //状态栏
     lv_obj_t *status_bar = lv_obj_create(cont);
     lv_obj_set_size(status_bar, lv_pct(100), 120);
@@ -153,12 +178,29 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -50, 69);
 
     times = lv_label_create(cont);
-    lv_label_set_text(times, "00\n00");
-    lv_obj_set_style_text_font(times, fzlthb_56, 0);
     lv_obj_set_style_text_opa(times, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(times, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(times, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(times, LV_ALIGN_BOTTOM_LEFT, 160, -92);
+    if (screenlock_style == 1)
+    {
+        lv_obj_set_style_text_font(times, fzlthb_56, 0);
+        lv_obj_align(times, LV_ALIGN_BOTTOM_LEFT, 160, -92);
+    }
+    if (screenlock_style == 2)
+    {
+        lv_obj_set_style_text_font(times, fzlthb_118, 0);
+        lv_obj_align(times, LV_ALIGN_CENTER, 0, 0);
+    }
+    if (screenlock_style == 4)
+    {
+        lv_obj_set_style_text_font(times, fzlthb_118, 0);
+        lv_obj_align(times, LV_ALIGN_BOTTOM_LEFT, 58, -20);
+    }
+    if (screenlock_style == 5)
+    {
+        lv_obj_set_style_text_font(times, fzlthb_118, 0);
+        lv_obj_align(times, LV_ALIGN_TOP_LEFT, 20, 100);
+    }
 
     return;
 }
@@ -190,12 +232,42 @@ static void lv_async_time_calcula()
         //12小时制（例如:2:30）
         int display_hour = hour % 12;
         if (display_hour == 0) display_hour = 12;  // 0点显示为12
-        snprintf(time_text, sizeof(time_text), "%02d\n%02d", display_hour, minute);
+        if (screenlock_style == 1)
+        {
+            snprintf(time_text, sizeof(time_text), "%02d\n%02d", display_hour, minute);
+        }
+        if (screenlock_style == 2)
+        {
+            snprintf(time_text, sizeof(time_text), "%02d:%02d", display_hour, minute);
+        }
+        if (screenlock_style == 4)
+        {
+            snprintf(time_text, sizeof(time_text), "%02d\n%02d", display_hour, minute);
+        }
+        if (screenlock_style == 5)
+        {
+            snprintf(time_text, sizeof(time_text), "%02d:%02d", display_hour, minute);
+        }
     }
     else
     {
         //24小时制（例如:14:30）
-        snprintf(time_text, sizeof(time_text), "%02d\n%02d", hour, minute);
+        if (screenlock_style == 1)
+        {
+            snprintf(time_text, sizeof(time_text), "%02d\n%02d", hour, minute);
+        }
+        if (screenlock_style == 2)
+        {
+            snprintf(time_text, sizeof(time_text), "%02d:%02d", hour, minute);
+        }
+        if (screenlock_style == 4)
+        {
+            snprintf(time_text, sizeof(time_text), "%02d\n%02d", hour, minute);
+        }
+        if (screenlock_style == 5)
+        {
+            snprintf(time_text, sizeof(time_text), "%02d:%02d", hour, minute);
+        }
     }
     lv_label_set_text(times, time_text);
 
