@@ -94,9 +94,9 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_zoom(net_error, 128);
     lv_obj_align(net_error, LV_ALIGN_TOP_MID, 0, -100);
 
-    //文字提示
+    //文字提示:注册平台失败/等待超时
     lv_obj_t *tip1_label = lv_label_create(cont);
-    lv_label_set_text(tip1_label, "注册平台失败");
+    lv_label_set_text(tip1_label, "注册平台失败/等待超时");
     lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
     lv_obj_set_style_text_font(tip1_label, fzlthr_26, 0);
     lv_obj_set_style_text_color(tip1_label, lv_color_white(), 0);

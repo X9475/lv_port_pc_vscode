@@ -1,4 +1,5 @@
 #include "../lv_switch_interface.h"
+#include <stdio.h>
 
 #define SETTING_NUM     11
 
@@ -7,6 +8,26 @@ static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
 static lv_style_t screen_style;
+
+//test旋钮转动菜单
+typedef struct {
+    int command;
+} MenuCommand;
+static MenuCommand g_cmd;
+
+typedef struct
+{
+    bool init_flag;
+    lv_timer_t *timer;
+    lv_obj_t *mask;
+    int index;
+} rotate_ctl_s;
+static rotate_ctl_s g_rotate_ctl_s = {false, NULL, NULL, 0};
+
+static lv_mutex_t mutex;
+static void *input_thread(void* arg);
+static void delete_mask_page(lv_timer_t *timer);
+static void async_rotate_cb(void *cmd);
 
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
@@ -131,8 +152,114 @@ static void lv_page_load(lv_obj_t *cont)
         lv_obj_add_event_cb(btn, setting_iterm_click_event_cb, LV_EVENT_CLICKED, setting_list[i]);
     }
 
+    //起线程获取指令 test
+    pthread_t tid;
+    lv_mutex_init(&mutex);
+    pthread_create(&tid, NULL, input_thread, NULL);
+
     return;
 }
+
+/***********************************************test start************************************************************/
+static void* input_thread(void* arg)
+{
+    while(1)
+    {
+        char buf[64];
+        if(fgets(buf, sizeof(buf), stdin))
+        {
+            sscanf(buf, "%d", &g_cmd.command);
+            printf("input cmd: %d\n", g_cmd.command);
+
+            lv_page_info_current_pt current_page = lv_current_page_info_get();
+            // if (current_page->page_id == PAGE_FUNCTIONAL_MENU_SETTING)
+            {
+                if (!g_rotate_ctl_s.init_flag)
+                {
+                    //创建透明屏幕禁止屏幕响应
+                    g_rotate_ctl_s.mask = lv_obj_create(settings_more_page_info.page);
+                    lv_obj_remove_style_all(g_rotate_ctl_s.mask);
+                    lv_obj_set_size(g_rotate_ctl_s.mask, lv_pct(100), lv_pct(100));
+                    lv_obj_set_style_bg_opa(g_rotate_ctl_s.mask, LV_OPA_TRANSP, 0);
+                    lv_obj_align(g_rotate_ctl_s.mask, LV_ALIGN_CENTER, 0, 0);
+                    lv_obj_clear_flag(settings_more_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
+                    g_rotate_ctl_s.init_flag = true;
+
+                    if (NULL == g_rotate_ctl_s.timer)
+                    {
+                        g_rotate_ctl_s.timer = lv_timer_create(delete_mask_page, 1000, NULL);
+                    }
+
+                    //获取当前中间项目索引
+                    lv_obj_t *cont_col = lv_obj_get_child(settings_more_page_info.page, 0);
+                    const int child_count = lv_obj_get_child_cnt(cont_col);
+                    for (int i = 0; i < child_count; i++)
+                    {
+                        lv_obj_t *child = lv_obj_get_child(cont_col, i);
+                        lv_area_t child_a;
+                        lv_obj_get_coords(child, &child_a);
+                        int32_t child_y_center = child_a.y1 + lv_area_get_height(&child_a) / 2;
+                        if (LV_ABS(child_y_center - 205) < 5) 
+                        {
+                            g_rotate_ctl_s.index = i;
+                            break;
+                        }
+                    }
+                }
+
+                // lv_mutex_lock(&mutex);
+                lv_async_call(async_rotate_cb, &g_cmd.command);
+                // lv_mutex_unlock(&mutex);
+
+                lv_timer_reset(g_rotate_ctl_s.timer);
+            }
+        }
+    }
+
+    return NULL;
+}
+
+static void async_rotate_cb(void *cmd)
+{
+    printf("=====11\n");
+    // lv_mutex_lock(&mutex);
+    static int current_index = 0;
+    current_index = g_rotate_ctl_s.index;
+    static int offset = 0; //1:正向，-1:反向
+
+    //更新索引
+    offset = *(int*)cmd > 1 ? 1 : -1;
+    current_index += offset;
+
+    //边界检查
+    if (current_index >= (SETTING_NUM - 1))
+    {
+        current_index = SETTING_NUM - 1;
+    } 
+    else if (current_index <= 0)
+    {
+        current_index = 0;
+    }
+
+    g_rotate_ctl_s.index = current_index;
+    lv_obj_t *cont_col = lv_obj_get_child(settings_more_page_info.page, 1);
+    lv_obj_scroll_to_view(lv_obj_get_child(cont_col, current_index), LV_ANIM_OFF);
+    // lv_mutex_unlock(&mutex);
+    return;
+}
+
+static void delete_mask_page(lv_timer_t *timer)
+{
+    printf("delete_mask_page\n");
+    lv_obj_del(g_rotate_ctl_s.mask);
+    lv_timer_del(g_rotate_ctl_s.timer);
+    g_rotate_ctl_s.timer = NULL;
+    g_rotate_ctl_s.init_flag = false;
+    lv_obj_add_flag(settings_more_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
+
+    return;
+}
+/***********************************************test end************************************************************/
 
 static void page_back_event_cb(lv_event_t *e)
 {
