@@ -13,7 +13,7 @@ static lv_style_t style_main;
 static lv_style_t style_indicator;
 static lv_style_t style_knob;
 static lv_obj_t *auxiliary;
-static lv_obj_t *password;
+static lv_obj_t *voice_ctrl;
 static lv_obj_t *single_record;
 static lv_obj_t *audio;
 static lv_obj_t *screensaver;
@@ -28,6 +28,7 @@ static void lv_page_subject_init();
 static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
+static void bright_icon_click_event(lv_event_cb_t *e);
 static void lv_event_handler_code(lv_event_cb_t *e);
 static void slider_press_event(lv_event_t *e);
 static void slider_release_event(lv_event_t *e);
@@ -164,19 +165,19 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_src(auxiliary_img, "../lv_port_pc_vscode/assert/icon/set_icon_auxiliary_lines.png");
     lv_img_set_zoom(auxiliary_img, 128);
 
-    //密码
-    password = lv_obj_create(cont);
-    lv_obj_set_size(password, 100, 100);
-    lv_obj_add_style(password, &btn_style, 0);
-    lv_obj_set_style_radius(password, LV_RADIUS_CIRCLE, 0);
-    lv_obj_align(password, LV_ALIGN_TOP_LEFT, 145, 35);
-    lv_obj_add_flag(password, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(password, lv_event_handler_code, LV_EVENT_CLICKED, NULL);
+    //语音控制
+    voice_ctrl = lv_obj_create(cont);
+    lv_obj_set_size(voice_ctrl, 100, 100);
+    lv_obj_add_style(voice_ctrl, &btn_style, 0);
+    lv_obj_set_style_radius(voice_ctrl, LV_RADIUS_CIRCLE, 0);
+    lv_obj_align(voice_ctrl, LV_ALIGN_TOP_LEFT, 145, 35);
+    lv_obj_add_flag(voice_ctrl, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(voice_ctrl, lv_event_handler_code, LV_EVENT_CLICKED, NULL);
 
-    lv_obj_t *password_img = lv_img_create(password);
-    lv_obj_align(password_img, LV_ALIGN_CENTER, 0, 0);
-    lv_img_set_src(password_img, "../lv_port_pc_vscode/assert/icon/lock_on.png");
-    lv_img_set_zoom(password_img, 128);
+    lv_obj_t *voicectrl_img = lv_img_create(voice_ctrl);
+    lv_obj_align(voicectrl_img, LV_ALIGN_CENTER, 0, 0);
+    lv_img_set_src(voicectrl_img, "../lv_port_pc_vscode/assert/icon/voice_assistant_off.png");
+    // lv_img_set_zoom(voicectrl_img, 128);
 
     //单次录像时长
     single_record = lv_obj_create(cont);
@@ -248,9 +249,11 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_event_cb(bright_slider, slider_release_event, LV_EVENT_RELEASED, NULL);
 
     lv_obj_t *bright_icon = lv_img_create(bright_slider);
-    lv_img_set_src(bright_icon, "../lv_port_pc_vscode/assert/icon/icon_bright.png");
+    lv_img_set_src(bright_icon, "../lv_port_pc_vscode/assert/icon/set_icon_auto_light.png");
     lv_img_set_zoom(bright_icon, 128);
     lv_obj_align(bright_icon, LV_ALIGN_BOTTOM_MID, 0, 10);
+    lv_obj_add_flag(bright_icon, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(bright_icon, bright_icon_click_event, LV_EVENT_CLICKED, NULL);
 
     //音量滑动条
     volume_slider = lv_slider_create(cont);
@@ -307,10 +310,27 @@ static void lv_menu_setting_slider_event(lv_event_cb_t *e)
     }
 }
 
+static void bright_icon_click_event(lv_event_cb_t *e)
+{
+    static bool auto_bright_flag = false;
+    lv_obj_t *bright_icon = lv_event_get_target(e);
+
+    if (!auto_bright_flag)
+    {
+        lv_img_set_src(bright_icon, "../lv_port_pc_vscode/assert/icon/icon_bright.png");
+        auto_bright_flag = true;
+    }
+    else
+    {
+        lv_img_set_src(bright_icon, "../lv_port_pc_vscode/assert/icon/set_icon_auto_light.png");
+        auto_bright_flag = false;
+    }
+}
+
 static void lv_event_handler_code(lv_event_cb_t *e)
 {
     static bool auxiliary_flag = false;
-    static bool password_flag = false;
+    static bool voice_ctrl_flag = false;
 
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *obj = lv_event_get_target(e);
@@ -332,19 +352,25 @@ static void lv_event_handler_code(lv_event_cb_t *e)
                 auxiliary_flag = false;
             }
         }
-        else if (obj == password)
-        {//密码
-            if (!password_flag) {
-                lv_obj_set_style_bg_color(password, lv_color_hex(0xCE94F8), 0);
-                lv_obj_set_style_bg_opa(password, LV_OPA_COVER, 0);
-                password_flag = true;
+        else if (obj == voice_ctrl)
+        {//语音控制
+            if (!voice_ctrl_flag) {
+                lv_obj_set_style_bg_color(voice_ctrl, lv_color_hex(0xCE94F8), 0);
+                lv_obj_set_style_bg_opa(voice_ctrl, LV_OPA_COVER, 0);
+
+                lv_obj_t *voicectrl_img = lv_obj_get_child(voice_ctrl, 0);
+                lv_img_set_src(voicectrl_img, "../lv_port_pc_vscode/assert/icon/voice_assistant_on.png");
+                voice_ctrl_flag = true;
                 //设置AI语音助手打开的标志，需要发送主题事件到AI界面回调
             }
             else
             {
-                lv_obj_set_style_bg_color(password, lv_color_hex(0x000000), 0);
-                lv_obj_set_style_bg_opa(password, LV_OPA_COVER, 0);
-                password_flag = false;
+                lv_obj_set_style_bg_color(voice_ctrl, lv_color_hex(0x000000), 0);
+                lv_obj_set_style_bg_opa(voice_ctrl, LV_OPA_COVER, 0);
+
+                lv_obj_t *voicectrl_img = lv_obj_get_child(voice_ctrl, 0);
+                lv_img_set_src(voicectrl_img, "../lv_port_pc_vscode/assert/icon/voice_assistant_off.png");
+                voice_ctrl_flag = false;
             }
         }
         else if (obj == single_record)
