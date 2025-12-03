@@ -116,16 +116,23 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_align(tip_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(tip_label, LV_ALIGN_TOP_MID, 0, 320);
 
-    // ============> test code <============
-    lv_obj_t *label = lv_label_create(cont);
-    lv_label_set_text(label, "下一步");
-    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(label, fzlthr_26, 0);
-    lv_obj_set_style_text_color(label, lv_color_white(), 0);
-    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_add_flag(label, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_align(label, LV_ALIGN_TOP_RIGHT, -20, 20);
-    lv_obj_add_event_cb(label, lv_event_handler_code, LV_EVENT_CLICKED, NULL);
+    //跳过
+    lv_obj_t *btn = lv_btn_create(cont);
+    lv_obj_set_size(btn, 80, 30);
+    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -30, 20);
+    lv_obj_set_style_radius(btn, 10, 0);
+    lv_obj_set_style_shadow_opa(btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_add_event_cb(btn, lv_event_handler_code, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t *tip1_label = lv_label_create(btn);
+    lv_label_set_text(tip1_label, "跳过");
+    lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip1_label, fzlthr_22, 0);
+    lv_obj_set_style_text_color(tip1_label, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip1_label, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }

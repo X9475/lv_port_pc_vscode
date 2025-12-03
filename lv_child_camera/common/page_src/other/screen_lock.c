@@ -9,6 +9,7 @@ static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
 static lv_style_t screen_style;
+static lv_style_t misscall_style;
 
 lv_obj_t *capacity;
 lv_obj_t *percent;
@@ -27,6 +28,7 @@ static void lv_page_subject_init();
 static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_async_time_calcula();
+static void lv_async_missed_call();
 static void click_event_handler(lv_event_t *e);
 static void gesture_event_handler(lv_event_t *e);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
@@ -69,8 +71,8 @@ static void lv_page_construct(void *this)
     lv_obj_add_event_cb(screen, click_event_handler, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(act_screen, gesture_event_handler, LV_EVENT_GESTURE, NULL);
 
-    //异步获取时间
     lv_async_call(lv_async_time_calcula, NULL);
+    lv_async_call(lv_async_missed_call, NULL);
 
     screenlock_page_info.page = screen;
     return;
@@ -79,6 +81,7 @@ static void lv_page_construct(void *this)
 static void lv_page_destruct(void)
 {
     lv_style_reset(&screen_style);
+    lv_style_reset(&misscall_style);
     lv_page_subject_deinit();
 }
 
@@ -90,6 +93,14 @@ static void lv_page_style_init()
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
     lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
+
+    //misscall_style
+    lv_style_init(&misscall_style);
+    lv_style_set_radius(&misscall_style, 64);
+    lv_style_set_pad_all(&misscall_style, 0);
+    lv_style_set_border_width(&misscall_style, 0);
+    lv_style_set_bg_opa(&misscall_style, LV_OPA_COVER);
+    lv_style_set_bg_color(&misscall_style, lv_color_hex(0x494949));
 }
 
 static void lv_page_subject_init()
@@ -272,6 +283,47 @@ static void lv_async_time_calcula()
     lv_label_set_text(times, time_text);
 
     return;
+}
+
+static void lv_async_missed_call()
+{
+    lv_obj_t *miss_call = lv_obj_create(screen);
+    lv_obj_set_size(miss_call, 442, 130);
+    lv_obj_add_style(miss_call, &misscall_style, 0);
+    lv_obj_align(miss_call, LV_ALIGN_BOTTOM_MID, 0, -30);
+    lv_obj_clear_flag(miss_call, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_move_foreground(miss_call);
+
+    //头像
+    lv_obj_t *headicon = lv_img_create(miss_call);
+    lv_obj_set_size(headicon, 90, 90);
+    lv_img_set_src(headicon, "../lv_port_pc_vscode/assert/icon/head_photo.png");
+    lv_obj_align_to(headicon, miss_call, LV_ALIGN_LEFT_MID, 20, 0);
+
+    lv_obj_t *label1 = lv_label_create(miss_call);
+    lv_label_set_text(label1, "一个未接电话");
+    lv_obj_set_style_text_font(label1, fzlthr_30, 0);
+    lv_obj_set_style_text_opa(label1, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(label1, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label1, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 128, 28);
+
+    lv_obj_t *label2 = lv_label_create(miss_call);
+    lv_label_set_text(label2, "来源于妈妈");
+    lv_obj_set_style_text_font(label2, fzlthr_24, 0);
+    lv_obj_set_style_text_opa(label2, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(label2, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 128, 71);
+
+    lv_obj_t *time_label = lv_label_create(miss_call);
+    lv_obj_set_size(time_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_label_set_text(time_label, "5分钟前");
+    lv_obj_set_style_text_font(time_label, fzlthr_20, 0);
+    lv_obj_set_style_text_opa(time_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(time_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(time_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(time_label, LV_ALIGN_TOP_RIGHT, -30, 30);
 }
 
 static void click_event_handler(lv_event_t *e)
