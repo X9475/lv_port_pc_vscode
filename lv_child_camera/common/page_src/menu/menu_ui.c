@@ -356,14 +356,7 @@ static void *lv_app_create(int i, lv_obj_t *cont, const char *name, const char *
     //圆形
     lv_obj_t *image1 = lv_img_create(btn);
     lv_obj_set_size(image1, 80, 80);
-    if ((i % 2) == 0)
-    {
-        lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/purple_circle.png");
-    }
-    else
-    {
-        lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/green_circle.png");
-    }
+    lv_img_set_src(image1, "../lv_port_pc_vscode/assert/icon/purple_circle.png");
     lv_obj_align_to(image1, btn, LV_ALIGN_LEFT_MID, 20, 0);
 
     //叠加图标
@@ -405,10 +398,12 @@ static void set_color_app_style(int i, lv_obj_t *obj, lv_menu_dev_t *iterm_ptr)
 {
     //背景
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
-    if ((i % 2) == 0) {
-        lv_obj_set_style_bg_color(obj, lv_color_hex(0xCE94F8), 0);
-    } else {
+    if ((i % 3) == 0) {
+        lv_obj_set_style_bg_color(obj, lv_color_hex(0x94AEF8), 0);
+    } else if ((i % 3) == 1) {
         lv_obj_set_style_bg_color(obj, lv_color_hex(0xAFF99C), 0);
+    } else if ((i % 3) == 2){
+        lv_obj_set_style_bg_color(obj, lv_color_hex(0xCE94F8), 0);
     }
     //圆形
     lv_obj_t *image1 = lv_obj_get_child(obj, 0);
@@ -428,10 +423,12 @@ static void set_indicator_light(int i)
     //指示灯
     lv_obj_t *image = lv_img_create(screen);
     // lv_obj_set_size(image, 80, 80);
-    if ((i % 2) == 0) {
-        lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_purple.png");
-    } else {
+    if ((i % 3) == 0) {
+        lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_blue.png");
+    } else if ((i % 3) == 1) {
         lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_green.png");
+    } else if ((i % 3) == 2) {
+        lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_purple.png");
     }
     lv_obj_align_to(image, screen, LV_ALIGN_RIGHT_MID, -36, -2);
 }
