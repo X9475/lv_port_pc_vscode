@@ -8,6 +8,7 @@ lv_subject_t screenlock_subject;
 static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
+static lv_obj_t *miss_call = NULL;
 static lv_style_t screen_style;
 static lv_style_t misscall_style;
 
@@ -19,6 +20,13 @@ lv_obj_t *date;
 lv_obj_t *times;
 struct tm *time_info;
 
+typedef struct
+{
+    lv_coord_t start_y;  //按下开始
+    lv_coord_t end_y;    //释放结束
+    bool is_pressed;     //是否按下
+} lv_page_move_t;
+
 int screenlock_style = 4;//选择样式
 
 static void lv_page_construct(void *this);
@@ -28,10 +36,12 @@ static void lv_page_subject_init();
 static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_async_time_calcula();
-static void lv_async_missed_call();
+static void lv_missed_call_window();
 static void click_event_handler(lv_event_t *e);
-static void gesture_event_handler(lv_event_t *e);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
+static void page_gesture_event_hander(lv_event_t *e);
+static void lv_window_anim_finish(lv_anim_t *anim);
+static int page_gesture_diraction_judgement(lv_event_t *e);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -68,11 +78,11 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
-    lv_obj_add_event_cb(screen, click_event_handler, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_event_cb(act_screen, gesture_event_handler, LV_EVENT_GESTURE, NULL);
+    lv_missed_call_window();
 
     lv_async_call(lv_async_time_calcula, NULL);
-    lv_async_call(lv_async_missed_call, NULL);
+    lv_obj_add_event_cb(screen, page_gesture_event_hander, LV_EVENT_PRESSED, NULL);
+    lv_obj_add_event_cb(screen, page_gesture_event_hander, LV_EVENT_RELEASED, NULL);
 
     screenlock_page_info.page = screen;
     return;
@@ -82,6 +92,7 @@ static void lv_page_destruct(void)
 {
     lv_style_reset(&screen_style);
     lv_style_reset(&misscall_style);
+
     lv_page_subject_deinit();
 }
 
@@ -285,14 +296,15 @@ static void lv_async_time_calcula()
     return;
 }
 
-static void lv_async_missed_call()
+static void lv_missed_call_window()
 {
-    lv_obj_t *miss_call = lv_obj_create(screen);
+    miss_call = lv_obj_create(screen);
     lv_obj_set_size(miss_call, 442, 130);
     lv_obj_add_style(miss_call, &misscall_style, 0);
-    lv_obj_align(miss_call, LV_ALIGN_BOTTOM_MID, 0, -30);
+    lv_obj_align(miss_call, LV_ALIGN_TOP_MID, 0, 250);
     lv_obj_clear_flag(miss_call, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_move_foreground(miss_call);
+    lv_obj_add_flag(miss_call, LV_OBJ_FLAG_EVENT_BUBBLE);
+    // lv_obj_move_foreground(miss_call);
 
     //头像
     lv_obj_t *headicon = lv_img_create(miss_call);
@@ -309,12 +321,22 @@ static void lv_async_missed_call()
     lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 128, 28);
 
     lv_obj_t *label2 = lv_label_create(miss_call);
-    lv_label_set_text(label2, "来源于妈妈");
+    lv_label_set_text(label2, "来源于");
     lv_obj_set_style_text_font(label2, fzlthr_24, 0);
     lv_obj_set_style_text_opa(label2, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(label2, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 128, 71);
+
+    lv_obj_t *name_label = lv_label_create(miss_call);
+    lv_obj_set_size(name_label, 180, 31);
+    lv_label_set_text(name_label, "hfoasdhgoahswgjnOPDAHGoahglHID");
+    lv_label_set_long_mode(name_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_style_text_font(name_label, fzlthr_24, 0);
+    lv_obj_set_style_text_opa(name_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(name_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(name_label, LV_TEXT_ALIGN_CENTER, 0);   
+    lv_obj_align_to(name_label, label2, LV_ALIGN_OUT_RIGHT_MID, 0, 0); 
 
     lv_obj_t *time_label = lv_label_create(miss_call);
     lv_obj_set_size(time_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
@@ -332,10 +354,73 @@ static void click_event_handler(lv_event_t *e)
     printf("[%s:%d] -- click event:%d\n", __FILE__, __LINE__, code);
 }
 
-static void gesture_event_handler(lv_event_t *e)
+static void lv_window_anim_finish(lv_anim_t *anim)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    printf("[%s:%d] -- gesture event:%d\n", __FILE__, __LINE__, code);
+    lv_anim_del(anim, NULL);
+    lv_obj_del(miss_call);
+    miss_call = NULL;
+}
+
+static void page_gesture_event_hander(lv_event_t *e)
+{
+    //滑动方向判断
+    int dir = page_gesture_diraction_judgement(e);
+
+    if (dir == LV_DIR_TOP)
+    {
+        if (miss_call && lv_obj_is_valid(miss_call))
+        {
+            //动画移动消息框
+            lv_anim_t a;
+            lv_anim_init(&a);
+            lv_anim_set_var(&a, miss_call);
+            lv_anim_set_values(&a, lv_obj_get_y(miss_call), 100);
+            lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
+            lv_anim_set_time(&a, 1000);
+            lv_anim_set_ready_cb(&a, lv_window_anim_finish);
+            lv_anim_start(&a);
+        }
+    }
+}
+
+static int page_gesture_diraction_judgement(lv_event_t *e)
+{
+    static lv_page_move_t touch_state = {0};
+
+    const lv_event_code_t code = lv_event_get_code(e);
+    if (code == LV_EVENT_PRESSED)
+    {
+        lv_point_t point;
+        lv_indev_t *indev = lv_indev_get_act();
+        lv_indev_get_point(indev, &point);
+        if (point.y < 250 || point.x > 380) return 0;
+
+        touch_state.start_y = point.y;
+        touch_state.is_pressed = true;
+        return 0;
+    }
+
+    if (code == LV_EVENT_RELEASED)
+    {
+        lv_point_t point;
+        lv_indev_t *indev = lv_indev_get_act();
+        lv_indev_get_point(indev, &point);
+        touch_state.end_y = point.y;
+        if (touch_state.is_pressed != true) return 0;
+
+        //计算移动距离
+        const lv_coord_t delta = touch_state.end_y - touch_state.start_y;
+
+        if (LV_ABS(delta) < 10) {
+            touch_state.is_pressed = false;
+            return 0;
+        }
+
+        lv_dir_t dir = (delta > 0) ? LV_DIR_BOTTOM : LV_DIR_TOP;
+        return dir;
+    }
+
+    return 0;
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
