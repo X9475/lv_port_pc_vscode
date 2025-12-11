@@ -126,7 +126,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
     lv_obj_align_to(header, cont, LV_ALIGN_TOP_LEFT, 80, 26);
 
-    lv_obj_t *roller = setting_single_roller_iterm_create(cont, "5s\n10s\n30s");
+    lv_obj_t *roller = setting_single_roller_iterm_create(cont, "10s\n20s\n30s\n1min\n2min\n5min");
     lv_obj_add_event_cb(roller, setting_single_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     return;

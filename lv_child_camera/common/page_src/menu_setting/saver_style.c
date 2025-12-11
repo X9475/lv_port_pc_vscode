@@ -1,6 +1,6 @@
 #include "../lv_switch_interface.h"
 
-#define SAVER_NUM       4
+#define SAVER_NUM       3
 
 lv_subject_t screensaver_style_subject;
 static lv_switch_page_pt switch_page;
@@ -30,10 +30,9 @@ static void *line_container_create(lv_obj_t *cont);
 static void circular_scroll_handle(lv_obj_t *cont, uint8_t dir);
 
 static const char *saver_list[SAVER_NUM] = {
-    "../lv_port_pc_vscode/assert/icon/screensaver.png",
-    "../lv_port_pc_vscode/assert/icon/screensaver2.png",
-    "../lv_port_pc_vscode/assert/icon/screensaver4.png",
-    "../lv_port_pc_vscode/assert/icon/screensaver5.png",
+    "../lv_port_pc_vscode/assert/icon/screensaver1.2.png",
+    "../lv_port_pc_vscode/assert/icon/screensaver2.2.png",
+    "../lv_port_pc_vscode/assert/icon/screensaver3.2.png",
 };
 
 //待跳转的页面种类
@@ -117,31 +116,25 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    //返回按钮
-    lv_obj_t *back = lv_img_create(cont);
-    lv_obj_set_size(back, 50, 50);
-    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
-    lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
-    lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
-
     //右侧滚动条
     line_cont = line_container_create(cont);
 
     //创建屏保转盘
     lv_obj_t *cont_col = lv_obj_create(cont);
+    lv_obj_set_size(cont_col, 400, lv_pct(100));
     lv_obj_add_style(cont_col, &screen_style, 0);
-    lv_obj_set_size(cont_col, 380, lv_pct(100));
-    lv_obj_set_flex_flow(cont_col, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_scroll_snap_y(cont_col, LV_SCROLL_SNAP_CENTER);
-    lv_obj_align(cont_col, LV_ALIGN_LEFT_MID, 80, 0);
+    lv_obj_align(cont_col, LV_ALIGN_LEFT_MID, 60, 0);
+    // lv_obj_set_style_border_width(cont_col, 2, 0);
+    // lv_obj_set_style_border_color(cont_col, lv_color_white(), 0);
     lv_obj_set_scroll_dir(cont_col, LV_DIR_VER);
+    lv_obj_set_scroll_snap_y(cont_col, LV_SCROLL_SNAP_CENTER);
+    lv_obj_set_flex_flow(cont_col, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_scrollbar_mode(cont_col, LV_SCROLLBAR_MODE_OFF);
     lv_obj_add_event_cb(cont_col, scroll_saver_event_cb, LV_EVENT_SCROLL, NULL);
     lv_obj_set_flex_align(cont_col, 
+                                LV_FLEX_ALIGN_START,
                                 LV_FLEX_ALIGN_CENTER,
-                                LV_FLEX_ALIGN_CENTER,
-                                LV_FLEX_ALIGN_CENTER);
+                                LV_FLEX_ALIGN_END);
 
     for (uint8_t i = 0; i < SAVER_NUM; i++)
     {
@@ -151,6 +144,14 @@ static void lv_page_load(lv_obj_t *cont)
 
     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, 0), LV_ANIM_OFF);
     lv_obj_send_event(cont_col, LV_EVENT_SCROLL, NULL);
+
+    //返回按钮
+    lv_obj_t *back = lv_img_create(cont);
+    lv_obj_set_size(back, 50, 50);
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
+    lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
+    lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
     return;
 }
@@ -211,13 +212,12 @@ static void scroll_saver_event_cb(lv_event_t *e)
         int32_t x = r - res.i;
 
         //设置旋转中心为右侧边缘中间点
-        lv_obj_set_style_transform_pivot_x(child, 610, 0);
+        lv_obj_set_style_transform_pivot_x(child, 450, 0);
         lv_obj_set_style_transform_pivot_y(child, 205, 0);
 
-        // int32_t angle = -(diff_y) / 3;
-        // angle = LV_ABS(diff_y) >= 60? angle : 0;
-        lv_obj_set_style_translate_x(child, x, 0);
-        // lv_obj_set_style_transform_rotation(child, angle, LV_PART_MAIN);
+        int32_t angle = -(diff_y) / 2;
+        lv_obj_set_style_translate_x(child, x-80, 0);
+        lv_obj_set_style_transform_rotation(child, angle, LV_PART_MAIN);
     }
 
     if (cur_idx != last_idx)
@@ -275,7 +275,7 @@ static void *screen_saver_create(lv_obj_t *cont, const char *path)
     lv_obj_t *style_image = lv_img_create(saver);
     lv_obj_set_size(style_image, 280, 220);
     lv_img_set_src(style_image, path);
-    lv_img_set_zoom(style_image, 64);
+    // lv_img_set_zoom(style_image, 64);
     lv_obj_align(style_image, LV_ALIGN_CENTER, 0, 0);
 
     lv_obj_t *img = lv_img_create(saver);
@@ -287,7 +287,7 @@ static void *screen_saver_create(lv_obj_t *cont, const char *path)
     {
         lv_img_set_src(img, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
     }
-    lv_obj_align(img, LV_ALIGN_TOP_RIGHT, -20, 20);
+    lv_obj_align(img, LV_ALIGN_TOP_RIGHT, -18, 18);
 
     return saver;
 }

@@ -95,9 +95,9 @@ static void lv_page_style_init()
 
     //label3_style
     lv_style_init(&label3_style);
-    lv_style_set_text_opa(&label3_style, LV_OPA_50);
+    lv_style_set_text_opa(&label3_style, LV_OPA_40);
     lv_style_set_text_color(&label3_style, lv_color_hex(0xEBEBF5));
-    lv_style_set_text_font(&label3_style, fzlthr_20);
+    lv_style_set_text_font(&label3_style, oswaldr_20);
     lv_style_set_text_align(&label3_style, LV_TEXT_ALIGN_LEFT);
 
     //图层蒙板
@@ -147,27 +147,27 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_size(label2, 158, 37);
     lv_label_set_text(label2, "设备版本号");
     lv_obj_add_style(label2, &label2_style, 0);
-    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 55, 171);
+    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 65, 171);
 
     lv_obj_t *label3 = lv_label_create(cont);
     lv_obj_set_size(label3, 134, 37);
     lv_label_set_text(label3, "设备型号");
     lv_obj_add_style(label3, &label2_style, 0);
-    lv_obj_align(label3, LV_ALIGN_TOP_LEFT, 55, 256);
+    lv_obj_align(label3, LV_ALIGN_TOP_LEFT, 65, 256);
 
     lv_obj_t *label4 = lv_label_create(cont);
     lv_obj_set_size(label4, 184, 30);
     lv_label_set_long_mode(label4, LV_LABEL_LONG_SCROLL);
     lv_label_set_text(label4, "V2.0 build 11111111111");
     lv_obj_add_style(label4, &label3_style, 0);
-    lv_obj_align(label4, LV_ALIGN_TOP_LEFT, 55, 208);
+    lv_obj_align(label4, LV_ALIGN_TOP_LEFT, 65, 208);
 
     lv_obj_t *label5 = lv_label_create(cont);
     lv_obj_set_size(label5, 184, 30);
     lv_label_set_long_mode(label5, LV_LABEL_LONG_SCROLL);
     lv_label_set_text(label5, "V2.0 build 11111111111");
     lv_obj_add_style(label5, &label3_style, 0);
-    lv_obj_align(label5, LV_ALIGN_TOP_LEFT, 55, 293);
+    lv_obj_align(label5, LV_ALIGN_TOP_LEFT, 65, 293);
 
     //产品图
     lv_obj_t *image = lv_img_create(cont);

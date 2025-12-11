@@ -112,6 +112,10 @@ lv_page_info_pt lv_page_factory_restore_info_get();
 extern lv_subject_t cert_mask_subject;
 lv_page_info_pt lv_page_cert_mask_info_get();
 
+//设置页二维码
+extern lv_subject_t settingQr_subject;
+lv_page_info_pt lv_page_settingQr_info_get();
+
 //格式化确认
 extern lv_subject_t format_confirm_subject;
 lv_page_info_pt lv_page_format_confirm_info_get();

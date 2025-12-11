@@ -16,8 +16,10 @@
 
 #if (LV_CHILD_CAMERA != 0) && (LV_USE_FONT_MANAGER != 0)
 
-#define FZLTH_GB18030L2_B_DIR "../assert/font/FZLTH_GB18030L2/FZLTH_GB18030L2_B.ttf"
-#define FZLTH_GB18030L2_R_DIR "../assert/font/FZLTH_GB18030L2/FZLTH_GB18030L2_R.ttf"
+#define FZLTH_GB18030L2_B_DIR   "../assert/font/FZLTH_GB18030L2/FZLTH_GB18030L2_B.ttf"
+#define FZLTH_GB18030L2_R_DIR   "../assert/font/FZLTH_GB18030L2/FZLTH_GB18030L2_R.ttf"
+#define Oswald_Bold_DIR         "../assert/font/Oswald/Oswald_Bold.ttf"
+#define Oswald_Regular_DIR      "../assert/font/Oswald/Oswald_Regular.ttf"
 
 //字体
 //瘦体
@@ -35,6 +37,12 @@ const lv_font_t *fzlthr_50;
 const lv_font_t *fzlthr_56;
 const lv_font_t *fzlthr_118;
 const lv_font_t *fzlthr_170;
+const lv_font_t *oswaldr_20;
+const lv_font_t *oswaldr_24;
+const lv_font_t *oswaldr_36;
+const lv_font_t *oswaldr_50;
+const lv_font_t *oswaldr_178;
+
 //粗体
 const lv_font_t *fzlthb_20;
 const lv_font_t *fzlthb_22;
@@ -50,6 +58,11 @@ const lv_font_t *fzlthb_50;
 const lv_font_t *fzlthb_56;
 const lv_font_t *fzlthb_118;
 const lv_font_t *fzlthb_170;
+const lv_font_t *oswaldb_20;
+const lv_font_t *oswaldb_24;
+const lv_font_t *oswaldb_36;
+const lv_font_t *oswaldb_50;
+const lv_font_t *oswaldb_178;
 
 /// @brief 字体管理器
 static lv_font_manager_t *g_font_manager;
@@ -63,6 +76,8 @@ void lv_font_init()
 
     lv_font_manager_add_src_static(g_font_manager, "fzlthr", FZLTH_GB18030L2_R_DIR, &lv_freetype_font_class);
     lv_font_manager_add_src_static(g_font_manager, "fzlthb", FZLTH_GB18030L2_B_DIR, &lv_freetype_font_class);
+    lv_font_manager_add_src_static(g_font_manager, "oswaldr", Oswald_Regular_DIR, &lv_freetype_font_class);
+    lv_font_manager_add_src_static(g_font_manager, "oswaldb", Oswald_Bold_DIR, &lv_freetype_font_class);
 
     lv_fzlth_font_generic();
 
@@ -109,6 +124,18 @@ static void lv_fzlth_font_generic()
     fzlthb_56 = lv_font_generic("fzlthb", 56);
     fzlthb_118 = lv_font_generic("fzlthb", 118);
     fzlthb_170 = lv_font_generic("fzlthb", 170);
+
+    oswaldr_20 = lv_font_generic("oswaldr", 20);
+    oswaldr_24 = lv_font_generic("oswaldr", 24);
+    oswaldr_36 = lv_font_generic("oswaldr", 36);
+    oswaldr_50 = lv_font_generic("oswaldr", 50);
+    oswaldr_178 = lv_font_generic("oswaldr", 178);
+
+    oswaldb_20 = lv_font_generic("oswaldb", 20);
+    oswaldb_24 = lv_font_generic("oswaldb", 24);
+    oswaldb_36 = lv_font_generic("oswaldb", 36);
+    oswaldb_50 = lv_font_generic("oswaldb", 50);
+    oswaldb_178 = lv_font_generic("oswaldb", 178);
 }
 
 const lv_font_t *font_get_regular(uint32_t size)
@@ -133,6 +160,8 @@ static const lv_font_t *lv_font_generic(const char *font_family, uint32_t size)
     if (g_font_manager == NULL) return LV_FONT_DEFAULT;
 
     lv_freetype_font_style_t style;
+    if (lv_strcmp(font_family, "oswaldr") == 0) style = LV_FREETYPE_FONT_STYLE_NORMAL;
+    if (lv_strcmp(font_family, "oswaldb") == 0) style = LV_FREETYPE_FONT_STYLE_BOLD;
     if (lv_strcmp(font_family, "fzlthr") == 0) style = LV_FREETYPE_FONT_STYLE_NORMAL;
     if (lv_strcmp(font_family, "fzlthb") == 0) style = LV_FREETYPE_FONT_STYLE_BOLD;
 

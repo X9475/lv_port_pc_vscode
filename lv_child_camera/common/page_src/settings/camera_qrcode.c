@@ -1,6 +1,6 @@
 #include "../lv_switch_interface.h"
 
-lv_subject_t cert_mask_subject;
+lv_subject_t settingQr_subject;
 static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
@@ -19,21 +19,20 @@ static void page_back_event_cb(lv_event_t *e);
 static enum PAGE_EVENT_ENUM
 {
     PAGE_SWITCH_NONE,
-    PAGE_SWITCH_CONFIRM,
     PAGE_SWITCH_BACK
 };
 
-static lv_page_info_t cert_mask_page_info = {
-    .page_id = PAGE_FUNCTIONAL_FACTORY_RESTORE,
+static lv_page_info_t settingQr_page_info = {
+    .page_id = PAGE_FUNCTIONAL_SETTING_QRCODE,
     .page = NULL,
     .reserved = NULL,
     .construct_cb = lv_page_construct,
     .destruct_cb = lv_page_destruct,
 };
 
-lv_page_info_pt lv_page_cert_mask_info_get()
+lv_page_info_pt lv_page_settingQr_info_get()
 {
-    return &cert_mask_page_info;
+    return &settingQr_page_info;
 }
 
 static void lv_page_construct(void *this)
@@ -52,7 +51,7 @@ static void lv_page_construct(void *this)
     //绘制当前页面
     lv_page_load(screen);
 
-    cert_mask_page_info.page = screen;
+    settingQr_page_info.page = screen;
     return;
 }
 
@@ -75,18 +74,24 @@ static void lv_page_style_init()
 
 static void lv_page_subject_init()
 {
-    lv_subject_init_int(&cert_mask_subject, PAGE_SWITCH_NONE);
-    lv_subject_add_observer(&cert_mask_subject, lv_switch_observer_cb, NULL);
+    lv_subject_init_int(&settingQr_subject, PAGE_SWITCH_NONE);
+    lv_subject_add_observer(&settingQr_subject, lv_switch_observer_cb, NULL);
     return;
 }
 
 static void lv_page_subject_deinit()
 {
-    lv_subject_deinit(&cert_mask_subject);
+    lv_subject_deinit(&settingQr_subject);
 }
 
 static void lv_page_load(lv_obj_t *cont)
 {
+    lv_obj_t *bg_img = lv_img_create(cont);
+    lv_obj_set_size(bg_img, lv_pct(100), lv_pct(100));
+    lv_img_set_src(bg_img, "../lv_port_pc_vscode/assert/icon/videocall_add_contact.png");
+    lv_img_set_zoom(bg_img, 128);
+    lv_obj_align(bg_img, LV_ALIGN_CENTER, 0, 0);
+
     //返回按钮
     lv_obj_t *back = lv_img_create(cont);
     lv_obj_set_size(back, 50, 50);
@@ -95,38 +100,33 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
 
-    lv_obj_t *description = lv_obj_create(cont);
-    lv_obj_set_size(description, 450, 180);
-    lv_obj_set_style_pad_all(description, 0, LV_PART_MAIN);
-    lv_obj_set_style_border_width(description, 0, LV_PART_MAIN);
-    lv_obj_set_style_radius(description, 18, LV_PART_MAIN);
-    lv_obj_set_style_bg_color(description, lv_color_hex(0x2C2C2E), LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(description, LV_OPA_COVER, 0);
-    lv_obj_clear_flag(description, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_align(description, LV_ALIGN_CENTER, 0, 0);
+    //生成二维码
+    lv_obj_t *qr = lv_qrcode_create(cont);
+    lv_qrcode_set_size(qr, 220);
+    lv_qrcode_set_light_color(qr, lv_color_hex(0xFFFFFF));
+    lv_qrcode_set_dark_color(qr, lv_color_hex(0x000000));
 
-    const char *text = "CMIIT ID：XXXXXXXXXXXX\n版本：V100-1M88SF4G-Z\nTD-LTE无线数据终端\n中国制造";
-    lv_obj_t *label = lv_label_create(description);
-    lv_label_set_text(label, text);
-    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(label, fzlthr_22, 0);
-    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_align(label, LV_ALIGN_TOP_LEFT, 30, 35);
+    const char *data = "https://lvgl.io";
+    lv_qrcode_update(qr, data, strlen(data));
+    lv_obj_align(qr, LV_ALIGN_CENTER, 0, -30);
+    lv_obj_set_style_border_color(qr, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_border_width(qr, 2, 0);
+    lv_obj_set_style_radius(qr, 15, 0);
 
-    //环保标志
-    lv_obj_t *image = lv_img_create(description);
-    lv_obj_set_size(image, 100, 100);
-    lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/environment_protect_symbol_10.png");
-    lv_img_set_zoom(image, 200);
-    lv_obj_align(image, LV_ALIGN_BOTTOM_RIGHT, -20, -20);
-
+    //文字提示
+    lv_obj_t *tip_label = lv_label_create(cont);
+    lv_label_set_text(tip_label, "请使用萤石云视频APP扫描二维码");
+    lv_obj_set_style_text_opa(tip_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip_label, fzlthr_26, 0);
+    lv_obj_set_style_text_color(tip_label, lv_color_white(), 0);
+    lv_obj_set_style_text_align(tip_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip_label, LV_ALIGN_TOP_MID, 0, 320);
     return;
 }
 
 static void page_back_event_cb(lv_event_t *e)
 {
-    lv_subject_set_int(&cert_mask_subject, PAGE_SWITCH_BACK);
+    lv_subject_set_int(&settingQr_subject, PAGE_SWITCH_BACK);
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
@@ -139,7 +139,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
     lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
     LV_ASSERT_MALLOC(switch_page);
-    switch_page->old_page = &cert_mask_page_info;
+    switch_page->old_page = &settingQr_page_info;
 
     switch (page_event)
     {

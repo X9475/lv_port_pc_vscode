@@ -1,7 +1,7 @@
 #include "../lv_switch_interface.h"
 #include <stdio.h>
 
-#define APP_NUM     7
+#define APP_NUM     5
 
 lv_subject_t menu_subject;
 static lv_switch_page_pt switch_page;
@@ -50,13 +50,14 @@ static lv_mutex_t mutex;
 static void *input_thread(void* arg);
 static void delete_mask_page(lv_timer_t *timer);
 static void async_rotate_cb(void *cmd);
+static int last_tabindex = 0;
 
 static lv_menu_dev_t menu_app_list[APP_NUM] = {
     {"拍摄", "../lv_port_pc_vscode/assert/icon/photograph_icon_screenshot_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_screenshot.png"},
     {"AI问答", "../lv_port_pc_vscode/assert/icon/photograph_icon_ai_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_ai.png"},
     {"视频通话", "../lv_port_pc_vscode/assert/icon/photograph_icon_videocall_filled_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_videocall_filled.png"},
-    {"留言板", "../lv_port_pc_vscode/assert/icon/photograph_icon_message_board_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_message_board.png"},
-    {"闹钟提醒", "../lv_port_pc_vscode/assert/icon/photograph_icon_alarm_clock_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_alarm_clock.png"},
+    /*{"留言板", "../lv_port_pc_vscode/assert/icon/photograph_icon_message_board_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_message_board.png"},
+    {"闹钟提醒", "../lv_port_pc_vscode/assert/icon/photograph_icon_alarm_clock_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_alarm_clock.png"},*/
     {"相册", "../lv_port_pc_vscode/assert/icon/photograph_icon_album_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_album.png"},
     {"消息中心", "../lv_port_pc_vscode/assert/icon/photograph_icon_ring_filled_black.png", "../lv_port_pc_vscode/assert/icon/photograph_icon_ring_filled.png"}
 };
@@ -184,6 +185,7 @@ static void lv_page_load(lv_obj_t *cont)
         lv_obj_add_flag(btn, LV_OBJ_FLAG_CHECKABLE);
         lv_obj_add_event_cb(btn, app_icon_event_cb, LV_EVENT_CLICKED, &menu_app_list[i]);
     }
+    lv_obj_scroll_to_view(lv_obj_get_child(cont_col, last_tabindex), LV_ANIM_OFF);
 
     //绘制刻度圆盘
     lv_obj_t *scale = lv_img_create(cont);
@@ -196,9 +198,6 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_size(mask, 55, 330);
     lv_obj_align(mask, LV_ALIGN_RIGHT_MID, 0, 0);
     lv_obj_add_style(mask, &style_mask, 0);
-
-    lv_obj_send_event(cont_col, LV_EVENT_SCROLL, NULL);
-    lv_obj_scroll_to_view(lv_obj_get_child(cont_col, 0), LV_ANIM_OFF);
 
     //顶部滑动触发区域
     lv_obj_t *gesture_area = lv_obj_create(cont);
@@ -327,17 +326,20 @@ static void app_icon_event_cb(lv_event_t * e)
     if (code == LV_EVENT_CLICKED) 
     {
         printf("===>点击: %s, 进入子菜单\n", iterm_data->name);
-        if (lv_strcmp(iterm_data->name, "相册") == 0)
+        if(lv_strcmp(iterm_data->name, "拍摄") == 0)
         {
-            lv_subject_set_int(&menu_subject, PAGE_SWITCH_ALBUM);
-        }
-        else if(lv_strcmp(iterm_data->name, "拍摄") == 0)
-        {
+            last_tabindex = 0;
             lv_subject_set_int(&menu_subject, PAGE_SWITCH_SHOOT);
         }
         else if(lv_strcmp(iterm_data->name, "AI问答") == 0)
         {
+            last_tabindex = 1;
             lv_subject_set_int(&menu_subject, PAGE_SWITCH_AI_ANSWER);
+        }
+        else if (lv_strcmp(iterm_data->name, "相册") == 0)
+        {
+            last_tabindex = 3;
+            lv_subject_set_int(&menu_subject, PAGE_SWITCH_ALBUM);
         }
     }
 }

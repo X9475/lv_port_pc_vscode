@@ -1,8 +1,8 @@
 #include "../lv_switch_interface.h"
 
-#define SCREENLOCK_2 "../lv_port_pc_vscode/assert/icon/screensaver2.png"
-#define SCREENLOCK_4 "../lv_port_pc_vscode/assert/icon/screensaver4.png"
-#define SCREENLOCK_5 "../lv_port_pc_vscode/assert/icon/screensaver5.png"
+#define SCREENLOCK_1 "../lv_port_pc_vscode/assert/icon/screensaver1.1.png"
+#define SCREENLOCK_2 "../lv_port_pc_vscode/assert/icon/screensaver2.1.png"
+#define SCREENLOCK_3 "../lv_port_pc_vscode/assert/icon/screensaver3.1.png"
 
 lv_subject_t screenlock_subject;
 static lv_switch_page_pt switch_page;
@@ -27,7 +27,7 @@ typedef struct
     bool is_pressed;     //是否按下
 } lv_page_move_t;
 
-int screenlock_style = 4;//选择样式
+int screenlock_style = 1;//选择样式
 
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
@@ -41,6 +41,7 @@ static void click_event_handler(lv_event_t *e);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 static void page_gesture_event_hander(lv_event_t *e);
 static void lv_window_anim_finish(lv_anim_t *anim);
+static void page_double_click_event_hander(lv_event_t *e);
 static int page_gesture_diraction_judgement(lv_event_t *e);
 
 //待跳转的页面种类
@@ -78,7 +79,7 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
-    lv_missed_call_window();
+    // lv_missed_call_window();
 
     lv_async_call(lv_async_time_calcula, NULL);
     lv_obj_add_event_cb(screen, page_gesture_event_hander, LV_EVENT_PRESSED, NULL);
@@ -104,6 +105,7 @@ static void lv_page_style_init()
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
     lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
+    // lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
 
     //misscall_style
     lv_style_init(&misscall_style);
@@ -129,21 +131,17 @@ static void lv_page_subject_deinit()
 static void lv_page_load(lv_obj_t *cont)
 {
     lv_obj_t *img_bg = lv_img_create(cont);
-    // if (screenlock_style == 1)
-    // {
-    //     lv_img_set_src(img_bg, SCREENLOCK_1);
-    // }
+    if (screenlock_style == 1)
+    {
+        lv_img_set_src(img_bg, SCREENLOCK_1);
+    }
     if (screenlock_style == 2)
     {
         lv_img_set_src(img_bg, SCREENLOCK_2);
     }
-    if (screenlock_style == 4)
+    if (screenlock_style == 3)
     {
-        lv_img_set_src(img_bg, SCREENLOCK_4);
-    }
-    if (screenlock_style == 5)
-    {
-        lv_img_set_src(img_bg, SCREENLOCK_5);
+        lv_img_set_src(img_bg, SCREENLOCK_3);
     }
     lv_obj_align(img_bg, LV_ALIGN_CENTER, 0, 0);
 
@@ -158,7 +156,7 @@ static void lv_page_load(lv_obj_t *cont)
     battery = lv_img_create(status_bar);
     lv_obj_set_size(battery, 40, 40);
     lv_img_set_src(battery, "../lv_port_pc_vscode/assert/icon/battery_80.png");
-    lv_obj_align(battery, LV_ALIGN_TOP_LEFT, 50,20);
+    lv_obj_align(battery, LV_ALIGN_TOP_LEFT, 50, 20);
 
     percent = lv_label_create(status_bar);
     lv_label_set_text(percent, "10%");
@@ -183,48 +181,69 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_align(capacity, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align_to(capacity, sdcard, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
 
-    week = lv_label_create(status_bar);
-    lv_label_set_text(week, "周日");
-    lv_obj_set_style_text_font(week, fzlthr_22, 0);
-    lv_obj_set_style_text_opa(week, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_color(week, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_align(week, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(week, LV_ALIGN_TOP_RIGHT, -50, 35);
+    if (screenlock_style != 2 && screenlock_style != 3)
+    {
+        week = lv_label_create(status_bar);
+        lv_obj_set_size(week, 44, 22);
+        lv_obj_set_style_text_font(week, fzlthr_22, 0);
+        lv_obj_set_style_text_opa(week, LV_OPA_TRANSP, 0);
+        lv_obj_set_style_text_color(week, lv_color_hex(0xFFFFFF), 0);
+        lv_obj_set_style_text_align(week, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_align(week, LV_ALIGN_TOP_RIGHT, -30, 25);
+    }
 
-    date = lv_label_create(status_bar);
-    lv_label_set_text(date, "01|01");
-    lv_obj_set_style_text_font(date, fzlthb_36, 0);
-    lv_obj_set_style_text_opa(date, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_color(date, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -50, 69);
+    if (screenlock_style == 3)
+    {
+        date = lv_label_create(status_bar);
+        lv_obj_set_style_text_font(date, oswaldr_20, 0);
+        lv_obj_set_style_text_opa(date, LV_OPA_TRANSP, 0);
+        lv_obj_set_style_text_color(date, lv_color_hex(0xFFFFFF), 0);
+        lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -45, 72);
+    }
 
     times = lv_label_create(cont);
-    lv_obj_set_style_text_opa(times, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_opa(times, LV_OPA_TRANSP, 0);
     lv_obj_set_style_text_color(times, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_align(times, LV_TEXT_ALIGN_CENTER, 0);
     if (screenlock_style == 1)
     {
-        lv_obj_set_style_text_font(times, fzlthb_56, 0);
-        lv_obj_align(times, LV_ALIGN_BOTTOM_LEFT, 160, -92);
+        lv_obj_set_style_text_font(times, oswaldr_36, 0);
+        lv_obj_align(times, LV_ALIGN_TOP_RIGHT, -30, 47);
     }
     if (screenlock_style == 2)
     {
-        lv_obj_set_style_text_font(times, fzlthb_118, 0);
+        lv_obj_set_style_text_font(times, oswaldr_178, 0);
         lv_obj_align(times, LV_ALIGN_CENTER, 0, 0);
     }
-    if (screenlock_style == 4)
+    if (screenlock_style == 3)
     {
-        lv_obj_set_style_text_font(times, fzlthb_118, 0);
-        lv_obj_align(times, LV_ALIGN_BOTTOM_LEFT, 58, -20);
-    }
-    if (screenlock_style == 5)
-    {
-        lv_obj_set_style_text_font(times, fzlthb_118, 0);
-        lv_obj_align(times, LV_ALIGN_TOP_LEFT, 20, 100);
+        lv_obj_set_style_text_font(times, oswaldr_50, 0);
+        lv_obj_align(times, LV_ALIGN_TOP_RIGHT, -38, 12);
     }
 
-    return;
+    //双击解锁
+    lv_obj_t *unlocktext = lv_label_create(cont);
+    lv_label_set_text(unlocktext, "双击解锁");
+    lv_obj_set_style_text_font(unlocktext, fzlthr_30, 0);
+    lv_obj_set_style_text_opa(unlocktext, LV_OPA_80, 0);
+    lv_obj_set_style_text_align(unlocktext, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_set_style_text_color(unlocktext, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_align(unlocktext, LV_ALIGN_BOTTOM_MID, 0, -20);
+
+    //全屏遮盖
+    lv_obj_t *cover = lv_obj_create(cont);
+    lv_obj_set_size(cover, lv_pct(100), lv_pct(100));
+    lv_obj_set_style_opa(cover, LV_OPA_TRANSP, 0);
+    lv_obj_align(cover, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(cover, page_double_click_event_hander, LV_EVENT_DOUBLE_CLICKED, NULL);
+}
+
+static void page_double_click_event_hander(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *obj = lv_event_get_target(e);
+    lv_obj_t *parent = lv_obj_get_parent(obj);
+    printf("===111\n");
 }
 
 static void lv_async_time_calcula()
@@ -239,13 +258,21 @@ static void lv_async_time_calcula()
     int month = time_info->tm_mon + 1;
     int day = time_info->tm_mday;
 
-    const char *week_text[] = {"周日", "周一", "周二", "周三", "周四", "周五", "周六"};
-    int week_index = time_info->tm_wday;//tm_wday 范围是 0-6（0=周日）
-    lv_label_set_text(week, week_text[week_index]);
+    if (screenlock_style != 2 && screenlock_style != 3)
+    {
+        const char *week_text[] = {"周日", "周一", "周二", "周三", "周四", "周五", "周六"};
+        int week_index = time_info->tm_wday;//tm_wday 范围是 0-6（0=周日）
+        lv_label_set_text(week, week_text[week_index]);
+        lv_obj_set_style_text_opa(week, LV_OPA_COVER, 0);
+    }
 
-    char date_text[10];
-    snprintf(date_text, sizeof(date_text), "%02d|%02d", month, day);
-    lv_label_set_text(date, date_text);
+    if (screenlock_style == 3)
+    {
+        char date_text[10];
+        snprintf(date_text, sizeof(date_text), "%02d | %02d", month, day);
+        lv_label_set_text(date, date_text);
+        lv_obj_set_style_text_opa(date, LV_OPA_COVER, 0);
+    }
 
     int use_12_hour_format = 0;
     char time_text[20];
@@ -254,44 +281,15 @@ static void lv_async_time_calcula()
         //12小时制（例如:2:30）
         int display_hour = hour % 12;
         if (display_hour == 0) display_hour = 12;  // 0点显示为12
-        if (screenlock_style == 1)
-        {
-            snprintf(time_text, sizeof(time_text), "%02d\n%02d", display_hour, minute);
-        }
-        if (screenlock_style == 2)
-        {
-            snprintf(time_text, sizeof(time_text), "%02d:%02d", display_hour, minute);
-        }
-        if (screenlock_style == 4)
-        {
-            snprintf(time_text, sizeof(time_text), "%02d\n%02d", display_hour, minute);
-        }
-        if (screenlock_style == 5)
-        {
-            snprintf(time_text, sizeof(time_text), "%02d:%02d", display_hour, minute);
-        }
+        snprintf(time_text, sizeof(time_text), "%02d:%02d", display_hour, minute);
     }
     else
     {
-        //24小时制（例如:14:30）
-        if (screenlock_style == 1)
-        {
-            snprintf(time_text, sizeof(time_text), "%02d\n%02d", hour, minute);
-        }
-        if (screenlock_style == 2)
-        {
-            snprintf(time_text, sizeof(time_text), "%02d:%02d", hour, minute);
-        }
-        if (screenlock_style == 4)
-        {
-            snprintf(time_text, sizeof(time_text), "%02d\n%02d", hour, minute);
-        }
-        if (screenlock_style == 5)
-        {
-            snprintf(time_text, sizeof(time_text), "%02d:%02d", hour, minute);
-        }
+        
+        snprintf(time_text, sizeof(time_text), "%02d:%02d", hour, minute);
     }
     lv_label_set_text(times, time_text);
+    lv_obj_set_style_text_opa(times, LV_OPA_COVER, 0);
 
     return;
 }

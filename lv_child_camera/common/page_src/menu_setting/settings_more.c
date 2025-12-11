@@ -1,7 +1,7 @@
 #include "../lv_switch_interface.h"
 #include <stdio.h>
 
-#define SETTING_NUM     11
+#define SETTING_NUM     9
 
 lv_subject_t settings_more_subject;
 static lv_switch_page_pt switch_page;
@@ -24,6 +24,7 @@ typedef struct
 } rotate_ctl_s;
 static rotate_ctl_s g_rotate_ctl_s = {false, NULL, NULL, 0};
 
+static int last_tabindex = 0;
 static lv_mutex_t mutex;
 static void *input_thread(void* arg);
 static void delete_mask_page(lv_timer_t *timer);
@@ -41,8 +42,8 @@ static void *lv_more_setting_iterm_create(lv_obj_t *cont, const char *name);
 static void setting_iterm_click_event_cb(lv_event_cb_t *e);
 
 static const char *setting_list[SETTING_NUM] = {
-    "熄屏时间", "时间展示形式", "存储管理", "语音控制开关", "锁屏密码",
-    "滚轮振动开关", "振动幅度", "远程预览开关", "关于相机", "恢复出厂设置", "认证标志"
+    "熄屏时间", "时间展示形式", "存储管理", /*"语音控制开关", "锁屏密码",*/
+    "滚轮振动开关", /*"振动幅度",*/ "远程预览开关", "关于相机", "恢复出厂设置", "认证标志", "设备二维码"
 };
 
 //待跳转的页面种类
@@ -52,14 +53,15 @@ static enum PAGE_EVENT_ENUM
     PAGE_SWITCH_SCREEN_OFF_TIME,        //熄屏时间
     PAGE_SWITCH_TIME_DISPLAY_FORMAT,    //时间展示形式
     PAGE_SWITCH_STORAGE_MANAGER,        //存储管理
-    PAGE_SWITCH_VOICE_CONTROL_SWITCH,   //语音控制开关
-    PAGE_SWITCH_VOICE_LOCK_PASSWORD,    //锁屏密码
+    // PAGE_SWITCH_VOICE_CONTROL_SWITCH,   //语音控制开关
+    // PAGE_SWITCH_VOICE_LOCK_PASSWORD,    //锁屏密码
     PAGE_SWITCH_VOICE_ROLLER_VIBRAT,    //滚动振动开关
-    PAGE_SWITCH_VIBRATION_AMPLITUDE,    //振动幅度
+    // PAGE_SWITCH_VIBRATION_AMPLITUDE,    //振动幅度
     PAGE_SWITCH_REMOTE_PREVIEW_SWITCH,  //远程预览开关
     PAGE_SWITCH_CAMERA_ABOUT,           //关于相机
     PAGE_SWITCH_FACTORY_RESTORE,        //恢复出厂设置
     PAGE_SWITCH_CERTIFICATION_MARK,     //认证标志
+    PAGE_SWITCH_CAMERA_QRCODE,          //相机二维码
     PAGE_SWITCH_BACK
 };
 
@@ -152,6 +154,9 @@ static void lv_page_load(lv_obj_t *cont)
         lv_obj_add_event_cb(btn, setting_iterm_click_event_cb, LV_EVENT_CLICKED, setting_list[i]);
     }
 
+    int new_index = (last_tabindex + 1) > (SETTING_NUM - 1)? (SETTING_NUM - 1):(last_tabindex + 1);
+    lv_obj_scroll_to_view(lv_obj_get_child(cont_col, new_index), LV_ANIM_OFF);
+
     //起线程获取指令 test
     pthread_t tid;
     lv_mutex_init(&mutex);
@@ -191,7 +196,7 @@ static void* input_thread(void* arg)
                     }
 
                     //获取当前中间项目索引
-                    lv_obj_t *cont_col = lv_obj_get_child(settings_more_page_info.page, 0);
+                    lv_obj_t *cont_col = lv_obj_get_child(settings_more_page_info.page, 1);
                     const int child_count = lv_obj_get_child_cnt(cont_col);
                     for (int i = 0; i < child_count; i++)
                     {
@@ -199,7 +204,7 @@ static void* input_thread(void* arg)
                         lv_area_t child_a;
                         lv_obj_get_coords(child, &child_a);
                         int32_t child_y_center = child_a.y1 + lv_area_get_height(&child_a) / 2;
-                        if (LV_ABS(child_y_center - 205) < 5) 
+                        if (LV_ABS(child_y_center - 232) < 100) 
                         {
                             g_rotate_ctl_s.index = i;
                             break;
@@ -305,47 +310,60 @@ static void setting_iterm_click_event_cb(lv_event_cb_t *e)
     {
         if (lv_strcmp(name, "熄屏时间") == 0)
         {
+            last_tabindex = 0;
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_SCREEN_OFF_TIME);
         }
         else if (lv_strcmp(name, "时间展示形式") == 0)
         {
+            last_tabindex = 1;
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_TIME_DISPLAY_FORMAT);
         }
         else if (lv_strcmp(name, "存储管理") == 0)
         {
+            last_tabindex = 2;
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_STORAGE_MANAGER);
         }
-        else if (lv_strcmp(name, "语音控制开关") == 0)
-        {
-            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VOICE_CONTROL_SWITCH);
-        }
-        else if (lv_strcmp(name, "锁屏密码") == 0)
-        {
-            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VOICE_LOCK_PASSWORD);
-        }
+        // else if (lv_strcmp(name, "语音控制开关") == 0)
+        // {
+        //     lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VOICE_CONTROL_SWITCH);
+        // }
+        // else if (lv_strcmp(name, "锁屏密码") == 0)
+        // {
+        //     lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VOICE_LOCK_PASSWORD);
+        // }
         else if (lv_strcmp(name, "滚轮振动开关") == 0)
         {
+            last_tabindex = 3;
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VOICE_ROLLER_VIBRAT);
         }
-        else if (lv_strcmp(name, "振动幅度") == 0)
-        {
-            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VIBRATION_AMPLITUDE);
-        }
+        // else if (lv_strcmp(name, "振动幅度") == 0)
+        // {
+        //     lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_VIBRATION_AMPLITUDE);
+        // }
         else if (lv_strcmp(name, "远程预览开关") == 0)
         {
+            last_tabindex = 4;
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_REMOTE_PREVIEW_SWITCH);
         }
         else if (lv_strcmp(name, "关于相机") == 0)
         {
+            last_tabindex = 5;
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_CAMERA_ABOUT);
         }
         else if (lv_strcmp(name, "恢复出厂设置") == 0)
         {
+            last_tabindex = 6;
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_FACTORY_RESTORE);
         }
         else if (lv_strcmp(name, "认证标志") == 0)
         {
+            last_tabindex = 7;
             lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_CERTIFICATION_MARK);
+        }
+        else if (lv_strcmp(name, "设备二维码") == 0)
+        {
+            last_tabindex = 8;
+            lv_subject_set_int(&settings_more_subject, PAGE_SWITCH_CAMERA_QRCODE);
         }
     }
 }
@@ -376,22 +394,22 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             lv_stack_push(&settings_more_page_info);        
             switch_page->new_page = lv_page_storage_manage_info_get();
             break;
-        case PAGE_SWITCH_VOICE_CONTROL_SWITCH:
-            // lv_stack_push(&settings_more_page_info);
-            // switch_page->new_page = lv_page_hold_time_info_get();
-            break;
-        case PAGE_SWITCH_VOICE_LOCK_PASSWORD:
-            // lv_stack_push(&settings_more_page_info);     
-            // switch_page->new_page = lv_page_time_display_info_get();
-            break;
+        // case PAGE_SWITCH_VOICE_CONTROL_SWITCH:
+        //     // lv_stack_push(&settings_more_page_info);
+        //     // switch_page->new_page = lv_page_hold_time_info_get();
+        //     break;
+        // case PAGE_SWITCH_VOICE_LOCK_PASSWORD:
+        //     // lv_stack_push(&settings_more_page_info);
+        //     // switch_page->new_page = lv_page_time_display_info_get();
+        //     break;
         case PAGE_SWITCH_VOICE_ROLLER_VIBRAT:
             lv_stack_push(&settings_more_page_info);
             switch_page->new_page = lv_page_roller_vibrat_info_get();
             break;
-        case PAGE_SWITCH_VIBRATION_AMPLITUDE:
-            lv_stack_push(&settings_more_page_info);
-            switch_page->new_page = lv_page_vibrat_amplitude_info_get();
-            break;
+        // case PAGE_SWITCH_VIBRATION_AMPLITUDE:
+        //     lv_stack_push(&settings_more_page_info);
+        //     switch_page->new_page = lv_page_vibrat_amplitude_info_get();
+        //     break;
         case PAGE_SWITCH_REMOTE_PREVIEW_SWITCH:
             lv_stack_push(&settings_more_page_info);
             switch_page->new_page = lv_page_remote_preview_info_get();
@@ -407,6 +425,10 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         case PAGE_SWITCH_CERTIFICATION_MARK:
             lv_stack_push(&settings_more_page_info);
             switch_page->new_page = lv_page_cert_mask_info_get();
+            break;
+        case PAGE_SWITCH_CAMERA_QRCODE:
+            lv_stack_push(&settings_more_page_info);
+            switch_page->new_page = lv_page_settingQr_info_get();
             break;
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();
