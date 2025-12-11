@@ -347,7 +347,7 @@ static void lv_event_handler_code(lv_event_cb_t *e)
             }
             else
             {
-                lv_obj_set_style_bg_color(auxiliary, lv_color_hex(0x000000), 0);
+                lv_obj_set_style_bg_color(auxiliary, lv_color_hex(0x2C2C2E), 0);
                 lv_obj_set_style_bg_opa(auxiliary, LV_OPA_COVER, 0);
                 auxiliary_flag = false;
             }
@@ -365,7 +365,7 @@ static void lv_event_handler_code(lv_event_cb_t *e)
             }
             else
             {
-                lv_obj_set_style_bg_color(voice_ctrl, lv_color_hex(0x000000), 0);
+                lv_obj_set_style_bg_color(voice_ctrl, lv_color_hex(0x2C2C2E), 0);
                 lv_obj_set_style_bg_opa(voice_ctrl, LV_OPA_COVER, 0);
 
                 lv_obj_t *voicectrl_img = lv_obj_get_child(voice_ctrl, 0);

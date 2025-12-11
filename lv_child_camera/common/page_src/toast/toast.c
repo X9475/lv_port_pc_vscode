@@ -40,6 +40,7 @@ static void page_click_event_cb(lv_event_t *e);
 static void lv_album_right_slide_toast(lv_obj_t *cont);
 static void lv_album_left_slide_toast(lv_obj_t *cont);
 static void anim_set_right_hand_pos(void *obj, int32_t v);
+static void lv_setting_auxiliary_toast(lv_obj_t *cont);
 
 static void lv_page_style_init()
 {
@@ -153,7 +154,8 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch (page_event)
     {
         case PAGE_TOAST_FORMAT_DOING:
-            lv_setting_format_doing_toast(cont);
+            // lv_setting_format_doing_toast(cont);
+            lv_setting_auxiliary_toast(cont);
             break;
         case PAGE_TOAST_FORMAT_SUCCESS:
             lv_setting_format_success_toast(cont);
@@ -671,6 +673,35 @@ static void lv_setting_add_success_toast(lv_obj_t *cont)
     lv_img_set_zoom(toast, 128);
     lv_obj_set_size(toast, 120, 80);
     lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
+
+    return;
+}
+
+static void lv_setting_auxiliary_toast(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 260, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：语音控制已关闭
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "语音控制已关闭");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, fzlthr_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
 
     return;
 }

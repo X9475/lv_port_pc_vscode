@@ -20,7 +20,7 @@ static uint32_t gesture_disable_list[] = {
 };
 
 //设备当前状态
-static LV_PAGE_STAGE_ENUM g_device_state = LV_PAGE_STAGE_ADDING;
+static LV_PAGE_STAGE_ENUM g_device_state = LV_PAGE_STAGE_RUNNING;
 static LV_PAGE_TYPE_ENUM last_page_type = TYPE_NONE;
 static lv_page_info_pt last_page = NULL;
 
