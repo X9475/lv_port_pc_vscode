@@ -52,6 +52,6 @@ void lv_main()
 
     lv_subject_set_pointer(&switch_subject, switch_page);
 
-    lv_subject_set_int(&toast_subject, PAGE_TOAST_FORMAT_DOING);
+    // lv_subject_set_int(&toast_subject, PAGE_TOAST_FORMAT_DOING);
     return;
 }

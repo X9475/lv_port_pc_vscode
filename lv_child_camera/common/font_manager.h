@@ -29,6 +29,8 @@ extern const lv_font_t *oswaldr_20;
 extern const lv_font_t *oswaldr_24;
 extern const lv_font_t *oswaldr_36;
 extern const lv_font_t *oswaldr_50;
+extern const lv_font_t *oswaldr_60;
+extern const lv_font_t *oswaldr_70;
 extern const lv_font_t *oswaldr_178;
 //粗体
 extern const lv_font_t *fzlthb_20;
@@ -49,6 +51,8 @@ extern const lv_font_t *oswaldb_20;
 extern const lv_font_t *oswaldb_24;
 extern const lv_font_t *oswaldb_36;
 extern const lv_font_t *oswaldb_50;
+extern const lv_font_t *oswaldb_60;
+extern const lv_font_t *oswaldb_70;
 extern const lv_font_t *oswaldb_178;
 
 void lv_font_init();

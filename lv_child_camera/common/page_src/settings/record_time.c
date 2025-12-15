@@ -80,20 +80,19 @@ static void lv_page_style_init()
     //style_roller
     lv_style_init(&style_roller);
     lv_style_copy(&style_roller, &screen_style);
-    lv_style_set_border_opa(&style_roller, LV_OPA_COVER);
     lv_style_set_border_width(&style_roller, 1);
     lv_style_set_border_color(&style_roller, lv_color_hex(0x38383A));
     lv_style_set_border_side(&style_roller, LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM);
     lv_style_set_text_align(&style_roller, LV_TEXT_ALIGN_CENTER);
-    lv_style_set_text_font(&style_roller, font_get_regular(60));//字体大小60px
-    lv_style_set_text_line_space(&style_roller, 30);//行间距
+    lv_style_set_text_font(&style_roller, font_get_regular(60));
+    lv_style_set_text_line_space(&style_roller, 26);
 
     //style_select_roller
     lv_style_init(&style_select_roller);
     lv_style_copy(&style_select_roller, &screen_style);
     lv_style_set_text_color(&style_select_roller, lv_color_hex(0XAFF99C));
     lv_style_set_text_align(&style_select_roller, LV_TEXT_ALIGN_CENTER);
-    lv_style_set_text_font(&style_select_roller, font_get_regular(70));//字体大小70px
+    lv_style_set_text_font(&style_select_roller, font_get_regular(70));
 }
 
 static void lv_page_subject_init()
@@ -126,7 +125,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
     lv_obj_align_to(header, cont, LV_ALIGN_TOP_LEFT, 80, 26);
 
-    lv_obj_t *roller = setting_single_roller_iterm_create(cont, "15s\n30s\n1min");
+    lv_obj_t *roller = setting_single_roller_iterm_create(cont, "15s\n30s\n1min\n不限时");
     lv_obj_add_event_cb(roller, setting_single_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     return;
@@ -140,7 +139,6 @@ static void page_back_event_cb(lv_event_t *e)
 static void *setting_single_roller_iterm_create(lv_obj_t *cont, const char *opts)
 {
     lv_obj_t *roller = lv_roller_create(cont);
-    lv_obj_add_style(roller, &screen_style, 0);
 
     lv_roller_set_options(roller, opts, LV_ROLLER_MODE_NORMAL);
     lv_roller_set_selected(roller, 1, LV_ANIM_OFF);
