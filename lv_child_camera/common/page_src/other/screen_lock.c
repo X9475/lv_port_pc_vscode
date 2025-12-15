@@ -18,7 +18,6 @@ lv_obj_t *battery;
 lv_obj_t *week;
 lv_obj_t *date;
 lv_obj_t *times;
-struct tm *time_info;
 
 typedef struct
 {
@@ -27,7 +26,9 @@ typedef struct
     bool is_pressed;     //是否按下
 } lv_page_move_t;
 
-int screenlock_style = 1;//选择样式
+struct tm *time_info;
+int screenlock_style = 3;//选择样式
+static int has_msg = false;
 
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
@@ -37,17 +38,21 @@ static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_async_time_calcula();
 static void lv_missed_call_window();
-static void click_event_handler(lv_event_t *e);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 static void page_gesture_event_hander(lv_event_t *e);
 static void lv_window_anim_finish(lv_anim_t *anim);
-static void page_double_click_event_hander(lv_event_t *e);
 static int page_gesture_diraction_judgement(lv_event_t *e);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
 {
     PAGE_SWITCH_NONE,
+};
+
+static enum GESTURE_DIR
+{
+    GESTURE_UNLOCK, //上滑解锁
+    GESTURE_MSG_UP, //上滑消息
 };
 
 static lv_page_info_t screenlock_page_info = {
@@ -79,7 +84,7 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
-    // lv_missed_call_window();
+    lv_missed_call_window();
 
     lv_async_call(lv_async_time_calcula, NULL);
     lv_obj_add_event_cb(screen, page_gesture_event_hander, LV_EVENT_PRESSED, NULL);
@@ -221,9 +226,9 @@ static void lv_page_load(lv_obj_t *cont)
         lv_obj_align(times, LV_ALIGN_TOP_RIGHT, -38, 12);
     }
 
-    //双击解锁
+    //上滑解锁
     lv_obj_t *unlocktext = lv_label_create(cont);
-    lv_label_set_text(unlocktext, "双击解锁");
+    lv_label_set_text(unlocktext, "上滑解锁");
     lv_obj_set_style_text_font(unlocktext, fzlthr_30, 0);
     lv_obj_set_style_text_opa(unlocktext, LV_OPA_80, 0);
     lv_obj_set_style_text_align(unlocktext, LV_TEXT_ALIGN_CENTER, 0);
@@ -235,15 +240,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_size(cover, lv_pct(100), lv_pct(100));
     lv_obj_set_style_opa(cover, LV_OPA_TRANSP, 0);
     lv_obj_align(cover, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_add_event_cb(cover, page_double_click_event_hander, LV_EVENT_DOUBLE_CLICKED, NULL);
-}
-
-static void page_double_click_event_hander(lv_event_t *e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
-    lv_obj_t *parent = lv_obj_get_parent(obj);
-    printf("===111\n");
+    lv_obj_add_flag(cover, LV_OBJ_FLAG_EVENT_BUBBLE);
 }
 
 static void lv_async_time_calcula()
@@ -296,6 +293,8 @@ static void lv_async_time_calcula()
 
 static void lv_missed_call_window()
 {
+    has_msg = true;
+
     miss_call = lv_obj_create(screen);
     lv_obj_set_size(miss_call, 442, 130);
     lv_obj_add_style(miss_call, &misscall_style, 0);
@@ -346,38 +345,41 @@ static void lv_missed_call_window()
     lv_obj_align(time_label, LV_ALIGN_TOP_RIGHT, -30, 30);
 }
 
-static void click_event_handler(lv_event_t *e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    printf("[%s:%d] -- click event:%d\n", __FILE__, __LINE__, code);
-}
-
 static void lv_window_anim_finish(lv_anim_t *anim)
 {
     lv_anim_del(anim, NULL);
     lv_obj_del(miss_call);
     miss_call = NULL;
+
+    has_msg = false;
 }
 
 static void page_gesture_event_hander(lv_event_t *e)
 {
-    //滑动方向判断
     int dir = page_gesture_diraction_judgement(e);
 
-    if (dir == LV_DIR_TOP)
+    switch (dir)
     {
-        if (miss_call && lv_obj_is_valid(miss_call))
-        {
-            //动画移动消息框
-            lv_anim_t a;
-            lv_anim_init(&a);
-            lv_anim_set_var(&a, miss_call);
-            lv_anim_set_values(&a, lv_obj_get_y(miss_call), 100);
-            lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
-            lv_anim_set_time(&a, 1000);
-            lv_anim_set_ready_cb(&a, lv_window_anim_finish);
-            lv_anim_start(&a);
-        }
+        case GESTURE_MSG_UP:
+            printf("msg up\n");
+            if (miss_call && lv_obj_is_valid(miss_call))
+            {
+                //动画移动消息框
+                lv_anim_t a;
+                lv_anim_init(&a);
+                lv_anim_set_var(&a, miss_call);
+                lv_anim_set_values(&a, lv_obj_get_y(miss_call), 100);
+                lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_y);
+                lv_anim_set_time(&a, 150);
+                lv_anim_set_ready_cb(&a, lv_window_anim_finish);
+                lv_anim_start(&a);
+            }
+            break;
+        case GESTURE_UNLOCK:
+            printf("unlock up\n");
+            break;
+        default:
+            break;
     }
 }
 
@@ -391,11 +393,10 @@ static int page_gesture_diraction_judgement(lv_event_t *e)
         lv_point_t point;
         lv_indev_t *indev = lv_indev_get_act();
         lv_indev_get_point(indev, &point);
-        if (point.y < 250 || point.x > 380) return 0;
 
         touch_state.start_y = point.y;
         touch_state.is_pressed = true;
-        return 0;
+        return -1;
     }
 
     if (code == LV_EVENT_RELEASED)
@@ -404,21 +405,35 @@ static int page_gesture_diraction_judgement(lv_event_t *e)
         lv_indev_t *indev = lv_indev_get_act();
         lv_indev_get_point(indev, &point);
         touch_state.end_y = point.y;
-        if (touch_state.is_pressed != true) return 0;
+        if (touch_state.is_pressed != true) return -1;
 
         //计算移动距离
         const lv_coord_t delta = touch_state.end_y - touch_state.start_y;
-
         if (LV_ABS(delta) < 10) {
             touch_state.is_pressed = false;
-            return 0;
+            return -1;
         }
 
-        lv_dir_t dir = (delta > 0) ? LV_DIR_BOTTOM : LV_DIR_TOP;
-        return dir;
+        if (touch_state.start_y > 250 && touch_state.start_y < 380 && delta < 0)
+        {
+            lv_memset(&touch_state, 0, sizeof(lv_page_move_t));
+            if (has_msg)
+            {
+                return GESTURE_MSG_UP;
+            }
+            else
+            {
+                return GESTURE_UNLOCK;
+            }
+        }
+        else if (touch_state.start_y > 380 && delta < 0)
+        {
+            lv_memset(&touch_state, 0, sizeof(lv_page_move_t));
+            return GESTURE_UNLOCK;
+        }
     }
 
-    return 0;
+    return -1;
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)

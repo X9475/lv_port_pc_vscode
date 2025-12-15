@@ -74,8 +74,8 @@ static void page_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subje
 
     if (g_device_state == LV_PAGE_STAGE_RUNNING)
     {
-        lv_obj_add_event_cb(new_page->page, page_gesture_event_hander, LV_EVENT_PRESSED, NULL);
-        lv_obj_add_event_cb(new_page->page, page_gesture_event_hander, LV_EVENT_RELEASED, NULL);
+        // lv_obj_add_event_cb(new_page->page, page_gesture_event_hander, LV_EVENT_PRESSED, NULL);
+        // lv_obj_add_event_cb(new_page->page, page_gesture_event_hander, LV_EVENT_RELEASED, NULL);
 
         if (new_page != lv_page_menu_info_get() && new_page != lv_page_menu_setting_info_get())
         {
@@ -333,6 +333,7 @@ static int lv_gesture_diraction_judgement(lv_event_t *e)
             return 0;
         }
 
+        lv_memset(&touch_state, 0, sizeof(lv_page_move_area_t));
         return dir;
     }
 
