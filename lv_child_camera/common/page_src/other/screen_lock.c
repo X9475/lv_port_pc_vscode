@@ -226,6 +226,13 @@ static void lv_page_load(lv_obj_t *cont)
         lv_obj_align(times, LV_ALIGN_TOP_RIGHT, -38, 12);
     }
 
+    //解锁图标
+    lv_obj_t *unlock_up = lv_img_create(cont);
+    lv_obj_set_size(unlock_up, 40, 40);
+    lv_img_set_src(unlock_up, "../lv_port_pc_vscode/assert/icon/gesture_up_unlock.png");
+    lv_img_set_angle(unlock_up, -900);
+    lv_obj_align(unlock_up, LV_ALIGN_BOTTOM_MID, 0, -45);
+
     //上滑解锁
     lv_obj_t *unlocktext = lv_label_create(cont);
     lv_label_set_text(unlocktext, "上滑解锁");
@@ -233,7 +240,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_opa(unlocktext, LV_OPA_80, 0);
     lv_obj_set_style_text_align(unlocktext, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_set_style_text_color(unlocktext, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_align(unlocktext, LV_ALIGN_BOTTOM_MID, 0, -20);
+    lv_obj_align(unlocktext, LV_ALIGN_BOTTOM_MID, 0, -10);
 
     //全屏遮盖
     lv_obj_t *cover = lv_obj_create(cont);
