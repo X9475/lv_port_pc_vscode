@@ -24,7 +24,7 @@ static void lv_page_subject_init();
 static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
-static void lv_page_reserve_del(void);
+// static void lv_page_reserve_del(void);
 static void scroll_app_item_event_cb(lv_event_t * e);
 static void app_icon_event_cb(lv_event_t * e);
 static void *lv_app_create(int i, lv_obj_t *cont, const char *name, const char *path);
@@ -106,11 +106,7 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
-
-    if (lv_page_type_get() != TYPE_NONE)
-    {
-        lv_page_type_set(TYPE_MENU);
-    }
+    lv_page_type_set(TYPE_MENU);
 
     menu_page_info.page = screen;
     return;
@@ -488,18 +484,18 @@ static void scroll_app_item_event_cb(lv_event_t * e)
     }
 }
 
-static void lv_page_reserve_del(void)
-{
-    if (menu_page_info.reserved != NULL)
-    {
-        lv_page_info_pt reserved = (lv_page_info_pt)menu_page_info.reserved;
-        printf("[%s:%d] -- delete page id: %d\n", __FILE__, __LINE__, reserved->page_id);
-        reserved->destruct_cb();
-        if (reserved->page) lv_obj_del(reserved->page);
-        menu_page_info.reserved = NULL;
-        // lv_stack_pop();//移除栈顶元素
-    }
-}
+// static void lv_page_reserve_del(void)
+// {
+//     if (menu_page_info.reserved != NULL)
+//     {
+//         lv_page_info_pt reserved = (lv_page_info_pt)menu_page_info.reserved;
+//         printf("[%s:%d] -- delete page id: %d\n", __FILE__, __LINE__, reserved->page_id);
+//         reserved->destruct_cb();
+//         if (reserved->page) lv_obj_del(reserved->page);
+//         menu_page_info.reserved = NULL;
+//         // lv_stack_pop();//移除栈顶元素
+//     }
+// }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
 {

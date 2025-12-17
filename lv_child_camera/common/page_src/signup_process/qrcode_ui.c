@@ -52,6 +52,7 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
+    lv_dev_stage_set(LV_PAGE_STAGE_ADDING);
 
     qrcode_page_info.page = screen;
     return;

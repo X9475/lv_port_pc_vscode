@@ -33,7 +33,7 @@ static void lv_event_handler_code(lv_event_cb_t *e);
 static void slider_press_event(lv_event_t *e);
 static void slider_release_event(lv_event_t *e);
 static void lv_menu_setting_slider_event(lv_event_cb_t *e);
-static void lv_page_reserve_del(void);
+// static void lv_page_reserve_del(void);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -74,11 +74,7 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
-
-    if (lv_page_type_get() != TYPE_NONE)
-    {
-        lv_page_type_set(TYPE_MENU_SETTING);
-    }
+    lv_page_type_set(TYPE_MENU_SETTING_ONE);
 
     menu_setting_page_info.page = screen;
     return;
@@ -392,18 +388,18 @@ static void lv_event_handler_code(lv_event_cb_t *e)
     }
 }
 
-static void lv_page_reserve_del(void)
-{
-    if (menu_setting_page_info.reserved != NULL)
-    {
-        lv_page_info_pt reserved = (lv_page_info_pt)menu_setting_page_info.reserved;
-        printf("[%s:%d] -- delete page id: %d\n", __FILE__, __LINE__, reserved->page_id);
-        reserved->destruct_cb();
-        if (reserved->page) lv_obj_del(reserved->page);
-        menu_setting_page_info.reserved = NULL;
-        lv_stack_pop();//移除栈顶元素
-    }
-}
+// static void lv_page_reserve_del(void)
+// {
+//     if (menu_setting_page_info.reserved != NULL)
+//     {
+//         lv_page_info_pt reserved = (lv_page_info_pt)menu_setting_page_info.reserved;
+//         printf("[%s:%d] -- delete page id: %d\n", __FILE__, __LINE__, reserved->page_id);
+//         reserved->destruct_cb();
+//         if (reserved->page) lv_obj_del(reserved->page);
+//         menu_setting_page_info.reserved = NULL;
+//         lv_stack_pop();//移除栈顶元素
+//     }
+// }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
 {
@@ -420,22 +416,22 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch (page_event)
     {
         case PAGE_SWITCH_SINGLE_RECORD:
-            lv_page_reserve_del();
+            // lv_page_reserve_del();
             lv_stack_push(&menu_setting_page_info);
             switch_page->new_page = lv_page_record_time_info_get();
             break;
         case PAGE_SWITCH_AUDIO_EFFECT:
-            lv_page_reserve_del();
+            // lv_page_reserve_del();
             lv_stack_push(&menu_setting_page_info);
             switch_page->new_page = lv_page_audio_effect_info_get();
             break;
         case PAGE_SWITCH_SCREENSAVER:
-            lv_page_reserve_del();
+            // lv_page_reserve_del();
             lv_stack_push(&menu_setting_page_info);
             switch_page->new_page = lv_page_screensaver_style_info_get();
             break;
         case PAGE_SWITCH_MORE:
-            lv_page_reserve_del();
+            // lv_page_reserve_del();
             lv_stack_push(&menu_setting_page_info);
             switch_page->new_page = lv_page_settings_more_info_get();
             break;

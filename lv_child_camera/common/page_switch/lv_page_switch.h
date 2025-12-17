@@ -9,10 +9,13 @@ extern lv_subject_t switch_subject;
 
 typedef enum
 {
-    TYPE_NONE = -1,
-    TYPE_MENU_SETTING = 0,
-    TYPE_FUNCTIONAL,
-    TYPE_MENU,
+    TYPE_MENU_SETTING_ONE = 0,  ///菜单设置页面一级
+    TYPE_MENU_SETTING_TWO,      ///菜单设置页面二级
+    TYPE_MENU_SETTING_THREE,    ///菜单设置页面三级
+    TYPE_MENU_SETTING_FOUR,     ///菜单设置页面四级
+    TYPE_FUNCTIONAL,            ///功能页面
+    TYPE_MENU,                  ///菜单页面
+    TYPE_MAX,                   ///最大页面类型数量
 } LV_PAGE_TYPE_ENUM;
 
 typedef struct

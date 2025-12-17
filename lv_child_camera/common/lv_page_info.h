@@ -80,9 +80,10 @@ typedef enum
     PAGE_FUNCTIONAL_VIBRAT_AMPLITUDE,   ///<< 振动幅度
     PAGE_FUNCTIONAL_REMOTE_PREVIEW,     ///<< 远程预览开关
     PAGE_FUNCTIONAL_ABOUT_CAMERA,       ///<< 关于相机
+    PAGE_FUNCTIONAL_FORMAT_CONFIRM,     ///<< 格式化确认
     PAGE_FUNCTIONAL_FACTORY_RESTORE,    ///<< 恢复出厂设置
-    PAGE_FUNCTIONAL_CERT_MASK,          ///<< 设置页二维码
-    PAGE_FUNCTIONAL_SETTING_QRCODE,     ///<< 认证标志
+    PAGE_FUNCTIONAL_CERT_MASK,          ///<< 认证标志
+    PAGE_FUNCTIONAL_SETTING_QRCODE,     ///<< 设置页二维码
     PAGE_FUNCTIONAL_SCREENLOCK,         ///<< 锁屏界面
     PAGE_FUNCTIONAL_POWEROFF,           ///<< 关机界面
 

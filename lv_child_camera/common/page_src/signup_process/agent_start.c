@@ -155,6 +155,7 @@ static void lv_start_agent_slider_event(lv_event_t *e)
         if (value >= 388)
         {
             lv_slider_set_value(slider, 388, LV_ANIM_OFF);
+            lv_dev_stage_set(LV_PAGE_STAGE_RUNNING);
             lv_subject_set_int(&agent_start_subject, PAGE_SWITCH_NEXT);
         }
 
@@ -167,8 +168,6 @@ static void lv_start_agent_slider_event(lv_event_t *e)
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
 {
-    extern lv_page_info_pt lv_page_menu_info_get();
-
     LV_UNUSED(observer);
     int32_t page_event = lv_subject_get_int(subject);
     LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
@@ -182,8 +181,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch (page_event)
     {
         case PAGE_SWITCH_NEXT:
-            lv_dev_stage_set(LV_PAGE_STAGE_RUNNING);
-            switch_page->new_page = lv_page_menu_info_get();
+            switch_page->new_page = lv_page_shooting_photo_get();
             break;
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();

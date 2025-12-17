@@ -65,6 +65,7 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
+    lv_page_type_set(TYPE_MENU_SETTING_TWO);
 
     audio_effect_page_info.page = screen;
     return;
