@@ -7,8 +7,21 @@ lv_subject_t menu_subject;
 static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
+static lv_obj_t *indicator = NULL;
+static lv_obj_t *rotate_scale = NULL;
 static lv_style_t screen_style;
 static lv_style_t style_mask;
+static lv_style_t main_line_style;
+static lv_style_t iterms_style;
+static lv_style_t indicator_style;
+
+typedef struct  
+{
+    int32_t angle;      //转动角度
+    uint8_t rotate_dir; //转动方向, 1 up, 2 down
+    uint32_t last_ycoord;//上一次的Y坐标
+} rotate_ctrl_t;
+static rotate_ctrl_t g_rotate_ctrl = {0};
 
 typedef struct
 {
@@ -31,6 +44,8 @@ static void *lv_app_create(int i, lv_obj_t *cont, const char *name, const char *
 static void set_gray_app_style(lv_obj_t *obj, lv_menu_dev_t *iterm_ptr);
 static void set_color_app_style(int i, lv_obj_t *obj, lv_menu_dev_t *iterm_ptr);
 static void set_indicator_light(int i);
+static lv_obj_t *rotate_disc_draw(lv_obj_t *cont);
+
 //test旋钮转动菜单
 typedef struct {
     int command;
@@ -104,6 +119,10 @@ static void lv_page_construct(void *this)
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
 
+    g_rotate_ctrl.rotate_dir = 0;
+    g_rotate_ctrl.angle = 0;
+    g_rotate_ctrl.last_ycoord = 0xffffffff;
+
     //绘制当前页面
     lv_page_load(screen);
     lv_page_type_set(TYPE_MENU);
@@ -114,6 +133,9 @@ static void lv_page_construct(void *this)
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&main_line_style);
+    lv_style_reset(&iterms_style);
+    lv_style_reset(&indicator_style);
     lv_style_reset(&screen_style);
     lv_style_reset(&style_mask);
     lv_page_subject_deinit();
@@ -146,6 +168,20 @@ static void lv_page_style_init()
     lv_style_copy(&style_mask, &screen_style);
     lv_style_set_bg_grad(&style_mask, &grad);
     lv_style_set_bg_grad_dir(&style_mask, LV_GRAD_DIR_VER);
+
+    //main_line_style
+    lv_style_init(&main_line_style);
+    lv_style_set_arc_opa(&main_line_style, LV_OPA_TRANSP);
+
+    //iterms_style
+    lv_style_init(&iterms_style);
+    lv_style_set_line_color(&iterms_style, lv_color_white());
+    lv_style_set_line_width(&iterms_style, 1);
+
+    //indicator_style
+    lv_style_init(&indicator_style);
+    lv_style_set_line_color(&indicator_style, lv_color_white());
+    lv_style_set_line_width(&indicator_style, 1);
 }
 
 static void lv_page_subject_init()
@@ -173,6 +209,13 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_scrollbar_mode(cont_col, LV_SCROLLBAR_MODE_OFF);
     lv_obj_add_event_cb(cont_col, scroll_app_item_event_cb, LV_EVENT_SCROLL, NULL);
 
+    //绘制转动圆盘
+    rotate_scale = rotate_disc_draw(cont);
+    //指示灯
+    indicator = lv_img_create(cont);
+    lv_img_set_src(indicator, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_blue.png");
+    lv_obj_align_to(indicator, cont, LV_ALIGN_RIGHT_MID, -36, 0);
+
     lv_obj_t *image = NULL;
     for (uint8_t i = 0; i < APP_NUM; i++)
     {
@@ -184,10 +227,10 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, last_tabindex), LV_ANIM_OFF);
 
     //绘制刻度圆盘
-    lv_obj_t *scale = lv_img_create(cont);
-    lv_img_set_src(scale, "../lv_port_pc_vscode/assert/icon/menu_knob_2x.png");
-    lv_img_set_zoom(scale, 128);
-    lv_obj_align_to(scale, cont, LV_ALIGN_LEFT_MID, 267, 0);
+    // lv_obj_t *scale = lv_img_create(cont);
+    // lv_img_set_src(scale, "../lv_port_pc_vscode/assert/icon/menu_knob_2x.png");
+    // lv_img_set_zoom(scale, 128);
+    // lv_obj_align_to(scale, cont, LV_ALIGN_LEFT_MID, 267, 0);
 
     //图层蒙板
     lv_obj_t *mask = lv_obj_create(cont);
@@ -374,6 +417,33 @@ static void *lv_app_create(int i, lv_obj_t *cont, const char *name, const char *
     return btn;
 }
 
+static lv_obj_t *rotate_disc_draw(lv_obj_t *cont)
+{
+    lv_obj_t *scale = lv_scale_create(cont);
+    lv_obj_set_size(scale, 330, 330);
+
+    lv_scale_set_label_show(scale, false);
+    lv_scale_set_total_tick_count(scale, 60);
+    lv_obj_set_style_length(scale, 8, LV_PART_ITEMS);
+    lv_obj_set_style_length(scale, 8, LV_PART_INDICATOR);
+    lv_scale_set_range(scale, 0, 60);
+    lv_scale_set_angle_range(scale, 360);
+    lv_scale_set_rotation(scale, 180);
+
+    lv_obj_add_style(scale, &iterms_style, LV_PART_ITEMS);
+    lv_obj_add_style(scale, &main_line_style, LV_PART_MAIN);
+    lv_obj_add_style(scale, &indicator_style, LV_PART_INDICATOR);
+
+    lv_scale_set_mode(scale, LV_SCALE_MODE_ROUND_INNER);
+    lv_obj_set_style_bg_opa(scale, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(scale, lv_color_black(), 0);
+    lv_obj_set_style_radius(scale, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_clip_corner(scale, true, 0);
+    lv_obj_align_to(scale, cont, LV_ALIGN_LEFT_MID, 445, 0);
+
+    return scale;
+}
+
 static void set_gray_app_style(lv_obj_t *obj, lv_menu_dev_t *iterm_ptr)
 {
     //背景
@@ -418,17 +488,13 @@ static void set_color_app_style(int i, lv_obj_t *obj, lv_menu_dev_t *iterm_ptr)
 
 static void set_indicator_light(int i)
 {
-    //指示灯
-    lv_obj_t *image = lv_img_create(screen);
-    // lv_obj_set_size(image, 80, 80);
     if ((i % 3) == 0) {
-        lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_blue.png");
+        lv_img_set_src(indicator, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_blue.png");
     } else if ((i % 3) == 1) {
-        lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_green.png");
+        lv_img_set_src(indicator, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_green.png");
     } else if ((i % 3) == 2) {
-        lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_purple.png");
+        lv_img_set_src(indicator, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_purple.png");
     }
-    lv_obj_align_to(image, screen, LV_ALIGN_RIGHT_MID, -36, -2);
 }
 
 static void scroll_app_item_event_cb(lv_event_t * e)
@@ -437,6 +503,24 @@ static void scroll_app_item_event_cb(lv_event_t * e)
     lv_area_t cont_a;
     lv_obj_get_coords(cont, &cont_a);
     int32_t cont_y_center = cont_a.y1 + lv_area_get_height(&cont_a) / 2;
+
+    lv_obj_t *first = lv_obj_get_child(cont, 0);
+    lv_area_t first_a;
+    lv_obj_get_coords(first, &first_a);
+
+    if (g_rotate_ctrl.last_ycoord == 0xffffffff)
+    {
+        g_rotate_ctrl.last_ycoord = first_a.y1;
+    }
+    g_rotate_ctrl.rotate_dir = first_a.y1 > g_rotate_ctrl.last_ycoord? 2 : 1;
+    g_rotate_ctrl.last_ycoord = first_a.y1;
+
+    if (g_rotate_ctrl.rotate_dir == 2)
+        g_rotate_ctrl.angle = g_rotate_ctrl.angle - 2;
+    else if (g_rotate_ctrl.rotate_dir == 1)
+        g_rotate_ctrl.angle = g_rotate_ctrl.angle + 2;
+    //控制转盘转动
+    lv_scale_set_rotation(rotate_scale, g_rotate_ctrl.angle);
 
     uint32_t child_cnt = lv_obj_get_child_count(cont);
     for (uint32_t i = 0; i < child_cnt; i++)

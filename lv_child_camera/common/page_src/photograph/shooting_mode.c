@@ -18,6 +18,14 @@ static bool mutex_init_flag = false;
 static lv_mutex_t timer_mutex;
 static uint8_t exec_count = 0;
 
+typedef struct  
+{
+    int32_t angle;      //转动角度
+    uint8_t rotate_dir; //转动方向, 1 up, 2 down
+    uint32_t last_ycoord;//上一次的Y坐标
+} rotate_ctrl_t;
+static rotate_ctrl_t g_rotate_ctrl = {0};
+
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_style_init();
@@ -68,6 +76,10 @@ static void lv_page_construct(void *this)
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
+
+    g_rotate_ctrl.rotate_dir = 0;
+    g_rotate_ctrl.angle = 0;
+    g_rotate_ctrl.last_ycoord = 0xffffffff;
 
     //绘制当前页面
     lv_page_load(screen);
@@ -351,14 +363,12 @@ static void scroll_saver_event_cb(lv_event_t *e)
     lv_area_t first_a;
     lv_obj_get_coords(first, &first_a);
 
-    //判断滚动方向
-    static uint8_t dir = 0;//0 nul, 1 up, 2 down
-    static int32_t last_y = 0xffffffff;
-
-    if (last_y == 0xffffffff) last_y = first_a.y1;
-
-    dir = first_a.y1 > last_y? 2 : 1;
-    last_y = first_a.y1;
+    if (g_rotate_ctrl.last_ycoord == 0xffffffff)
+    {
+        g_rotate_ctrl.last_ycoord = first_a.y1;
+    }
+    g_rotate_ctrl.rotate_dir = first_a.y1 > g_rotate_ctrl.last_ycoord? 2 : 1;
+    g_rotate_ctrl.last_ycoord = first_a.y1;
 
     //倾斜变换
     lv_area_t cont_a;
@@ -404,7 +414,7 @@ static void scroll_saver_event_cb(lv_event_t *e)
         if (!anim_timer) 
         {
             //创建定时器，每40ms执行滚动动态
-            anim_timer = lv_timer_create(screen_saver_timer_cb, 40, &dir);
+            anim_timer = lv_timer_create(screen_saver_timer_cb, 40, &g_rotate_ctrl.rotate_dir);
             lv_timer_set_auto_delete(anim_timer, false);
         }
         else
