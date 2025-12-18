@@ -13,8 +13,10 @@ static lv_switch_page_pt switch_page;
 static lv_style_t screen_style;
 static lv_style_t up_area_roller_style;
 static lv_style_t separator_line_style;
-static lv_style_t roller_style;
-static lv_style_t select_roller_style;
+static lv_style_t left_main_style;
+static lv_style_t left_select_style;
+static lv_style_t right_main_style;
+static lv_style_t right_select_style;
 
 static lv_obj_t *screen = NULL;
 static lv_obj_t * right_roller;
@@ -78,8 +80,10 @@ static void lv_page_destruct(void)
     lv_style_reset(&screen_style);
     lv_style_reset(&up_area_roller_style);
     lv_style_reset(&separator_line_style);
-    lv_style_reset(&roller_style);
-    lv_style_reset(&select_roller_style);
+    lv_style_reset(&left_main_style);
+    lv_style_reset(&left_select_style);
+    lv_style_reset(&right_main_style);
+    lv_style_reset(&right_select_style);
     lv_page_subject_deinit();
 }
 
@@ -129,27 +133,31 @@ static void lv_page_style_init()
     lv_style_set_bg_grad(&separator_line_style, &separator_line_grad);
     lv_style_set_bg_opa(&separator_line_style, LV_OPA_COVER);
 
-    //roller_style
-    lv_style_init(&roller_style);
-    lv_style_set_bg_opa(&roller_style, LV_OPA_TRANSP);
-    lv_style_set_bg_color(&roller_style, lv_color_black());
-    lv_style_set_border_opa(&roller_style, LV_OPA_TRANSP);
-    lv_style_set_border_width(&roller_style, 0);
-    lv_style_set_text_line_space(&roller_style, 54);  // 行间距
-    lv_style_set_text_align(&roller_style, LV_TEXT_ALIGN_LEFT);
-    lv_style_set_pad_left(&roller_style, 0);      // 左内边距10px
+    //left_main_style
+    lv_style_init(&left_main_style);
+    lv_style_copy(&left_main_style, &screen_style);
+    lv_style_set_text_opa(&left_main_style, LV_OPA_COVER);
+    lv_style_set_text_color(&left_main_style, lv_color_hex(0x38383A));
+    lv_style_set_text_font(&left_main_style, font_get_regular(48));
+    lv_style_set_text_line_space(&left_main_style, 50);
+    lv_style_set_text_align(&left_main_style, LV_TEXT_ALIGN_LEFT);
     
-    //select_roller_style
-    lv_style_init(&select_roller_style);
-    lv_style_set_bg_opa(&select_roller_style, LV_OPA_COVER);
-    lv_style_set_bg_color(&select_roller_style, lv_color_black());
-    lv_style_set_text_color(&select_roller_style, lv_color_hex(0XAFF99C));
-    lv_style_set_text_font(&select_roller_style, font_get_regular(48));      // 字体大小48px
-    lv_style_set_border_opa(&select_roller_style, LV_OPA_TRANSP);
-    lv_style_set_border_width(&select_roller_style, 0);
-    lv_style_set_text_line_space(&select_roller_style, 51);  // 行间距
-    lv_style_set_text_align(&select_roller_style, LV_TEXT_ALIGN_LEFT);
-    lv_style_set_pad_left(&select_roller_style, 0);      // 左内边距0px
+    //left_select_style
+    lv_style_init(&left_select_style);
+    lv_style_copy(&left_select_style, &screen_style);
+    lv_style_set_text_color(&left_select_style, lv_color_hex(0XAFF99C));
+    lv_style_set_text_align(&left_select_style, LV_TEXT_ALIGN_LEFT);
+
+    //right_main_style
+    lv_style_init(&right_main_style);
+    lv_style_copy(&right_main_style, &left_main_style);
+    lv_style_set_text_line_space(&right_main_style, 35);
+    lv_style_set_text_font(&right_main_style, oswaldr_48);
+
+    //right_select_style
+    lv_style_init(&right_select_style);
+    lv_style_copy(&right_select_style, &left_select_style);
+    lv_style_set_text_font(&right_select_style, oswaldr_48);
 }
 
 static void lv_page_subject_init()
@@ -183,15 +191,13 @@ static void lv_page_load(lv_obj_t *cont)
 
     /* 创建左边滚轮 */
     left_roller = lv_roller_create(cont);
-
     lv_roller_set_options(left_roller, photograph_left_options, LV_ROLLER_MODE_NORMAL);
-
     lv_roller_set_selected(left_roller, 1, LV_ANIM_OFF); // 默认选择画面比例
     lv_roller_set_visible_row_count(left_roller, 3);
     lv_obj_set_width(left_roller, 192);
     lv_obj_set_height(left_roller, 272);
     lv_obj_align(left_roller, LV_ALIGN_TOP_LEFT, 60, 88);
-    lv_obj_set_style_text_font(left_roller, font_get_regular(34), 0);
+    // lv_obj_set_style_text_font(left_roller, font_get_regular(34), 0);
     lv_obj_add_event_cb(left_roller, left_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     /* 创建渐变分隔线 */
@@ -205,14 +211,14 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_width(right_roller, 150);
     lv_obj_set_height(right_roller, 272);
     lv_obj_align(right_roller, LV_ALIGN_TOP_LEFT, 352, 88);
-    lv_obj_set_style_text_font(right_roller,font_get_regular(34), 0);
+    // lv_obj_set_style_text_font(right_roller,font_get_regular(34), 0);
     lv_obj_add_event_cb(right_roller, right_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
     
-    lv_obj_add_style(left_roller, &roller_style, LV_PART_MAIN);
-    lv_obj_add_style(right_roller, &roller_style, LV_PART_MAIN);
+    lv_obj_add_style(left_roller, &left_main_style, LV_PART_MAIN);
+    lv_obj_add_style(right_roller, &right_main_style, LV_PART_MAIN);
 
-    lv_obj_add_style(left_roller, &select_roller_style, LV_PART_SELECTED);
-    lv_obj_add_style(right_roller, &select_roller_style, LV_PART_SELECTED);
+    lv_obj_add_style(left_roller, &left_select_style, LV_PART_SELECTED);
+    lv_obj_add_style(right_roller, &right_select_style, LV_PART_SELECTED);
 
     return;
 }

@@ -85,6 +85,8 @@ static void lv_page_style_init()
     lv_style_set_border_color(&style_roller, lv_color_hex(0x38383A));
     lv_style_set_border_side(&style_roller, LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM);
     lv_style_set_text_align(&style_roller, LV_TEXT_ALIGN_CENTER);
+    lv_style_set_text_opa(&style_roller, LV_OPA_COVER);
+    lv_style_set_text_color(&style_roller, lv_color_hex(0x38383A));
     lv_style_set_text_font(&style_roller, oswaldr_60);
     lv_style_set_text_line_space(&style_roller, 15);
 
@@ -144,6 +146,7 @@ static void *setting_single_roller_iterm_create(lv_obj_t *cont, const char *opts
     lv_roller_set_options(roller, opts, LV_ROLLER_MODE_NORMAL);
     lv_roller_set_selected(roller, 1, LV_ANIM_OFF);
     lv_roller_set_visible_row_count(roller, 3);
+    lv_obj_set_style_anim_duration(roller, 500, LV_PART_MAIN);
 
     lv_obj_add_style(roller, &style_roller, LV_PART_MAIN);
     lv_obj_add_style(roller, &style_select_roller, LV_PART_SELECTED);
