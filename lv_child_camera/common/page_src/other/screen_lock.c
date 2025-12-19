@@ -11,6 +11,7 @@ static lv_obj_t *screen = NULL;
 static lv_obj_t *miss_call = NULL;
 static lv_style_t screen_style;
 static lv_style_t misscall_style;
+static lv_style_t bottom_style;
 
 lv_obj_t *capacity;
 lv_obj_t *percent;
@@ -18,6 +19,7 @@ lv_obj_t *battery;
 lv_obj_t *week;
 lv_obj_t *date;
 lv_obj_t *times;
+lv_obj_t *times_format;
 
 typedef struct
 {
@@ -27,7 +29,7 @@ typedef struct
 } lv_page_move_t;
 
 struct tm *time_info;
-int screenlock_style = 3;//选择样式
+int screenlock_style = 2;//选择样式
 static int has_msg = false;
 
 static void lv_page_construct(void *this);
@@ -84,7 +86,7 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
-    lv_missed_call_window();
+    // lv_missed_call_window();
 
     lv_async_call(lv_async_time_calcula, NULL);
     lv_obj_add_event_cb(screen, page_gesture_event_hander, LV_EVENT_PRESSED, NULL);
@@ -119,6 +121,22 @@ static void lv_page_style_init()
     lv_style_set_border_width(&misscall_style, 0);
     lv_style_set_bg_opa(&misscall_style, LV_OPA_COVER);
     lv_style_set_bg_color(&misscall_style, lv_color_hex(0x494949));
+
+    //bottom_style
+    static lv_grad_dsc_t grad_bottom;
+    grad_bottom.dir = LV_GRAD_DIR_VER;
+    grad_bottom.stops_count = 2;
+    grad_bottom.stops[0].color = lv_color_hex(0x000000);
+    grad_bottom.stops[0].opa = LV_OPA_TRANSP;
+    grad_bottom.stops[1].color = lv_color_hex(0x000000);
+    grad_bottom.stops[1].opa = LV_OPA_COVER;
+    grad_bottom.stops[0].frac = 0;
+    grad_bottom.stops[1].frac = 255;
+    lv_style_init(&bottom_style);
+    lv_style_set_radius(&bottom_style, 0);
+    lv_style_set_pad_all(&bottom_style, 0);
+    lv_style_set_border_width(&bottom_style, 0);
+    lv_style_set_bg_grad(&bottom_style, &grad_bottom);
 }
 
 static void lv_page_subject_init()
@@ -156,6 +174,13 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_style(status_bar, &screen_style, 0);
     lv_obj_align(status_bar, LV_ALIGN_TOP_MID, 0, 0);
     lv_obj_clear_flag(status_bar, LV_OBJ_FLAG_SCROLLABLE);
+
+    //底部渐变区域
+    lv_obj_t *bottom_area = lv_obj_create(cont);
+    lv_obj_set_size(bottom_area, lv_pct(100), 103);
+    lv_obj_add_style(bottom_area, &bottom_style, 0);
+    lv_obj_align(bottom_area, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_clear_flag(bottom_area, LV_OBJ_FLAG_SCROLLABLE);
 
     //电池图标
     battery = lv_img_create(status_bar);
@@ -226,23 +251,30 @@ static void lv_page_load(lv_obj_t *cont)
         lv_obj_align(times, LV_ALIGN_TOP_RIGHT, -38, 12);
     }
 
+    //PM/AM
+    if (screenlock_style == 2)
+    {
+        times_format = lv_label_create(cont);
+        lv_obj_set_style_text_opa(times_format, LV_OPA_TRANSP, 0);
+        lv_obj_set_style_text_color(times_format, lv_color_hex(0xFFFFFF), 0);
+        lv_obj_set_style_text_font(times_format, oswaldr_17, 0);
+        lv_obj_align_to(times_format, times, LV_ALIGN_OUT_RIGHT_MID, 50, 70);
+    }
+
     //解锁图标
-    lv_obj_t *unlock_up = lv_img_create(cont);
+    lv_obj_t *unlock_up = lv_img_create(bottom_area);
     lv_obj_set_size(unlock_up, 40, 40);
     lv_img_set_src(unlock_up, "../lv_port_pc_vscode/assert/icon/gesture_up_unlock.png");
     lv_img_set_angle(unlock_up, -900);
     lv_obj_align(unlock_up, LV_ALIGN_BOTTOM_MID, 0, -45);
 
     //上滑解锁
-    lv_obj_t *unlocktext = lv_label_create(cont);
-    lv_label_set_text(unlocktext, "上滑解锁");
-    lv_obj_set_style_text_font(unlocktext, fzlthr_30, 0);
-    lv_obj_set_style_text_opa(unlocktext, LV_OPA_80, 0);
-    lv_obj_set_style_text_align(unlocktext, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_set_style_text_color(unlocktext, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_align(unlocktext, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_t *unlock = lv_img_create(bottom_area);
+    lv_obj_set_size(unlock, 120, 41);
+    lv_img_set_src(unlock, "../lv_port_pc_vscode/assert/icon/upslide_unlock.png");
+    lv_obj_align(unlock, LV_ALIGN_BOTTOM_MID, 0, -10);
 
-    //全屏遮盖
+    //全屏遮盖，接收触摸事件
     lv_obj_t *cover = lv_obj_create(cont);
     lv_obj_set_size(cover, lv_pct(100), lv_pct(100));
     lv_obj_set_style_opa(cover, LV_OPA_TRANSP, 0);
@@ -284,16 +316,30 @@ static void lv_async_time_calcula()
     {
         //12小时制（例如:2:30）
         int display_hour = hour % 12;
-        if (display_hour == 0) display_hour = 12;  // 0点显示为12
         snprintf(time_text, sizeof(time_text), "%02d:%02d", display_hour, minute);
     }
     else
     {
-        
+        //24小时制（例如:14:30）
         snprintf(time_text, sizeof(time_text), "%02d:%02d", hour, minute);
     }
     lv_label_set_text(times, time_text);
     lv_obj_set_style_text_opa(times, LV_OPA_COVER, 0);
+
+    if (screenlock_style == 2)
+    {
+        char time_text[20];
+        if (hour >= 12)
+        {
+            snprintf(time_text, sizeof(time_text), "PM");
+        }
+        else
+        {
+            snprintf(time_text, sizeof(time_text), "AM");
+        }
+        lv_label_set_text(times_format, time_text);
+        lv_obj_set_style_text_opa(times_format, LV_OPA_COVER, 0);
+    }
 
     return;
 }

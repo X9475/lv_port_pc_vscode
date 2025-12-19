@@ -25,6 +25,7 @@ extern const lv_font_t *fzlthr_50;
 extern const lv_font_t *fzlthr_56;
 extern const lv_font_t *fzlthr_118;
 extern const lv_font_t *fzlthr_170;
+extern const lv_font_t *oswaldr_17;
 extern const lv_font_t *oswaldr_20;
 extern const lv_font_t *oswaldr_24;
 extern const lv_font_t *oswaldr_36;
