@@ -1,6 +1,5 @@
 #include "../lv_switch_interface.h"
 
-#define ICON_BACK "V:tk1/realtime_shooting/photograph_icon_back.png"
 #define ICON_COUNT (sizeof(versatile_filters_icon_paths) / sizeof(versatile_filters_icon_paths[0]))
 
 // 定义文件路径数组（替换原来的图标指针数组）
@@ -120,20 +119,24 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    //创建返回按钮
-    lv_obj_t * return_icon = lv_img_create(cont);
-    lv_img_set_src(return_icon, ICON_BACK);
-    lv_obj_set_size(return_icon, 50, 50);
-    lv_obj_align(return_icon, LV_ALIGN_TOP_LEFT, 30, 20);
-
-    lv_obj_add_flag(return_icon, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(return_icon, back_click_cb, LV_EVENT_CLICKED, NULL);
+    //返回按钮
+    lv_obj_t *back_btn = lv_btn_create(cont);
+    lv_obj_set_size(back_btn, 70, 70);
+    lv_obj_set_style_shadow_width(back_btn, 0, 0);
+    lv_obj_set_style_bg_opa(back_btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(back_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_add_event_cb(back_btn, back_click_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_align_to(back_btn, cont, LV_ALIGN_TOP_LEFT, 20, 10);
+    lv_obj_t *back = lv_img_create(back_btn);
+    lv_obj_set_size(back, 50, 50);
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
+    lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
 
     lv_obj_t * title_label = lv_label_create(cont);
     lv_label_set_text(title_label, "百变滤镜");
     lv_obj_set_style_text_color(title_label, lv_color_hex(0XFFFFFF), 0);
     lv_obj_set_style_text_font(title_label, font_get_regular(30), 0);
-    lv_obj_align_to(title_label, return_icon, LV_ALIGN_OUT_RIGHT_MID, 0, 0);  // 图标右侧，垂直居中
+    lv_obj_align_to(title_label, back_btn, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
 
     // 创建右部矩形渐变框
     lv_obj_t *right_indicator_area = lv_obj_create(cont);

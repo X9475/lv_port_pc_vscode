@@ -1,7 +1,5 @@
 #include "../lv_switch_interface.h"
 
-#define ICON_BACK "V:tk1/realtime_shooting/photograph_icon_back.png"
-
 static const char * photograph_left_options = "倒计时\n画面比例\n分辨率";
 static const char * ratio_options = "1:1\n4:3\n16:9";
 static const char * timer_options = "5s\nOFF\n3s";
@@ -174,14 +172,19 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
-   //创建返回按钮
-    lv_obj_t * back_icon = lv_img_create(cont);
-    lv_img_set_src(back_icon, ICON_BACK);
-    lv_obj_set_size(back_icon, 50, 50);
-    lv_obj_align(back_icon, LV_ALIGN_TOP_LEFT, 30, 20);
+    //返回按钮
+    lv_obj_t *back_btn = lv_btn_create(cont);
+    lv_obj_set_size(back_btn, 70, 70);
+    lv_obj_set_style_shadow_width(back_btn, 0, 0);
+    lv_obj_set_style_bg_opa(back_btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(back_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_add_event_cb(back_btn, back_click_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_align_to(back_btn, cont, LV_ALIGN_TOP_LEFT, 20, 10);
 
-    lv_obj_add_flag(back_icon, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back_icon, back_click_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t *back = lv_img_create(back_btn);
+    lv_obj_set_size(back, 50, 50);
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
+    lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
 
     // 创建顶部矩形渐变框
     lv_obj_t *up_roller_indicator_area = lv_obj_create(cont);

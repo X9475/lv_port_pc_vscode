@@ -377,13 +377,19 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_size(dialog_obj, 502, 70);
     lv_obj_align(dialog_obj, LV_ALIGN_TOP_MID, 0, 0);
 
-    // 添加返回按钮
-    lv_obj_t *back_button = lv_img_create(dialog_obj);
-    lv_img_set_src(back_button, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
-    lv_obj_set_size(back_button, 40, 40);
-    lv_obj_align(back_button, LV_ALIGN_TOP_LEFT, 30, 20);
-    lv_obj_add_flag(back_button, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back_button, lv_back_button_event, LV_EVENT_CLICKED, NULL);
+    //返回按钮
+    lv_obj_t *back_btn = lv_btn_create(cont);
+    lv_obj_set_size(back_btn, 70, 70);
+    lv_obj_set_style_shadow_width(back_btn, 0, 0);
+    lv_obj_set_style_bg_opa(back_btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(back_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_add_event_cb(back_btn, lv_back_button_event, LV_EVENT_CLICKED, NULL);
+    lv_obj_align_to(back_btn, cont, LV_ALIGN_TOP_LEFT, 20, 10);
+
+    lv_obj_t *back = lv_img_create(back_btn);
+    lv_obj_set_size(back, 50, 50);
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
+    lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
 
     // 添加AI对话标题
     lv_obj_t *tip1_label = lv_label_create(dialog_obj);
@@ -392,7 +398,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_font(tip1_label, fzlthr_28, 0);
     lv_obj_set_style_text_color(tip1_label, lv_color_white(), 0);
     lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(tip1_label, back_button, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
+    lv_obj_align_to(tip1_label, back_btn, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
     
     // 添加智能体
     lv_obj_t *agent_button = lv_img_create(dialog_obj);

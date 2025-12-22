@@ -131,12 +131,18 @@ static void lv_page_subject_deinit()
 static void lv_page_load(lv_obj_t *cont)
 {
     //返回按钮
-    lv_obj_t *back = lv_img_create(cont);
+    lv_obj_t *back_btn = lv_btn_create(cont);
+    lv_obj_set_size(back_btn, 70, 70);
+    lv_obj_set_style_shadow_width(back_btn, 0, 0);
+    lv_obj_set_style_bg_opa(back_btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(back_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_add_event_cb(back_btn, page_back_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_align_to(back_btn, cont, LV_ALIGN_TOP_LEFT, 20, 10);
+
+    lv_obj_t *back = lv_img_create(back_btn);
     lv_obj_set_size(back, 50, 50);
     lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
-    lv_obj_align_to(back, cont, LV_ALIGN_TOP_LEFT, 30, 20);
-    lv_obj_add_flag(back, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back, page_back_event_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
 
     lv_obj_t *label1 = lv_label_create(cont);
     lv_obj_set_size(label1, 222, 61);

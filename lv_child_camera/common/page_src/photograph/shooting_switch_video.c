@@ -1,7 +1,6 @@
 #include "../lv_switch_interface.h"
 
 #define CAMERA_ICON "V:tk1/realtime_shooting/photograph_icon_switchcamera.png"
-#define ICON_BACK "V:tk1/realtime_shooting/photograph_icon_back.png"
 #define RECORD_ICON "V:tk1/realtime_shooting/photograph_icon_record.png"
 #define PHOTOS_ICON_LUT "V:tk1/realtime_shooting/photograph_icon_lut.png"
 #define PHOTOS_ICON_PARAMETER "V:tk1/realtime_shooting/photograph_icon_parameter.png"
@@ -363,20 +362,25 @@ static void show_right_panel(lv_obj_t * parent)
     lv_obj_align(buttom_line, LV_ALIGN_TOP_LEFT, 10, 177); 
     lv_obj_set_style_opa(buttom_line, LV_OPA_COVER, 0);
 
-    //创建返回按钮
-    lv_obj_t * return_icon = lv_img_create(right_panel);
-    lv_img_set_src(return_icon, ICON_BACK);
-    lv_obj_set_size(return_icon, 50, 50);
-    lv_obj_align(return_icon, LV_ALIGN_TOP_LEFT, 20, 20);
+    //返回按钮
+    lv_obj_t *back_btn = lv_btn_create(right_panel);
+    lv_obj_set_size(back_btn, 70, 70);
+    lv_obj_set_style_shadow_width(back_btn, 0, 0);
+    lv_obj_set_style_bg_opa(back_btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(back_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_add_event_cb(back_btn, back_click_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_align_to(back_btn, right_panel, LV_ALIGN_TOP_LEFT, 20, 10);
 
-    lv_obj_add_flag(return_icon, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(return_icon, back_click_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_t *back = lv_img_create(back_btn);
+    lv_obj_set_size(back, 50, 50);
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
+    lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
 
     lv_obj_t * title_label = lv_label_create(right_panel);
     lv_label_set_text(title_label, "画面调整");
     lv_obj_set_style_text_color(title_label, lv_color_hex(0XFFFFFF), 0);
     lv_obj_set_style_text_font(title_label, font_get_regular(28), 0);
-    lv_obj_align_to(title_label, return_icon, LV_ALIGN_OUT_RIGHT_MID, 0, 0);  // 图标右侧，垂直居中
+    lv_obj_align_to(title_label, back_btn, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
 
     lv_obj_t * multi_effect_filter_obj = lv_obj_create(right_panel);
     lv_obj_set_size(multi_effect_filter_obj, 242, 110);

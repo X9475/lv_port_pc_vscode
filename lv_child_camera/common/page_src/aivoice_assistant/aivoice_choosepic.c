@@ -280,13 +280,19 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(up_indicator_area, LV_ALIGN_TOP_MID, 0, 0);
     lv_obj_add_style(up_indicator_area, &up_area_style, 0);
     
-    // 添加返回按钮
-    lv_obj_t * photo_backup = lv_img_create(up_indicator_area);
-    lv_img_set_src(photo_backup, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
-    lv_obj_set_size(photo_backup, 40, 40);
-    lv_obj_align(photo_backup, LV_ALIGN_TOP_LEFT, 30, 20);
-    lv_obj_add_flag(photo_backup, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(photo_backup, single_icon_click_event, LV_EVENT_CLICKED, NULL);
+    //返回按钮
+    lv_obj_t *back_btn = lv_btn_create(cont);
+    lv_obj_set_size(back_btn, 70, 70);
+    lv_obj_set_style_shadow_width(back_btn, 0, 0);
+    lv_obj_set_style_bg_opa(back_btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(back_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_add_event_cb(back_btn, single_icon_click_event, LV_EVENT_CLICKED, NULL);
+    lv_obj_align_to(back_btn, cont, LV_ALIGN_TOP_LEFT, 20, 10);
+
+    lv_obj_t *back = lv_img_create(back_btn);
+    lv_obj_set_size(back, 50, 50);
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
+    lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
 
     // 添加所有照片标题
     lv_obj_t *title_label = lv_label_create(cont);
@@ -296,8 +302,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_color(title_label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(title_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(title_label, LV_ALIGN_OUT_TOP_LEFT, 70, 25);
-    // lv_obj_align_to(title_label, photo_backup, LV_ALIGN_OUT_TOP_LEFT, 0, 0);
-    
+    lv_obj_align_to(title_label, back_btn, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
 }
 static void single_icon_click_event(lv_event_t * e)
 {

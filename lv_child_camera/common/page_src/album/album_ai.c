@@ -1,6 +1,5 @@
 #include "../lv_switch_interface.h"
 
-#define ICON_BACK "V:tk1/realtime_shooting/photograph_icon_back.png"
 #define AI_ADD_ICON "V:tk1/realtime_shooting/ai_add.png"
 #define AI_switch_ICON "V:tk1/realtime_shooting/ai_switch.png"
 
@@ -98,35 +97,39 @@ static void album_info_back_click_cb(lv_event_t *e)
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    lv_obj_t * live_view = lv_image_create(cont);
-    lv_obj_set_size(live_view, LV_HOR_RES, LV_VER_RES);
-    //todo:获取当前最新的录像流视频和图片信息，并将图片信息展示在界面上
-    lv_image_set_src(live_view, "V:png/img_camera_backup.png");
-    lv_obj_center(live_view);
+    // lv_obj_t * live_view = lv_image_create(cont);
+    // lv_obj_set_size(live_view, LV_HOR_RES, LV_VER_RES);
+    // //todo:获取当前最新的录像流视频和图片信息，并将图片信息展示在界面上
+    // lv_image_set_src(live_view, "V:png/img_camera_backup.png");
+    // lv_obj_center(live_view);
 
-    //创建返回按钮
-    lv_obj_t * back_icon = lv_img_create(live_view);
-    lv_img_set_src(back_icon, ICON_BACK);
-    lv_obj_set_size(back_icon, 40, 40);
-    lv_obj_align_to(back_icon, live_view, LV_ALIGN_TOP_LEFT, 30, 20);
-    lv_obj_add_flag(back_icon, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(back_icon, album_info_back_click_cb, LV_EVENT_CLICKED, NULL);
+    //返回按钮
+    lv_obj_t *back_btn = lv_btn_create(cont);
+    lv_obj_set_size(back_btn, 70, 70);
+    lv_obj_set_style_shadow_width(back_btn, 0, 0);
+    lv_obj_set_style_bg_opa(back_btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(back_btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_add_event_cb(back_btn, album_info_back_click_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_align_to(back_btn, cont, LV_ALIGN_TOP_LEFT, 10, 0);
+    lv_obj_t *back = lv_img_create(back_btn);
+    lv_obj_set_size(back, 40, 40);
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
+    lv_obj_center(back);
 
-    lv_obj_t *ai_label = lv_label_create(live_view);
+    lv_obj_t *ai_label = lv_label_create(cont);
     lv_label_set_text(ai_label, "AI对话");
-
     lv_obj_set_style_text_opa(ai_label, LV_OPA_COVER, 0);
     lv_obj_set_style_text_font(ai_label, font_get_regular(28), 0);
     lv_obj_set_style_text_color(ai_label, lv_color_hex(0XFFFFFF), 0);
-    lv_obj_align_to(ai_label, back_icon, LV_ALIGN_TOP_LEFT, 40, 5);
+    lv_obj_align_to(ai_label, back_btn, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
 
     //switch icon
-    lv_obj_t * switch_icon = lv_img_create(live_view);
+    lv_obj_t *switch_icon = lv_img_create(cont);
     lv_img_set_src(switch_icon, AI_switch_ICON);
     lv_obj_set_size(switch_icon, 40, 40);
     lv_obj_align(switch_icon, LV_ALIGN_TOP_LEFT, 432, 20);
 
-    lv_obj_t *base_obj = lv_obj_create(live_view);
+    lv_obj_t *base_obj = lv_obj_create(cont);
     lv_obj_set_size(base_obj, 442, 90);
     lv_obj_align(base_obj, LV_ALIGN_TOP_LEFT, 30, 300);
     lv_obj_set_style_radius(base_obj, 78, 0);
