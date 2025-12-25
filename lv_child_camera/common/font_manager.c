@@ -43,6 +43,7 @@ const lv_font_t *oswaldr_24;
 const lv_font_t *oswaldr_36;
 const lv_font_t *oswaldr_48;
 const lv_font_t *oswaldr_50;
+const lv_font_t *oswaldr_54;
 const lv_font_t *oswaldr_60;
 const lv_font_t *oswaldr_70;
 const lv_font_t *oswaldr_178;
@@ -138,6 +139,7 @@ static void lv_fzlth_font_generic()
     oswaldr_36 = lv_font_generic("oswaldr", 36);
     oswaldr_48 = lv_font_generic("oswaldr", 48);
     oswaldr_50 = lv_font_generic("oswaldr", 50);
+    oswaldr_54 = lv_font_generic("oswaldr", 54);
     oswaldr_60 = lv_font_generic("oswaldr", 60);
     oswaldr_70 = lv_font_generic("oswaldr", 70);
     oswaldr_178 = lv_font_generic("oswaldr", 178);

@@ -29,7 +29,7 @@ typedef struct
 } lv_page_move_t;
 
 struct tm *time_info;
-int screenlock_style = 2;//选择样式
+int screenlock_style = 4;//选择样式
 static int has_msg = false;
 
 static void lv_page_construct(void *this);
@@ -111,8 +111,8 @@ static void lv_page_style_init()
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
-    lv_style_set_bg_opa(&screen_style, LV_OPA_TRANSP);
-    // lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
+    lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
+    lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
 
     //misscall_style
     lv_style_init(&misscall_style);
@@ -197,21 +197,24 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align_to(percent, battery, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
 
     //存储卡
-    lv_obj_t *sdcard = lv_img_create(status_bar);
-    lv_obj_set_size(sdcard, 40, 40);
-    lv_img_set_src(sdcard, "../lv_port_pc_vscode/assert/icon/memory_card.png");
-    lv_img_set_zoom(sdcard, 128);
-    lv_obj_align_to(sdcard, percent, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
+    if (screenlock_style != 4)
+    {
+        lv_obj_t *sdcard = lv_img_create(status_bar);
+        lv_obj_set_size(sdcard, 40, 40);
+        lv_img_set_src(sdcard, "../lv_port_pc_vscode/assert/icon/memory_card.png");
+        lv_img_set_zoom(sdcard, 128);
+        lv_obj_align_to(sdcard, percent, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
 
-    capacity = lv_label_create(status_bar);
-    lv_label_set_text(capacity, "32GB");
-    lv_obj_set_style_text_font(capacity, fzlthr_24, 0);
-    lv_obj_set_style_text_opa(capacity, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_color(capacity, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_align(capacity, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(capacity, sdcard, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
+        capacity = lv_label_create(status_bar);
+        lv_label_set_text(capacity, "32GB");
+        lv_obj_set_style_text_font(capacity, fzlthr_24, 0);
+        lv_obj_set_style_text_opa(capacity, LV_OPA_COVER, 0);
+        lv_obj_set_style_text_color(capacity, lv_color_hex(0xFFFFFF), 0);
+        lv_obj_set_style_text_align(capacity, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_align_to(capacity, sdcard, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
+    }
 
-    if (screenlock_style != 2 && screenlock_style != 3)
+    if (screenlock_style != 2 && screenlock_style != 3 && screenlock_style != 4)
     {
         week = lv_label_create(status_bar);
         lv_obj_set_size(week, 44, 22);
@@ -222,14 +225,14 @@ static void lv_page_load(lv_obj_t *cont)
         lv_obj_align(week, LV_ALIGN_TOP_RIGHT, -30, 25);
     }
 
-    if (screenlock_style == 3)
+    if (screenlock_style == 3 || screenlock_style == 4)
     {
         date = lv_label_create(status_bar);
         lv_obj_set_style_text_font(date, oswaldr_20, 0);
         lv_obj_set_style_text_opa(date, LV_OPA_TRANSP, 0);
         lv_obj_set_style_text_color(date, lv_color_hex(0xFFFFFF), 0);
         lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
-        lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -45, 72);
+        lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -45, 76);
     }
 
     times = lv_label_create(cont);
@@ -248,6 +251,11 @@ static void lv_page_load(lv_obj_t *cont)
     if (screenlock_style == 3)
     {
         lv_obj_set_style_text_font(times, oswaldr_50, 0);
+        lv_obj_align(times, LV_ALIGN_TOP_RIGHT, -38, 12);
+    }
+    if (screenlock_style == 4)
+    {
+        lv_obj_set_style_text_font(times, oswaldr_54, 0);
         lv_obj_align(times, LV_ALIGN_TOP_RIGHT, -38, 12);
     }
 
@@ -294,7 +302,7 @@ static void lv_async_time_calcula()
     int month = time_info->tm_mon + 1;
     int day = time_info->tm_mday;
 
-    if (screenlock_style != 2 && screenlock_style != 3)
+    if (screenlock_style != 2 && screenlock_style != 3 && screenlock_style != 4)
     {
         const char *week_text[] = {"周日", "周一", "周二", "周三", "周四", "周五", "周六"};
         int week_index = time_info->tm_wday;//tm_wday 范围是 0-6（0=周日）
@@ -302,7 +310,7 @@ static void lv_async_time_calcula()
         lv_obj_set_style_text_opa(week, LV_OPA_COVER, 0);
     }
 
-    if (screenlock_style == 3)
+    if (screenlock_style == 3 || screenlock_style == 4)
     {
         char date_text[10];
         snprintf(date_text, sizeof(date_text), "%02d | %02d", month, day);
