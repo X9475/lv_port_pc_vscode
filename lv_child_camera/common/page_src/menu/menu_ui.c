@@ -58,6 +58,7 @@ typedef struct
     lv_timer_t *timer;
     lv_obj_t *mask;
     int index;
+    bool knob_rotate;
 } rotate_ctl_s;
 static rotate_ctl_s g_rotate_ctl_s = {false, NULL, NULL, 0};
 
@@ -118,6 +119,12 @@ static void lv_page_construct(void *this)
     lv_obj_add_style(screen, &screen_style, 0);
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
+
+    g_rotate_ctl_s.init_flag = false;
+    g_rotate_ctl_s.timer = NULL;
+    g_rotate_ctl_s.mask = NULL;
+    g_rotate_ctl_s.index = 0;
+    g_rotate_ctl_s.knob_rotate = false;
 
     g_rotate_ctrl.rotate_dir = 0;
     g_rotate_ctrl.angle = 0;
@@ -278,6 +285,7 @@ static void* input_thread(void* arg)
                     lv_obj_align(g_rotate_ctl_s.mask, LV_ALIGN_CENTER, 0, 0);
                     lv_obj_clear_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
                     g_rotate_ctl_s.init_flag = true;
+                    g_rotate_ctl_s.knob_rotate = true;
 
                     if (NULL == g_rotate_ctl_s.timer)
                     {
@@ -313,6 +321,7 @@ static void* input_thread(void* arg)
     return NULL;
 }
 
+static void rotate_anim_ready_cb(lv_anim_t *anim);
 static void async_rotate_cb(void *cmd)
 {
     lv_mutex_lock(&mutex);
@@ -323,6 +332,7 @@ static void async_rotate_cb(void *cmd)
     //更新索引
     offset = *(int*)cmd > 1 ? 1 : -1;
     current_index += offset;
+    bool rotate_flag = false;
 
     //边界检查
     if (current_index >= (APP_NUM - 1))
@@ -334,11 +344,53 @@ static void async_rotate_cb(void *cmd)
         current_index = 0;
     }
 
-    g_rotate_ctl_s.index = current_index;
+    if (g_rotate_ctl_s.index != current_index)
+    {
+        rotate_flag = true;
+        g_rotate_ctl_s.index = current_index;
+    }
+
     lv_obj_t *cont_col = lv_obj_get_child(menu_page_info.page, 0);
     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, current_index), LV_ANIM_OFF);
+
+    if (rotate_flag)
+    {
+        if (*(int*)cmd > 1)
+        {
+            //逆时针旋转动画
+            lv_anim_t a_rotate;
+            lv_anim_init(&a_rotate);
+            lv_anim_set_var(&a_rotate, rotate_scale);
+            lv_anim_set_exec_cb(&a_rotate, (lv_anim_exec_xcb_t)lv_scale_set_rotation);
+            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle - 10);
+            lv_anim_set_time(&a_rotate, 500);
+            lv_anim_set_path_cb(&a_rotate, lv_anim_path_ease_out);
+            lv_anim_set_ready_cb(&a_rotate, rotate_anim_ready_cb);
+            lv_anim_start(&a_rotate);
+            g_rotate_ctrl.angle -= 10;
+        }
+        else
+        {
+            //顺时针旋转动画
+            lv_anim_t a_rotate;
+            lv_anim_init(&a_rotate);
+            lv_anim_set_var(&a_rotate, rotate_scale);
+            lv_anim_set_exec_cb(&a_rotate, (lv_anim_exec_xcb_t)lv_scale_set_rotation);
+            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle + 10);
+            lv_anim_set_time(&a_rotate, 500);
+            lv_anim_set_path_cb(&a_rotate, lv_anim_path_ease_out);
+            lv_anim_set_ready_cb(&a_rotate, rotate_anim_ready_cb);
+            lv_anim_start(&a_rotate);
+            g_rotate_ctrl.angle += 10;
+        }
+    }
     lv_mutex_unlock(&mutex);
     return;
+}
+
+static void rotate_anim_ready_cb(lv_anim_t *anim)
+{
+    lv_anim_del_all();
 }
 
 static void delete_mask_page(lv_timer_t *timer)
@@ -348,6 +400,7 @@ static void delete_mask_page(lv_timer_t *timer)
     lv_timer_del(g_rotate_ctl_s.timer);
     g_rotate_ctl_s.timer = NULL;
     g_rotate_ctl_s.init_flag = false;
+    g_rotate_ctl_s.knob_rotate = false;
     lv_obj_add_flag(menu_page_info.page, LV_OBJ_FLAG_GESTURE_BUBBLE);
 
     return;
@@ -429,6 +482,8 @@ static lv_obj_t *rotate_disc_draw(lv_obj_t *cont)
     lv_scale_set_range(scale, 0, 60);
     lv_scale_set_angle_range(scale, 360);
     lv_scale_set_rotation(scale, 180);
+
+    lv_scale_set_label_show(scale, true);
 
     lv_obj_add_style(scale, &iterms_style, LV_PART_ITEMS);
     lv_obj_add_style(scale, &main_line_style, LV_PART_MAIN);
@@ -515,12 +570,16 @@ static void scroll_app_item_event_cb(lv_event_t * e)
     g_rotate_ctrl.rotate_dir = first_a.y1 > g_rotate_ctrl.last_ycoord? 2 : 1;
     g_rotate_ctrl.last_ycoord = first_a.y1;
 
-    if (g_rotate_ctrl.rotate_dir == 2)
-        g_rotate_ctrl.angle = g_rotate_ctrl.angle - 2;
-    else if (g_rotate_ctrl.rotate_dir == 1)
-        g_rotate_ctrl.angle = g_rotate_ctrl.angle + 2;
     //控制转盘转动
-    lv_scale_set_rotation(rotate_scale, g_rotate_ctrl.angle);
+    if (!g_rotate_ctl_s.knob_rotate)
+    {
+        if (g_rotate_ctrl.rotate_dir == 2)
+            g_rotate_ctrl.angle = g_rotate_ctrl.angle - 2;
+        else if (g_rotate_ctrl.rotate_dir == 1)
+            g_rotate_ctrl.angle = g_rotate_ctrl.angle + 2;
+
+        lv_scale_set_rotation(rotate_scale, g_rotate_ctrl.angle);
+    }
 
     uint32_t child_cnt = lv_obj_get_child_count(cont);
     for (uint32_t i = 0; i < child_cnt; i++)
