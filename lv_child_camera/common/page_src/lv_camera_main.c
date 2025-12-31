@@ -50,8 +50,8 @@ void lv_main()
         switch_page->new_page = lv_page_menu_info_get();
     }
 
-    lv_subject_set_pointer(&switch_subject, switch_page);
+    // lv_subject_set_pointer(&switch_subject, switch_page);
 
-    // lv_subject_set_int(&toast_subject, PAGE_TOAST_FORMAT_DOING);
+    lv_subject_set_int(&anormal_subject, PAGE_ABNORMAL_USB_TRANSMIT);
     return;
 }

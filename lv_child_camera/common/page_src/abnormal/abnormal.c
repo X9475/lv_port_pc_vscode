@@ -2,8 +2,6 @@
 
 lv_subject_t anormal_subject;
 static lv_style_t screen_style;
-static lv_obj_t *select_;
-static lv_obj_t *unselect;
 static lv_obj_t *charge;    //仅充电
 static lv_obj_t *transmit;  //数据传输
 static lv_obj_t *current_select;
@@ -334,6 +332,11 @@ static void lv_abnorml_transmit_usb(lv_obj_t *cont)
     lv_obj_set_style_bg_color(charge, lv_color_hex(0x0A0B0D), 0);
     lv_obj_set_style_bg_grad_color(charge, lv_color_hex(0x202124), 0);
     lv_obj_set_style_bg_grad_dir(charge, LV_GRAD_DIR_HOR, 0);
+    lv_obj_add_event_cb(charge, lv_switch_select_checkbox_event, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t *select_ = lv_img_create(charge);
+    lv_img_set_src(select_, "../lv_port_pc_vscode/assert/icon/photograph_icon_select_green.png");
+    lv_obj_align_to(select_, charge, LV_ALIGN_RIGHT_MID, -34, 0);
 
     lv_obj_t *battery = lv_img_create(charge);
     lv_img_set_src(battery, "../lv_port_pc_vscode/assert/icon/usb_icon_charge.png");
@@ -348,6 +351,8 @@ static void lv_abnorml_transmit_usb(lv_obj_t *cont)
     lv_obj_set_style_text_color(label1, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label1, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align_to(label1, charge, LV_ALIGN_LEFT_MID, 110, 0);
+    
+    current_select = charge;
 
     //2.传输照片录像
     transmit = lv_obj_create(cont);
@@ -362,6 +367,11 @@ static void lv_abnorml_transmit_usb(lv_obj_t *cont)
     lv_obj_set_style_bg_color(transmit, lv_color_hex(0x0A0B0D), 0);
     lv_obj_set_style_bg_grad_color(transmit, lv_color_hex(0x202124), 0);
     lv_obj_set_style_bg_grad_dir(transmit, LV_GRAD_DIR_HOR, 0);
+    lv_obj_add_event_cb(transmit, lv_switch_select_checkbox_event, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t *unselect = lv_img_create(transmit);
+    lv_img_set_src(unselect, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
+    lv_obj_align_to(unselect, transmit, LV_ALIGN_RIGHT_MID, -34, 0);
 
     lv_obj_t *photo = lv_img_create(transmit);
     lv_img_set_src(photo, "../lv_port_pc_vscode/assert/icon/usb_icon_photo.png");
@@ -376,19 +386,6 @@ static void lv_abnorml_transmit_usb(lv_obj_t *cont)
     lv_obj_set_style_text_color(label2, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label2, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align_to(label2, transmit, LV_ALIGN_LEFT_MID, 104, 0);
-
-    //复选框
-    select_ = lv_img_create(charge);
-    unselect = lv_img_create(transmit);
-    lv_img_set_src(select_, "../lv_port_pc_vscode/assert/icon/photograph_icon_select_green.png");
-    lv_img_set_src(unselect, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
-    lv_obj_align_to(select_, charge, LV_ALIGN_RIGHT_MID, -34, 0);
-    lv_obj_align_to(unselect, transmit, LV_ALIGN_RIGHT_MID, -34, 0);
-    lv_obj_add_flag(select_, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_flag(unselect, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(select_, lv_switch_select_checkbox_event, LV_EVENT_CLICKED, NULL);
-    lv_obj_add_event_cb(unselect, lv_switch_select_checkbox_event, LV_EVENT_CLICKED, NULL);
-    current_select = charge;
 
     //确认
     lv_obj_t *confirm_btn = lv_btn_create(cont);
@@ -421,29 +418,29 @@ static void confirm_btn_click_event_cb(lv_event_t *e)
         printf("当前选择： 传输照片录像\n");
     }
 
-    lv_subject_set_int(&anormal_subject, PAGE_ABNORMAL_CONFIRM);
+    // lv_subject_set_int(&anormal_subject, PAGE_ABNORMAL_CONFIRM);
 }
 
 static void lv_switch_select_checkbox_event(lv_event_t *e)
 {
-    lv_obj_t *target = lv_event_get_target(e);
-    if(target == select_) return;
+    lv_obj_t *obj = lv_event_get_target(e);
 
-    //获取当前父对象
-    lv_obj_t *select_parent = lv_obj_get_parent(select_);
-    lv_obj_t *unselect_parent = lv_obj_get_parent(unselect);
-    //切换图片源
-    lv_img_set_src(select_, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
-    lv_img_set_src(unselect, "../lv_port_pc_vscode/assert/icon/photograph_icon_select_green.png");
-    //交换指针
-    lv_obj_t *temp = select_;
-    select_ = unselect;
-    unselect = temp;
-    //交换父对象
-    lv_obj_set_parent(select_, unselect_parent);
-    lv_obj_set_parent(unselect, select_parent);
-    //更新当前选项的父对象
-    current_select = lv_obj_get_parent(select_);
+    if (obj == charge)
+    {
+        lv_obj_t *img1 = lv_obj_get_child(charge, 0);
+        lv_img_set_src(img1, "../lv_port_pc_vscode/assert/icon/photograph_icon_select_green.png");
+        lv_obj_t *img2 = lv_obj_get_child(transmit, 0);
+        lv_img_set_src(img2, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
+        current_select = charge;
+    }
+    else if (obj == transmit)
+    {
+        lv_obj_t *img1 = lv_obj_get_child(transmit, 0);
+        lv_img_set_src(img1, "../lv_port_pc_vscode/assert/icon/photograph_icon_select_green.png");
+        lv_obj_t *img2 = lv_obj_get_child(charge, 0);
+        lv_img_set_src(img2, "../lv_port_pc_vscode/assert/icon/photograph_icon_unselect.png");
+        current_select = transmit;
+    }
 }
 
 static void lv_abnorml_usb_flash_mode(lv_obj_t *cont)
