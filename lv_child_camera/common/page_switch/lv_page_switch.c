@@ -25,6 +25,8 @@ static LV_PAGE_STAGE_ENUM g_device_state = LV_PAGE_STAGE_ADDING;
 static LV_PAGE_TYPE_ENUM last_page_type = TYPE_MAX;
 static lv_page_info_pt last_page = NULL;
 
+static void anim_completed_cb(lv_anim_t *anim);
+
 /// @brief 页面切换观察者回调函数
 static void page_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 /// @brief 清楚旧的页面回调函数
@@ -70,6 +72,16 @@ static void page_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subje
     new_page->status = STATUS_RUNNNIG;
     new_page->construct_cb(new_page);
 
+    //支持动画效果
+    if (switch_page->anim_transt.anim_support)
+    {
+        lv_page_transition_anim_create(&switch_page->anim_transt, NULL, NULL, anim_completed_cb, switch_page);
+    }
+    else
+    {
+        lv_async_call(page_switch_delete_page, switch_page);
+    }
+
     //记录当前页面信息
     lv_current_page_info_set(new_page->page_id, (void*)new_page);
 
@@ -111,8 +123,25 @@ static void page_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subje
         }
     }
 
-    lv_refr_now(NULL);
-    lv_async_call(page_switch_delete_page, switch_page);
+    return;
+}
+
+static void anim_completed_cb(lv_anim_t *anim)
+{
+    lv_switch_page_pt switch_page = lv_anim_get_user_data(anim);
+    lv_page_info_pt old_page = switch_page->old_page;
+
+    printf("--------\n");
+    if (NULL != old_page)
+    {
+        printf("[%s:%d] ==> delete id: %d\n", __FILE__, __LINE__, old_page->page_id);
+        old_page->destruct_cb();
+        lv_delete_all_event_obj(old_page->page);
+        lv_obj_del(old_page->page);
+    }
+
+    lv_free(switch_page);
+    switch_page = NULL;
     return;
 }
 
@@ -201,6 +230,18 @@ static void page_gesture_event_hander(lv_event_t *e)
                 lv_memset(switch_menu_setting, 0, sizeof(lv_switch_page_t));
                 switch_menu_setting->new_page = lv_page_menu_setting_info_get();
                 switch_menu_setting->old_page = last_page;
+
+                //动画参数设置
+                switch_menu_setting->anim_transt.anim_support = true;
+                switch_menu_setting->anim_transt.old_type = LV_ANIM_BOX_NONE;
+                switch_menu_setting->anim_transt.new_type = LV_ANIM_BOX_SLIDE;
+                lv_transition_anim_slide_param_set(
+                        &switch_menu_setting->anim_transt.new_params,
+                        &switch_menu_setting->new_page->page,
+                        200,
+                        TYPE_FUNCTIONAL,
+                        LV_DIR_BOTTOM);
+
                 lv_subject_set_pointer(&switch_subject, switch_menu_setting);
             }
             else if (lv_page_type_get() == TYPE_MENU)
@@ -212,6 +253,24 @@ static void page_gesture_event_hander(lv_event_t *e)
                 lv_memset(switch_functional, 0, sizeof(lv_switch_page_t));
                 switch_functional->new_page = last_page;
                 switch_functional->old_page = lv_page_menu_info_get();
+
+                //动画参数设置
+                switch_functional->anim_transt.anim_support = true;
+                switch_functional->anim_transt.new_type = LV_ANIM_BOX_FADE;
+                lv_transition_anim_fade_param_set(
+                    &switch_functional->anim_transt.new_params,
+                    &switch_functional->new_page->page,
+                    500
+                );
+
+                switch_functional->anim_transt.old_type = LV_ANIM_BOX_SLIDE;
+                lv_transition_anim_slide_param_set(
+                        &switch_functional->anim_transt.old_params,
+                        &switch_functional->old_page->page,
+                        200,
+                        TYPE_MENU,
+                        LV_DIR_BOTTOM);
+
                 lv_subject_set_pointer(&switch_subject, switch_functional);
             }
             break;
@@ -232,6 +291,18 @@ static void page_gesture_event_hander(lv_event_t *e)
                 lv_memset(switch_menu, 0, sizeof(lv_switch_page_t));
                 switch_menu->new_page = lv_page_menu_info_get();
                 switch_menu->old_page = last_page;
+
+                //动画参数设置
+                switch_menu->anim_transt.anim_support = true;
+                switch_menu->anim_transt.old_type = LV_ANIM_BOX_NONE;
+                switch_menu->anim_transt.new_type = LV_ANIM_BOX_SLIDE;
+                lv_transition_anim_slide_param_set(
+                        &switch_menu->anim_transt.new_params,
+                        &switch_menu->new_page->page,
+                        200,
+                        TYPE_FUNCTIONAL,
+                        LV_DIR_TOP);
+
                 lv_subject_set_pointer(&switch_subject, switch_menu);
             }
             else if (lv_page_type_get() == TYPE_MENU_SETTING_ONE)
@@ -243,6 +314,24 @@ static void page_gesture_event_hander(lv_event_t *e)
                 lv_memset(switch_functional, 0, sizeof(lv_switch_page_t));
                 switch_functional->new_page = last_page;
                 switch_functional->old_page = lv_page_menu_setting_info_get();
+
+                //动画参数设置
+                switch_functional->anim_transt.anim_support = true;
+                switch_functional->anim_transt.new_type = LV_ANIM_BOX_FADE;
+                lv_transition_anim_fade_param_set(
+                    &switch_functional->anim_transt.new_params,
+                    &switch_functional->new_page->page,
+                    500
+                );
+
+                switch_functional->anim_transt.old_type = LV_ANIM_BOX_SLIDE;
+                lv_transition_anim_slide_param_set(
+                        &switch_functional->anim_transt.old_params,
+                        &switch_functional->old_page->page,
+                        200,
+                        TYPE_MENU_SETTING_ONE,
+                        LV_DIR_TOP);
+
                 lv_subject_set_pointer(&switch_subject, switch_functional);
             }
             break;

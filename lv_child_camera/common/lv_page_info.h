@@ -8,6 +8,7 @@ extern "C" {
 #include "font_manager.h"
 #include "page_switch/lv_stack.h"
 #include "page_switch/lv_page_switch.h"
+#include "widget/lv_anim_box.h"
 #include "../../lvgl/lvgl.h"
 
 typedef void (* construct_func)(void *);
@@ -159,6 +160,7 @@ typedef struct
 {
     lv_page_info_pt new_page;
     lv_page_info_pt old_page;
+    lv_anim_transt_data_t anim_transt;
 } lv_switch_page_t, *lv_switch_page_pt;
 
 #ifdef __cplusplus

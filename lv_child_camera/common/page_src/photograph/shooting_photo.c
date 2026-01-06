@@ -789,6 +789,17 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
         case PAGE_SWITCH_ALBUM:
             lv_stack_push(&shooting_photo_page);
             switch_page->new_page = lv_page_album_get();
+
+            //动画参数设置
+            switch_page->anim_transt.anim_support = true;
+            switch_page->anim_transt.old_type = LV_ANIM_BOX_NONE;
+            switch_page->anim_transt.new_type = LV_ANIM_BOX_SLIDE;
+            lv_transition_anim_slide_param_set(
+                        &switch_page->anim_transt.new_params,
+                        &switch_page->new_page->page,
+                        100,
+                        TYPE_FUNCTIONAL,
+                        LV_DIR_RIGHT);
             break;
 
         case PAGE_SWITCH_BACK:

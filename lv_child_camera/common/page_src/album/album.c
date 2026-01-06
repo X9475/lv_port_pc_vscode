@@ -353,7 +353,7 @@ static void gesture_event_handler(lv_event_t * e)
         if(dir == LV_DIR_LEFT && point.x > RIGHT_EDGE_THRESHOLD) 
         {
             printf("右边缘向左滑动,切换到拍摄或界面\n");
-            lv_subject_set_int(&album_subject, PAGE_SWITCH_BACK);
+            lv_subject_set_int(&album_subject, PAGE_SWITCH_SHOOT_PHOTO);
         }
         else 
         {
@@ -761,6 +761,17 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
         case PAGE_SWITCH_SHOOT_PHOTO:
             switch_page->new_page = lv_page_shooting_photo_get();
+
+            //动画参数设置
+            switch_page->anim_transt.anim_support = true;
+            switch_page->anim_transt.old_type = LV_ANIM_BOX_NONE;
+            switch_page->anim_transt.new_type = LV_ANIM_BOX_SLIDE;
+            lv_transition_anim_slide_param_set(
+                        &switch_page->anim_transt.new_params,
+                        &switch_page->new_page->page,
+                        100,
+                        TYPE_FUNCTIONAL,
+                        LV_DIR_LEFT);
             break;
 
         case PAGE_SWITCH_BACK:
