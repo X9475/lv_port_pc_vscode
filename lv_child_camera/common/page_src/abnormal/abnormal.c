@@ -130,7 +130,7 @@ static void lv_abnorml_low_battery(lv_obj_t *cont)
     lv_obj_set_style_text_font(tip1_label, fzlthr_26, 0);
     lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 254);
+    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 245);
 
     //知道了
     lv_obj_t *btn = lv_btn_create(cont);
@@ -140,15 +140,15 @@ static void lv_abnorml_low_battery(lv_obj_t *cont)
     lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xAFF99C), 0);
     lv_obj_set_style_shadow_opa(btn, LV_OPA_TRANSP, 0);
+    lv_obj_add_event_cb(btn, btn_click_event_cb, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t *tip2_label = lv_label_create(btn);
     lv_label_set_text(tip2_label, "知道了");
     lv_obj_set_style_text_opa(tip2_label, LV_OPA_COVER, 0);
     lv_obj_set_style_text_font(tip2_label, fzlthr_30, 0);
-    lv_obj_set_style_text_color(tip2_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_color(tip2_label, lv_color_hex(0x000000), 0);
     lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(tip2_label, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_add_event_cb(btn, btn_click_event_cb, LV_EVENT_CLICKED, NULL);
 
     return;
 }
@@ -174,7 +174,7 @@ static void lv_abnorml_minute_battery(lv_obj_t *cont)
     lv_obj_set_style_text_font(tip1_label, fzlthr_26, 0);
     lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 254);
+    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 245);
 
     //知道了
     lv_obj_t *btn = lv_btn_create(cont);
@@ -189,7 +189,7 @@ static void lv_abnorml_minute_battery(lv_obj_t *cont)
     lv_label_set_text(tip2_label, "知道了");
     lv_obj_set_style_text_opa(tip2_label, LV_OPA_COVER, 0);
     lv_obj_set_style_text_font(tip2_label, fzlthr_30, 0);
-    lv_obj_set_style_text_color(tip2_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_color(tip2_label, lv_color_hex(0x000000), 0);
     lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(tip2_label, LV_ALIGN_CENTER, 0, 0);
     lv_obj_add_event_cb(btn, btn_click_event_cb, LV_EVENT_CLICKED, NULL);
@@ -255,7 +255,7 @@ static void lv_abnorml_storage_exhausted(lv_obj_t *cont)
     lv_obj_set_style_text_font(tip1_label, fzlthr_26, 0);
     lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 259);
+    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 245);
 
     //知道了
     lv_obj_t *btn = lv_btn_create(cont);
