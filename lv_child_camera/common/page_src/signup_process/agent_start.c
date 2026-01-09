@@ -121,16 +121,18 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(slider_bg, LV_ALIGN_TOP_MID, 0, 240);
 
     //创建滑动条
-    lv_obj_t *slider = lv_slider_create(cont);
+    lv_obj_t *slider = lv_slider_create(slider_bg);
     lv_obj_set_size(slider, 442, 100);
     lv_slider_set_range(slider, 0, 442);
     lv_slider_set_value(slider, 54, LV_ANIM_OFF);
     lv_obj_add_style(slider, &style_main, LV_PART_MAIN);
     lv_obj_add_style(slider, &style_indicator, LV_PART_INDICATOR);
     lv_obj_add_style(slider, &style_knob, LV_PART_KNOB);
-    lv_obj_align(slider, LV_ALIGN_TOP_MID, 0, 290);
+    lv_obj_align(slider, LV_ALIGN_CENTER, 0, 0);
     lv_obj_add_flag(slider, LV_OBJ_FLAG_ADV_HITTEST);//仅旋钮模式
     lv_obj_add_event_cb(slider, lv_start_agent_slider_event, LV_EVENT_ALL, NULL);
+
+    // lv_obj_fade_in(slider_bg, 1000, 7000);
 
     return;
 }
