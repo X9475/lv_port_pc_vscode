@@ -433,6 +433,11 @@ static void app_icon_event_cb(lv_event_t * e)
             last_tabindex = 3;
             lv_subject_set_int(&menu_subject, PAGE_SWITCH_ALBUM);
         }
+        else if (lv_strcmp(iterm_data->name, "消息中心") == 0)
+        {
+            last_tabindex = 4;
+            lv_subject_set_int(&menu_subject, PAGE_SWITCH_MESSAGE_CENTER);
+        }
     }
 }
 
@@ -654,6 +659,10 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
     switch (page_event)
     {
+        case PAGE_SWITCH_MESSAGE_CENTER:
+            lv_stack_push(&menu_page_info);
+            switch_page->new_page = lv_page_message_center_get();
+            break;
         case PAGE_SWITCH_ALBUM:
             // lv_page_reserve_del();
             switch_page->new_page = lv_page_album_get();

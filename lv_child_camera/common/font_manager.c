@@ -23,6 +23,7 @@
 
 //字体
 //瘦体
+const lv_font_t *fzlthr_16;
 const lv_font_t *fzlthr_20;
 const lv_font_t *fzlthr_22;
 const lv_font_t *fzlthr_24;
@@ -103,6 +104,7 @@ void lv_font_deinit()
 
 static void lv_fzlth_font_generic()
 {
+    fzlthr_16 = lv_font_generic("fzlthr", 16);
     fzlthr_20 = lv_font_generic("fzlthr", 20);
     fzlthr_22 = lv_font_generic("fzlthr", 22);
     fzlthr_24 = lv_font_generic("fzlthr", 24);

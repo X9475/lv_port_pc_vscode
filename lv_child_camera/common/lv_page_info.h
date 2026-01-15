@@ -53,6 +53,7 @@ typedef enum
     PAGE_FUNCTIONAL_ALBUM_AI,           ///<< 相册AI界面
     PAGE_FUNCTIONAL_ALBUM_FOUR_GRID,    ///<< 相册四宫格界面
     PAGE_FUNCTIONAL_ALBUM_DELETE,       ///<< 相册删除界面
+    PAGE_FUNCTION_MESSAGE_CENTER,       ///<< 消息中心
     
     PAGE_FUNCTIONAL_SHOOTING_PHOTO,         ///<< 拍摄首界面
     PAGE_FUNCTIONAL_SHOOTING_MODE,          ///<< 拍摄录制界面

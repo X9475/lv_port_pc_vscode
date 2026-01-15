@@ -11,6 +11,7 @@ extern "C" {
 #if (LV_CHILD_CAMERA != 0) && (LV_USE_FONT_MANAGER != 0)
 
 //瘦体
+extern const lv_font_t *fzlthr_16;
 extern const lv_font_t *fzlthr_20;
 extern const lv_font_t *fzlthr_22;
 extern const lv_font_t *fzlthr_24;
