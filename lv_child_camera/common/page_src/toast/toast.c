@@ -33,6 +33,7 @@ static void lv_setting_min_valume_toast(lv_obj_t *cont);
 static void lv_setting_network_instability_toast(lv_obj_t *cont);
 static void lv_setting_message_failed_toast(lv_obj_t *cont);
 static void lv_setting_send_failed_toast(lv_obj_t *cont);
+static void lv_setting_usb_cable_connect(lv_obj_t *cont);
 static void lv_menu_setting_down_slide_toast(lv_obj_t *cont);
 static void lv_menu_up_slide_toast(lv_obj_t *cont);
 static void anim_set_hand_pos(void *obj, int32_t v);
@@ -216,6 +217,9 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
         case PAGE_TOAST_SEND_FAILED:
             lv_setting_send_failed_toast(cont);
+            break;
+        case PAGE_TOAST_USB_CONNECT_CABLE:
+            lv_setting_usb_cable_connect(cont);
             break;
         case PAGE_TOAST_SETTING_MENU_SLIDE:
             lv_menu_setting_down_slide_toast(cont);
@@ -878,6 +882,33 @@ static void lv_setting_send_failed_toast(lv_obj_t *cont)
     lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
 
     return;
+}
+
+static void lv_setting_usb_cable_connect(lv_obj_t *cont)
+{
+    lv_obj_t *obj = lv_obj_create(cont);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 410, 92);
+    lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_set_style_radius(obj, 16, 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x121212), 0);
+
+    //文字提示：请使用手机数据线连接
+    lv_obj_t *label = lv_label_create(obj);
+    lv_label_set_text(label, "请使用手机数据线连接");
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label, fzlthr_32, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
+
+    //背景图
+    lv_obj_t *toast = lv_img_create(cont);
+    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_success.png");
+    lv_img_set_zoom(toast, 128);
+    lv_obj_set_size(toast, 120, 80);
+    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
 }
 
 static void lv_menu_setting_down_slide_toast(lv_obj_t *cont)
