@@ -1,6 +1,6 @@
 #include "../lv_switch_interface.h"
 
-#define AUDIO_NUM       7
+#define AUDIO_NUM       3
 
 lv_subject_t audio_effect_subject;
 static lv_switch_page_pt switch_page;
@@ -20,7 +20,7 @@ static void audio_iterm_click_event_cb(lv_event_cb_t *e);
 static void *lv_audio_effect_iterm_create(lv_obj_t *cont, const char *name);
 
 static const char *audio_list[AUDIO_NUM] = {
-    "拍照音", "呼叫铃声", "接听铃声", "闹钟铃声", "消息提示音", "按键音", "超出区域"
+    "拍照音", "呼叫铃声", "接听铃声"/*, "闹钟铃声", "消息提示音", "按键音", "超出区域"*/
 };
 
 //待跳转的页面种类
@@ -118,12 +118,19 @@ static void lv_page_load(lv_obj_t *cont)
 
     //滚动列表
     lv_obj_t *cont_col = lv_obj_create(cont);
-    lv_obj_set_size(cont_col, lv_pct(100), 340);
+    lv_obj_set_size(cont_col, lv_pct(100), 313);
     lv_obj_add_style(cont_col, &screen_style, 0);
-    lv_obj_align_to(cont_col, cont, LV_ALIGN_TOP_MID, 20, 70);
     lv_obj_set_scroll_dir(cont_col, LV_DIR_VER);
     lv_obj_set_flex_flow(cont_col, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_scrollbar_mode(cont_col, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_align_to(cont_col, cont, LV_ALIGN_TOP_MID, 0, 70);
+
+    lv_obj_set_flex_align(
+        cont_col, 
+        LV_FLEX_ALIGN_START,  // 主轴对齐方式（垂直方向居中）
+        LV_FLEX_ALIGN_CENTER,  // 交叉轴对齐方式（水平方向居中）
+        LV_FLEX_ALIGN_CENTER   // 跟踪对齐方式
+    );
 
     for (uint8_t i = 0; i < AUDIO_NUM; i++)
     {
