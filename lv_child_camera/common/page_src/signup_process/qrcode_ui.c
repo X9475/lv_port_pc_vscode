@@ -93,7 +93,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_t *scanning_box = lv_img_create(cont);
     lv_img_set_src(scanning_box, "../lv_port_pc_vscode/assert/icon/scanning_box_2x.png");
     lv_img_set_zoom(scanning_box, 128);
-    lv_obj_align(scanning_box, LV_ALIGN_CENTER, 0, -30);
+    lv_obj_align(scanning_box, LV_ALIGN_TOP_MID, 0, -76);
 
     //生成二维码
     lv_obj_t *qr = lv_qrcode_create(cont);
@@ -103,10 +103,8 @@ static void lv_page_load(lv_obj_t *cont)
 
     const char *data = "https://lvgl.io";
     lv_qrcode_update(qr, data, strlen(data));
-    lv_obj_align(qr, LV_ALIGN_CENTER, 0, -30);
-    lv_obj_set_style_border_color(qr, lv_color_hex(0x000000), 0);
-    lv_obj_set_style_border_width(qr, 2, 0);
     lv_obj_set_style_radius(qr, 15, 0);
+    lv_obj_align(qr, LV_ALIGN_CENTER, 0, -15);
 
     //文字提示
     lv_obj_t *tip_label = lv_label_create(cont);
@@ -115,13 +113,13 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_font(tip_label, fzlthr_26, 0);
     lv_obj_set_style_text_color(tip_label, lv_color_white(), 0);
     lv_obj_set_style_text_align(tip_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(tip_label, LV_ALIGN_TOP_MID, 0, 320);
+    lv_obj_align(tip_label, LV_ALIGN_TOP_MID, 0, 335);
 
     //跳过
     lv_obj_t *btn = lv_btn_create(cont);
-    lv_obj_set_size(btn, 80, 30);
-    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -30, 20);
-    lv_obj_set_style_radius(btn, 10, 0);
+    lv_obj_set_size(btn, 90, 42);
+    lv_obj_align(btn, LV_ALIGN_TOP_RIGHT, -50, 30);
+    lv_obj_set_style_radius(btn, 31, 0);
     lv_obj_set_style_shadow_opa(btn, LV_OPA_TRANSP, 0);
     lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xAFF99C), 0);
@@ -130,7 +128,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_t *tip1_label = lv_label_create(btn);
     lv_label_set_text(tip1_label, "跳过");
     lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(tip1_label, fzlthr_22, 0);
+    lv_obj_set_style_text_font(tip1_label, fzlthr_20, 0);
     lv_obj_set_style_text_color(tip1_label, lv_color_hex(0x000000), 0);
     lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(tip1_label, LV_ALIGN_CENTER, 0, 0);

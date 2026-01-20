@@ -29,7 +29,7 @@ typedef struct
 } lv_page_move_t;
 
 struct tm *time_info;
-int screenlock_style = 4;//选择样式
+int screenlock_style = 2;//选择样式
 static int has_msg = false;
 
 static void lv_page_construct(void *this);
@@ -86,7 +86,7 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
-    // lv_missed_call_window();
+    lv_missed_call_window();
 
     lv_async_call(lv_async_time_calcula, NULL);
     lv_obj_add_event_cb(screen, page_gesture_event_hander, LV_EVENT_PRESSED, NULL);
