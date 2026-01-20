@@ -172,7 +172,7 @@ static void lv_page_load(lv_obj_t *cont)
 
     lv_obj_t *voicectrl_img = lv_img_create(voice_ctrl);
     lv_obj_align(voicectrl_img, LV_ALIGN_CENTER, 0, 0);
-    lv_img_set_src(voicectrl_img, "../lv_port_pc_vscode/assert/icon/voice_assistant_off.png");
+    lv_img_set_src(voicectrl_img, "../lv_port_pc_vscode/assert/icon/mike_off.png");
     // lv_img_set_zoom(voicectrl_img, 128);
 
     //单次录像时长
@@ -355,7 +355,7 @@ static void lv_event_handler_code(lv_event_cb_t *e)
                 lv_obj_set_style_bg_opa(voice_ctrl, LV_OPA_COVER, 0);
 
                 lv_obj_t *voicectrl_img = lv_obj_get_child(voice_ctrl, 0);
-                lv_img_set_src(voicectrl_img, "../lv_port_pc_vscode/assert/icon/voice_assistant_on.png");
+                lv_img_set_src(voicectrl_img, "../lv_port_pc_vscode/assert/icon/mike_on.png");
                 voice_ctrl_flag = true;
                 //设置AI语音助手打开的标志，需要发送主题事件到AI界面回调
             }
@@ -365,7 +365,7 @@ static void lv_event_handler_code(lv_event_cb_t *e)
                 lv_obj_set_style_bg_opa(voice_ctrl, LV_OPA_COVER, 0);
 
                 lv_obj_t *voicectrl_img = lv_obj_get_child(voice_ctrl, 0);
-                lv_img_set_src(voicectrl_img, "../lv_port_pc_vscode/assert/icon/voice_assistant_off.png");
+                lv_img_set_src(voicectrl_img, "../lv_port_pc_vscode/assert/icon/mike_off.png");
                 voice_ctrl_flag = false;
             }
         }

@@ -250,7 +250,7 @@ static void lv_setting_format_doing_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 262, 92);
+    lv_obj_set_size(obj, 230, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -263,14 +263,7 @@ static void lv_setting_format_doing_toast(lv_obj_t *cont)
     lv_obj_set_style_text_font(label, fzlthr_32, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_success.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }
@@ -279,7 +272,7 @@ static void lv_setting_format_success_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 262, 92);
+    lv_obj_set_size(obj, 230, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -292,14 +285,7 @@ static void lv_setting_format_success_toast(lv_obj_t *cont)
     lv_obj_set_style_text_font(label, fzlthr_32, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_success.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }
@@ -308,7 +294,7 @@ static void lv_setting_format_failed_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 240, 92);
+    lv_obj_set_size(obj, 230, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -323,13 +309,6 @@ static void lv_setting_format_failed_toast(lv_obj_t *cont)
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
-
     return;
 }
 
@@ -337,7 +316,7 @@ static void lv_setting_switch_doing_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 225, 92);
+    lv_obj_set_size(obj, 230, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -350,14 +329,7 @@ static void lv_setting_switch_doing_toast(lv_obj_t *cont)
     lv_obj_set_style_text_font(label, fzlthr_32, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_success.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }
@@ -379,14 +351,7 @@ static void lv_setting_switch_success_toast(lv_obj_t *cont)
     lv_obj_set_style_text_font(label, fzlthr_32, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_success.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }
@@ -395,7 +360,7 @@ static void lv_setting_switch_failed_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 208, 92);
+    lv_obj_set_size(obj, 230, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -410,13 +375,6 @@ static void lv_setting_switch_failed_toast(lv_obj_t *cont)
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
-
     return;
 }
 
@@ -424,7 +382,7 @@ static void lv_setting_recovery_doing_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 353, 92);
+    lv_obj_set_size(obj, 340, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -437,14 +395,7 @@ static void lv_setting_recovery_doing_toast(lv_obj_t *cont)
     lv_obj_set_style_text_font(label, fzlthr_32, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_success.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }
@@ -466,14 +417,7 @@ static void lv_setting_recovery_success_toast(lv_obj_t *cont)
     lv_obj_set_style_text_font(label, fzlthr_32, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_success.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }
@@ -482,7 +426,7 @@ static void lv_setting_recovery_failed_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 208, 92);
+    lv_obj_set_size(obj, 230, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -496,13 +440,6 @@ static void lv_setting_recovery_failed_toast(lv_obj_t *cont)
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
 
     return;
 }
@@ -525,13 +462,6 @@ static void lv_abnorml_storage_exhausted_toast(lv_obj_t *cont)
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
 
     return;
 }
@@ -598,7 +528,7 @@ static void lv_setting_dev_offline_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 368, 92);
+    lv_obj_set_size(obj, 350, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -613,13 +543,6 @@ static void lv_setting_dev_offline_toast(lv_obj_t *cont)
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
-
     return;
 }
 
@@ -627,7 +550,7 @@ static void lv_setting_call_failed_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 368, 92);
+    lv_obj_set_size(obj, 390, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -641,13 +564,6 @@ static void lv_setting_call_failed_toast(lv_obj_t *cont)
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
 
     return;
 }
@@ -669,14 +585,7 @@ static void lv_setting_add_success_toast(lv_obj_t *cont)
     lv_obj_set_style_text_font(label, fzlthr_32, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_success.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }
@@ -685,7 +594,7 @@ static void lv_setting_auxiliary_toast(lv_obj_t *cont)
 {
     lv_obj_t *obj = lv_obj_create(cont);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_size(obj, 260, 92);
+    lv_obj_set_size(obj, 360, 92);
     lv_obj_align(obj, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_radius(obj, 16, 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -693,19 +602,12 @@ static void lv_setting_auxiliary_toast(lv_obj_t *cont)
 
     //文字提示：语音控制已关闭
     lv_obj_t *label = lv_label_create(obj);
-    lv_label_set_text(label, "语音控制已关闭");
+    lv_label_set_text(label, "电量大于30%后重试");
     lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
     lv_obj_set_style_text_font(label, fzlthr_32, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
 
     return;
 }
@@ -729,13 +631,6 @@ static void lv_setting_add_failed_toast(lv_obj_t *cont)
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
-
     return;
 }
 
@@ -757,13 +652,6 @@ static void lv_setting_max_valume_toast(lv_obj_t *cont)
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
 
     return;
 }
@@ -787,13 +675,6 @@ static void lv_setting_min_valume_toast(lv_obj_t *cont)
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
-
     return;
 }
 
@@ -815,13 +696,6 @@ static void lv_setting_network_instability_toast(lv_obj_t *cont)
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
-
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
 
     return;
 }
@@ -845,13 +719,6 @@ static void lv_setting_message_failed_toast(lv_obj_t *cont)
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
-
     return;
 }
 
@@ -874,13 +741,6 @@ static void lv_setting_send_failed_toast(lv_obj_t *cont)
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_fail.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -20, -52);
-
     return;
 }
 
@@ -901,14 +761,9 @@ static void lv_setting_usb_cable_connect(lv_obj_t *cont)
     lv_obj_set_style_text_font(label, fzlthr_32, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(label, obj, LV_ALIGN_RIGHT_MID, -30, 0);
+    lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    //背景图
-    lv_obj_t *toast = lv_img_create(cont);
-    lv_img_set_src(toast, "../lv_port_pc_vscode/assert/icon/toast_success.png");
-    lv_img_set_zoom(toast, 128);
-    lv_obj_set_size(toast, 120, 80);
-    lv_obj_align_to(toast, obj, LV_ALIGN_BOTTOM_LEFT, -32, -30);
+    return;
 }
 
 static void lv_menu_setting_down_slide_toast(lv_obj_t *cont)
