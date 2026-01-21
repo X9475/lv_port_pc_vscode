@@ -94,14 +94,14 @@ static void lv_page_style_init()
     lv_style_set_text_opa(&style_storage_num, LV_OPA_COVER);
     lv_style_set_text_color(&style_storage_num, lv_color_hex(0XFFFFFF));
     lv_style_set_text_align(&style_storage_num, LV_TEXT_ALIGN_CENTER);
-    lv_style_set_text_font(&style_storage_num, font_get_regular(28));
+    lv_style_set_text_font(&style_storage_num, oswaldr_28);
 
     //style_storage_text
     lv_style_init(&style_storage_text);
     lv_style_set_text_opa(&style_storage_text, LV_OPA_COVER);
     lv_style_set_text_color(&style_storage_text, lv_color_hex(0XFFFFFF));
     lv_style_set_text_align(&style_storage_text, LV_TEXT_ALIGN_CENTER);
-    lv_style_set_text_font(&style_storage_text, font_get_regular(26));
+    lv_style_set_text_font(&style_storage_text, fzlthr_26);
 
     //style_line
     static lv_grad_dsc_t grad1;
@@ -219,19 +219,19 @@ static void lv_page_load(lv_obj_t *cont)
     //滑动条显示文本
     lv_obj_t *bar_label_1 = lv_label_create(cont);
     lv_label_set_text(bar_label_1, "89");
-    lv_obj_set_style_text_font(bar_label_1, fzlthr_170, 0);
+    lv_obj_set_style_text_font(bar_label_1, oswaldr_170, 0);
     lv_obj_set_style_text_opa(bar_label_1, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(bar_label_1, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(bar_label_1, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(bar_label_1, LV_ALIGN_TOP_LEFT, 28, 80);
+    lv_obj_align(bar_label_1, LV_ALIGN_TOP_LEFT, 30, 40);
 
     lv_obj_t *bar_label_2 = lv_label_create(cont);
     lv_label_set_text(bar_label_2, "GB / 128GB");
-    lv_obj_set_style_text_font(bar_label_2, fzlthr_34, 0);
+    lv_obj_set_style_text_font(bar_label_2, oswaldr_34, 0);
     lv_obj_set_style_text_opa(bar_label_2, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(bar_label_2, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_align(bar_label_2, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(bar_label_2, bar_label_1, LV_ALIGN_OUT_RIGHT_TOP, 8, 40);
+    lv_obj_align_to(bar_label_2, bar_label_1, LV_ALIGN_OUT_RIGHT_TOP, 8, 70);
 
     //底部显示文本
     lv_obj_t *label_1 = lv_label_create(cont);

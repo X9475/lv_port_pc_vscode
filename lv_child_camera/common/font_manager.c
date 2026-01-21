@@ -41,12 +41,15 @@ const lv_font_t *fzlthr_170;
 const lv_font_t *oswaldr_17;
 const lv_font_t *oswaldr_20;
 const lv_font_t *oswaldr_24;
+const lv_font_t *oswaldr_28;
+const lv_font_t *oswaldr_34;
 const lv_font_t *oswaldr_36;
 const lv_font_t *oswaldr_48;
 const lv_font_t *oswaldr_50;
 const lv_font_t *oswaldr_54;
 const lv_font_t *oswaldr_60;
 const lv_font_t *oswaldr_70;
+const lv_font_t *oswaldr_170;
 const lv_font_t *oswaldr_178;
 
 //粗体
@@ -138,12 +141,15 @@ static void lv_fzlth_font_generic()
     oswaldr_17 = lv_font_generic("oswaldr", 17);
     oswaldr_20 = lv_font_generic("oswaldr", 20);
     oswaldr_24 = lv_font_generic("oswaldr", 24);
+    oswaldr_28 = lv_font_generic("oswaldr", 28);
+    oswaldr_34 = lv_font_generic("oswaldr", 34);
     oswaldr_36 = lv_font_generic("oswaldr", 36);
     oswaldr_48 = lv_font_generic("oswaldr", 48);
     oswaldr_50 = lv_font_generic("oswaldr", 50);
     oswaldr_54 = lv_font_generic("oswaldr", 54);
     oswaldr_60 = lv_font_generic("oswaldr", 60);
     oswaldr_70 = lv_font_generic("oswaldr", 70);
+    oswaldr_170 = lv_font_generic("oswaldr", 170);
     oswaldr_178 = lv_font_generic("oswaldr", 178);
 
     oswaldb_20 = lv_font_generic("oswaldb", 20);

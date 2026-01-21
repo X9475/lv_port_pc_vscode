@@ -88,6 +88,11 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
+    //背景
+    lv_obj_t *cart_bg = lv_img_create(cont);
+    lv_img_set_src(cart_bg, "../lv_port_pc_vscode/assert/icon/cert_mask_bg.png");
+    lv_obj_align(cart_bg, LV_ALIGN_CENTER, 0, 0);
+
     //返回按钮
     lv_obj_t *back_btn = lv_btn_create(cont);
     lv_obj_set_size(back_btn, 70, 70);
@@ -95,38 +100,38 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_bg_opa(back_btn, LV_OPA_TRANSP, 0);
     lv_obj_set_style_radius(back_btn, LV_RADIUS_CIRCLE, 0);
     lv_obj_add_event_cb(back_btn, page_back_event_cb, LV_EVENT_CLICKED, NULL);
-    lv_obj_align_to(back_btn, cont, LV_ALIGN_TOP_LEFT, 20, 10);
+    lv_obj_align_to(back_btn, cont, LV_ALIGN_TOP_RIGHT, -35, 15);
 
     lv_obj_t *back = lv_img_create(back_btn);
-    lv_obj_set_size(back, 50, 50);
-    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
-    lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
+    lv_obj_set_size(back, 40, 40);
+    lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_cancel_button.png");
+    lv_obj_align(back, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_t *description = lv_obj_create(cont);
-    lv_obj_set_size(description, 450, 180);
-    lv_obj_set_style_pad_all(description, 0, LV_PART_MAIN);
-    lv_obj_set_style_border_width(description, 0, LV_PART_MAIN);
-    lv_obj_set_style_radius(description, 18, LV_PART_MAIN);
-    lv_obj_set_style_bg_color(description, lv_color_hex(0x2C2C2E), LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(description, LV_OPA_COVER, 0);
-    lv_obj_clear_flag(description, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_align(description, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_t *cerk = lv_label_create(cont);
+    lv_obj_set_size(cerk, 157, 42);
+    lv_label_set_text(cerk, "认证标志");
+    lv_obj_set_style_text_opa(cerk, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(cerk, fzlthr_32, 0);
+    lv_obj_set_style_text_color(cerk, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(cerk, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_letter_space(cerk, 8, 0);
+    lv_obj_align(cerk, LV_ALIGN_TOP_LEFT, 46, 154);
 
-    const char *text = "CMIIT ID：XXXXXXXXXXXX\n版本：V100-1M88SF4G-Z\nTD-LTE无线数据终端\n中国制造";
-    lv_obj_t *label = lv_label_create(description);
-    lv_label_set_text(label, text);
-    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(label, fzlthr_22, 0);
-    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_align(label, LV_ALIGN_TOP_LEFT, 30, 35);
+    lv_obj_t *descrip = lv_label_create(cont);
+    lv_obj_set_size(descrip, 410, 140);
+    lv_label_set_text(descrip, "CMIIT ID：XXXXXXXXXXXX\n版本：V100-1M88SF4G-Z\nTD-LTE无线数据终端\n中国制造");
+    lv_obj_set_style_text_opa(descrip, LV_OPA_60, 0);
+    lv_obj_set_style_text_font(descrip, fzlthr_26, 0);
+    lv_obj_set_style_text_color(descrip, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(descrip, LV_TEXT_ALIGN_LEFT, 0);
+    lv_obj_set_style_text_line_space(descrip, 5, 0);
+    lv_obj_align(descrip, LV_ALIGN_TOP_LEFT, 46, 212);
 
     //环保标志
-    lv_obj_t *image = lv_img_create(description);
-    lv_obj_set_size(image, 100, 100);
+    lv_obj_t *image = lv_img_create(cont);
+    lv_obj_set_size(image, 90, 90);
     lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/environment_protect_symbol_10.png");
-    lv_img_set_zoom(image, 200);
-    lv_obj_align(image, LV_ALIGN_BOTTOM_RIGHT, -20, -20);
+    lv_obj_align(image, LV_ALIGN_TOP_LEFT, 46, 40);
 
     return;
 }

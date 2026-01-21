@@ -29,12 +29,15 @@ extern const lv_font_t *fzlthr_170;
 extern const lv_font_t *oswaldr_17;
 extern const lv_font_t *oswaldr_20;
 extern const lv_font_t *oswaldr_24;
+extern const lv_font_t *oswaldr_28;
+extern const lv_font_t *oswaldr_34;
 extern const lv_font_t *oswaldr_36;
 extern const lv_font_t *oswaldr_48;
 extern const lv_font_t *oswaldr_50;
 extern const lv_font_t *oswaldr_54;
 extern const lv_font_t *oswaldr_60;
 extern const lv_font_t *oswaldr_70;
+extern const lv_font_t *oswaldr_170;
 extern const lv_font_t *oswaldr_178;
 //粗体
 extern const lv_font_t *fzlthb_20;
