@@ -107,31 +107,22 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_cancel_button.png");
     lv_obj_align(back, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_t *cerk = lv_label_create(cont);
-    lv_obj_set_size(cerk, 157, 42);
-    lv_label_set_text(cerk, "认证标志");
-    lv_obj_set_style_text_opa(cerk, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(cerk, fzlthr_32, 0);
-    lv_obj_set_style_text_color(cerk, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_text_align(cerk, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_set_style_text_letter_space(cerk, 8, 0);
-    lv_obj_align(cerk, LV_ALIGN_TOP_LEFT, 46, 154);
-
     lv_obj_t *descrip = lv_label_create(cont);
-    lv_obj_set_size(descrip, 410, 140);
-    lv_label_set_text(descrip, "CMIIT ID：XXXXXXXXXXXX\n版本：V100-1M88SF4G-Z\nTD-LTE无线数据终端\n中国制造");
-    lv_obj_set_style_text_opa(descrip, LV_OPA_60, 0);
+    lv_obj_set_size(descrip, 410, 175);
+    lv_label_set_text(descrip, "型号：CS-TK1   (88GZ)\nCMIIT ID：XXXXXXXXXXXX\n版本：V100-1M88SF4G-Z\nTD-LTE无线数据终端\n中国制造");
+    lv_obj_set_style_text_opa(descrip, LV_OPA_COVER, 0);
     lv_obj_set_style_text_font(descrip, fzlthr_26, 0);
-    lv_obj_set_style_text_color(descrip, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_color(descrip, lv_color_hex(0xEBEBF5), 0);
     lv_obj_set_style_text_align(descrip, LV_TEXT_ALIGN_LEFT, 0);
     lv_obj_set_style_text_line_space(descrip, 5, 0);
-    lv_obj_align(descrip, LV_ALIGN_TOP_LEFT, 46, 212);
+    lv_obj_align(descrip, LV_ALIGN_TOP_LEFT, 72, 177);
 
     //环保标志
     lv_obj_t *image = lv_img_create(cont);
-    lv_obj_set_size(image, 90, 90);
+    lv_obj_set_size(image, 105, 105);
     lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/environment_protect_symbol_10.png");
-    lv_obj_align(image, LV_ALIGN_TOP_LEFT, 46, 40);
+    lv_img_set_zoom(image, 128);
+    lv_obj_align(image, LV_ALIGN_TOP_LEFT, 72, 55);
 
     return;
 }
