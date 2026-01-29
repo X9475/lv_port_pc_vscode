@@ -1,6 +1,7 @@
 #include "../lv_switch_interface.h"
 #include <stdio.h>
 
+#if 0
 #define APP_NUM     5
 
 lv_subject_t menu_subject;
@@ -687,3 +688,4 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
 
     lv_subject_set_pointer(&switch_subject, switch_page);
 }
+#endif
