@@ -183,7 +183,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     switch (page_event)
     {
         case PAGE_SWITCH_NEXT:
-            switch_page->new_page = lv_page_shooting_photo_get();
+            switch_page->new_page = lv_page_menu_info_get();
             break;
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();

@@ -99,6 +99,7 @@ static void lv_page_style_init()
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
     lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
+    lv_style_set_radius(&screen_style, 20);
     lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
 
     //btn_style

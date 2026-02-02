@@ -7,7 +7,7 @@ set(FREERTOS_PORT GCC_POSIX CACHE STRING "Port for FreeRTOS on Posix environment
 unset(USE_FREERTOS CACHE)
 
 option(USE_FREERTOS "Enable FreeRTOS" OFF) # Turn this on to enable FreeRTOS
-option(ASAN "Enable ASAN" ON)
+option(ASAN "Enable ASAN" OFF)
 
 if(USE_FREERTOS)
     message(STATUS "FreeRTOS is enabled")

@@ -4,9 +4,8 @@
 lv_subject_t switch_subject;
 extern lv_obj_t *top_screen;
 extern lv_obj_t *act_screen;
-static lv_switch_page_pt switch_menu = NULL;
-static lv_switch_page_pt switch_functional = NULL;
-static lv_switch_page_pt switch_menu_setting = NULL;
+static lv_switch_page_pt switch_up = NULL;
+static lv_switch_page_pt switch_bottom = NULL;
 extern lv_page_info_pt lv_page_menu_setting_info_get();
 extern lv_page_info_pt lv_page_menu_info_get();
 
@@ -67,6 +66,7 @@ static void page_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subje
     if (NULL == switch_page) return;
 
     lv_page_info_pt new_page = switch_page->new_page;
+    lv_page_info_pt old_page = switch_page->old_page;
 
     LV_LOG_INFO("page switch begin");
     new_page->status = STATUS_RUNNNIG;
@@ -75,7 +75,13 @@ static void page_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subje
     //支持动画效果
     if (switch_page->anim_transt.anim_support)
     {
-        lv_page_transition_anim_create(&switch_page->anim_transt, NULL, NULL, anim_completed_cb, switch_page);
+        if (lv_current_page_info_get()->page_id == PAGE_FUNCTIONAL_MENU_SETTING) {
+            //设置菜单页位于最上层
+            lv_obj_move_foreground(old_page->page);
+        }
+        lv_page_transition_anim_create(&switch_page->anim_transt, 
+                                        anim_completed_cb, switch_page, 
+                                        anim_completed_cb, switch_page);
     }
     else
     {
@@ -90,37 +96,6 @@ static void page_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subje
         last_page = new_page;
         lv_obj_add_event_cb(new_page->page, page_gesture_event_hander, LV_EVENT_PRESSED, NULL);
         lv_obj_add_event_cb(new_page->page, page_gesture_event_hander, LV_EVENT_RELEASED, NULL);
-
-        if (new_page != lv_page_menu_info_get() && new_page != lv_page_menu_setting_info_get())
-        {
-            if (last_page_type != TYPE_MENU_SETTING_TWO && last_page_type != TYPE_MENU_SETTING_THREE &&
-                last_page_type != TYPE_MENU_SETTING_FOUR)
-            {
-                lv_page_type_set(TYPE_FUNCTIONAL);
-            }
-
-            //特殊处理，上下边缘不添加触发区域
-            if (!page_add_gesture_event_filter(new_page))
-            {
-                //顶部滑动触发区域
-                lv_obj_t *top_gesture_area = lv_obj_create(new_page->page);
-                lv_obj_set_size(top_gesture_area, 250, 30);
-                lv_obj_align(top_gesture_area, LV_ALIGN_TOP_MID, 0, 0);
-                lv_obj_set_style_border_opa(top_gesture_area, LV_OPA_TRANSP, 0);
-                lv_obj_set_style_bg_opa(top_gesture_area, LV_OPA_TRANSP, 0);
-                lv_obj_add_flag(top_gesture_area, LV_OBJ_FLAG_EVENT_BUBBLE);
-                lv_obj_clear_flag(top_gesture_area, LV_OBJ_FLAG_SCROLLABLE);
-
-                //底部滑动触发区域
-                lv_obj_t *bottom_gesture_area = lv_obj_create(new_page->page);
-                lv_obj_set_size(bottom_gesture_area, 250, 30);
-                lv_obj_align(bottom_gesture_area, LV_ALIGN_BOTTOM_MID, 0, 0);
-                lv_obj_set_style_border_opa(bottom_gesture_area, LV_OPA_TRANSP, 0);
-                lv_obj_set_style_bg_opa(bottom_gesture_area, LV_OPA_TRANSP, 0);
-                lv_obj_add_flag(bottom_gesture_area, LV_OBJ_FLAG_EVENT_BUBBLE);
-                lv_obj_clear_flag(bottom_gesture_area, LV_OBJ_FLAG_SCROLLABLE);
-            }
-        }
     }
 
     return;
@@ -131,7 +106,6 @@ static void anim_completed_cb(lv_anim_t *anim)
     lv_switch_page_pt switch_page = lv_anim_get_user_data(anim);
     lv_page_info_pt old_page = switch_page->old_page;
 
-    printf("--------\n");
     if (NULL != old_page)
     {
         printf("[%s:%d] ==> delete id: %d\n", __FILE__, __LINE__, old_page->page_id);
@@ -209,131 +183,57 @@ static void page_gesture_event_hander(lv_event_t *e)
 
     int dir = lv_gesture_diraction_judgement(e);
     if (dir == 0) return;
-    printf("===> gesture dir: %d\n", dir);
+    printf("===> gesture dir: %d, type:%d\n", dir, lv_page_type_get());
 
     switch (dir)
     {
         case LV_DIR_BOTTOM:
-            if (last_page_type == TYPE_MENU_SETTING_ONE || last_page_type == TYPE_MENU_SETTING_TWO ||
-                last_page_type == TYPE_MENU_SETTING_THREE || last_page_type == TYPE_MENU_SETTING_FOUR)
-            {
-                break;
-            }
+            //除功能页和菜单页下滑，其余皆忽略
+            if (lv_page_type_get() != TYPE_FUNCTIONAL && lv_page_type_get() != TYPE_MENU) break;
 
-            if (lv_page_type_get() == TYPE_FUNCTIONAL)
-            {
-                lv_stack_push(last_page);
+            //显示全局设置页
+            switch_bottom = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
+            LV_ASSERT_MALLOC(switch_bottom);
+            lv_memset(switch_bottom, 0, sizeof(lv_switch_page_t));
+            switch_bottom->new_page = lv_page_menu_setting_info_get();
+            switch_bottom->old_page = last_page;
+            lv_stack_push(last_page);
 
-                //显示全局设置页
-                switch_menu_setting = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
-                LV_ASSERT_MALLOC(switch_menu_setting);
-                lv_memset(switch_menu_setting, 0, sizeof(lv_switch_page_t));
-                switch_menu_setting->new_page = lv_page_menu_setting_info_get();
-                switch_menu_setting->old_page = last_page;
-
-                //动画参数设置
-                switch_menu_setting->anim_transt.anim_support = true;
-                switch_menu_setting->anim_transt.old_type = LV_ANIM_BOX_NONE;
-                switch_menu_setting->anim_transt.new_type = LV_ANIM_BOX_SLIDE;
-                lv_transition_anim_slide_param_set(
-                        &switch_menu_setting->anim_transt.new_params,
-                        &switch_menu_setting->new_page->page,
-                        200,
-                        TYPE_FUNCTIONAL,
-                        LV_DIR_BOTTOM);
-
-                lv_subject_set_pointer(&switch_subject, switch_menu_setting);
-            }
-            else if (lv_page_type_get() == TYPE_MENU)
-            {
-                lv_page_info_pt last_page = lv_stack_pop();
-                //回到功能界面
-                switch_functional = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
-                LV_ASSERT_MALLOC(switch_functional);
-                lv_memset(switch_functional, 0, sizeof(lv_switch_page_t));
-                switch_functional->new_page = last_page;
-                switch_functional->old_page = lv_page_menu_info_get();
-
-                //动画参数设置
-                switch_functional->anim_transt.anim_support = true;
-                switch_functional->anim_transt.new_type = LV_ANIM_BOX_FADE;
-                lv_transition_anim_fade_param_set(
-                    &switch_functional->anim_transt.new_params,
-                    &switch_functional->new_page->page,
-                    500
-                );
-
-                switch_functional->anim_transt.old_type = LV_ANIM_BOX_SLIDE;
-                lv_transition_anim_slide_param_set(
-                        &switch_functional->anim_transt.old_params,
-                        &switch_functional->old_page->page,
-                        200,
-                        TYPE_MENU,
-                        LV_DIR_BOTTOM);
-
-                lv_subject_set_pointer(&switch_subject, switch_functional);
-            }
+            //动画参数设置
+            switch_bottom->anim_transt.anim_support = true;
+            switch_bottom->anim_transt.old_type = LV_ANIM_BOX_NONE;
+            switch_bottom->anim_transt.new_type = LV_ANIM_BOX_SLIDE;
+            lv_transition_anim_slide_param_set(
+                    &switch_bottom->anim_transt.new_params,
+                    &switch_bottom->new_page->page,
+                    250,
+                    LV_DIR_BOTTOM);
+            lv_subject_set_pointer(&switch_subject, switch_bottom);
             break;
         case LV_DIR_TOP:
-            if (last_page_type == TYPE_MENU || last_page_type == TYPE_MENU_SETTING_TWO ||
-                last_page_type == TYPE_MENU_SETTING_THREE || last_page_type == TYPE_MENU_SETTING_FOUR)
-            {
-                break;
+            //除设置菜单底部上滑退出，其余皆忽略
+            if (lv_page_type_get() != TYPE_MENU_SETTING_ONE) break;
+
+            switch_up = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
+            LV_ASSERT_MALLOC(switch_up);
+            lv_memset(switch_up, 0, sizeof(lv_switch_page_t));
+            switch_up->new_page = lv_stack_pop();
+            switch_up->old_page = lv_page_menu_setting_info_get();
+
+            if (switch_up->new_page->page_id != TYPE_MENU) {
+                lv_page_type_set(TYPE_FUNCTIONAL);
             }
 
-            if (lv_page_type_get() == TYPE_FUNCTIONAL)
-            {
-                lv_stack_push(last_page);
-
-                //显示菜单页
-                switch_menu = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
-                LV_ASSERT_MALLOC(switch_menu);
-                lv_memset(switch_menu, 0, sizeof(lv_switch_page_t));
-                switch_menu->new_page = lv_page_menu_info_get();
-                switch_menu->old_page = last_page;
-
-                //动画参数设置
-                switch_menu->anim_transt.anim_support = true;
-                switch_menu->anim_transt.old_type = LV_ANIM_BOX_NONE;
-                switch_menu->anim_transt.new_type = LV_ANIM_BOX_SLIDE;
-                lv_transition_anim_slide_param_set(
-                        &switch_menu->anim_transt.new_params,
-                        &switch_menu->new_page->page,
-                        200,
-                        TYPE_FUNCTIONAL,
-                        LV_DIR_TOP);
-
-                lv_subject_set_pointer(&switch_subject, switch_menu);
-            }
-            else if (lv_page_type_get() == TYPE_MENU_SETTING_ONE)
-            {
-                lv_page_info_pt last_page = lv_stack_pop();
-                //回到功能界面
-                switch_functional = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
-                LV_ASSERT_MALLOC(switch_functional);
-                lv_memset(switch_functional, 0, sizeof(lv_switch_page_t));
-                switch_functional->new_page = last_page;
-                switch_functional->old_page = lv_page_menu_setting_info_get();
-
-                //动画参数设置
-                switch_functional->anim_transt.anim_support = true;
-                switch_functional->anim_transt.new_type = LV_ANIM_BOX_FADE;
-                lv_transition_anim_fade_param_set(
-                    &switch_functional->anim_transt.new_params,
-                    &switch_functional->new_page->page,
-                    500
-                );
-
-                switch_functional->anim_transt.old_type = LV_ANIM_BOX_SLIDE;
-                lv_transition_anim_slide_param_set(
-                        &switch_functional->anim_transt.old_params,
-                        &switch_functional->old_page->page,
-                        200,
-                        TYPE_MENU_SETTING_ONE,
-                        LV_DIR_TOP);
-
-                lv_subject_set_pointer(&switch_subject, switch_functional);
-            }
+            //动画参数设置
+            switch_up->anim_transt.anim_support = true;
+            switch_up->anim_transt.old_type = LV_ANIM_BOX_SLIDE;
+            switch_up->anim_transt.new_type = LV_ANIM_BOX_NONE;
+            lv_transition_anim_slide_param_set(
+                    &switch_up->anim_transt.old_params,
+                    &switch_up->old_page->page,
+                    250,
+                    LV_DIR_TOP);
+            lv_subject_set_pointer(&switch_subject, switch_up);
             break;
         default:
             break;
