@@ -91,8 +91,8 @@ static void lv_page_style_init()
     lv_style_set_bg_color(&knob_style, lv_color_hex(0xFFFFFF));
     lv_style_set_bg_opa(&knob_style, LV_OPA_COVER);
     lv_style_set_pad_all(&knob_style, 0);
-    lv_style_set_pad_top(&knob_style, 6);
-    lv_style_set_pad_bottom(&knob_style, 6);
+    lv_style_set_pad_top(&knob_style, 8);
+    lv_style_set_pad_bottom(&knob_style, 8);
 
     //indicator_style
     lv_style_init(&indicator_style);
@@ -162,8 +162,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 20, 26);
 
     lv_obj_t *slider = lv_slider_create(contain);
-    lv_obj_remove_style_all(slider);
-    lv_obj_set_size(slider, 318, 8);
+    // lv_obj_remove_style_all(slider);
+    lv_obj_set_size(slider, 318, 10);
     lv_obj_add_style(slider, &main_style, LV_PART_MAIN);
     lv_obj_add_style(slider, &knob_style, LV_PART_KNOB);
     lv_obj_add_style(slider, &indicator_style, LV_PART_INDICATOR);
