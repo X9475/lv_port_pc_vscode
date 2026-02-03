@@ -72,6 +72,18 @@ lv_page_info_pt lv_page_audio_beyond_area_info_get();
 extern lv_subject_t settings_more_subject;
 lv_page_info_pt lv_page_settings_more_info_get();
 
+//拍摄设置
+extern lv_subject_t shoot_setting_subject;
+lv_page_info_pt lv_page_shoot_setting_info_get();
+
+//个性化设置
+extern lv_subject_t indvid_setting_subject;
+lv_page_info_pt lv_page_indvid_setting_info_get();
+
+//设备信息
+extern lv_subject_t equip_setting_subject;
+lv_page_info_pt lv_page_equip_setting_info_get();
+
 //单次录像时长
 extern lv_subject_t record_time_subject;
 lv_page_info_pt lv_page_record_time_info_get();
@@ -124,6 +136,25 @@ lv_page_info_pt lv_page_format_confirm_info_get();
 extern lv_subject_t screensaver_style_subject;
 lv_page_info_pt lv_page_screensaver_style_info_get();
 
+//自定义按键
+extern lv_subject_t indvid_key_subject;
+lv_page_info_pt lv_page_indvid_key_info_get();
+
+//语音控制开关
+extern lv_subject_t voice_control_subject;
+lv_page_info_pt lv_page_voice_control_info_get();
+
+//辅助线开关
+extern lv_subject_t auxiliary_line_subject;
+lv_page_info_pt lv_page_auxiliary_line_info_get();
+
+//设备音量
+extern lv_subject_t device_volume_subject;
+lv_page_info_pt lv_page_device_volume_info_get();
+
+//屏幕亮度
+extern lv_subject_t device_bright_subject;
+lv_page_info_pt lv_page_device_bright_info_get();
 /***************************相册功能*************************************/
 
 extern lv_subject_t album_subject;

@@ -198,9 +198,7 @@ static void lv_page_subject_deinit()
 
 static void lv_back_button_event(lv_event_t *e)
 {
-    lv_obj_t *back = lv_event_get_target(e);
-    lv_obj_t *parent = lv_obj_get_parent(back);
-    lv_obj_add_flag(parent, LV_OBJ_FLAG_HIDDEN);
+    lv_subject_set_int(&aidialog_adj_param_subject, PAGE_SWITCH_BACK);
 }
 
 static void lv_agent_button_event(lv_event_t *e)
@@ -391,14 +389,12 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
     lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
 
-    // 添加AI对话标题
-    lv_obj_t *tip1_label = lv_label_create(dialog_obj);
-    lv_label_set_text(tip1_label, "AI对话");
-    lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(tip1_label, fzlthr_28, 0);
-    lv_obj_set_style_text_color(tip1_label, lv_color_white(), 0);
-    lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align_to(tip1_label, back_btn, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
+    lv_obj_t *header = lv_label_create(cont);
+    lv_label_set_text(header, "AI问答");
+    lv_obj_set_style_text_font(header, fzlthb_30, 0);
+    lv_obj_set_style_text_opa(header, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_align_to(header, back_btn, LV_ALIGN_OUT_RIGHT_MID, -8, 0);
     
     // 添加智能体
     lv_obj_t *agent_button = lv_img_create(dialog_obj);

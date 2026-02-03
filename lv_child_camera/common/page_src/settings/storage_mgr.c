@@ -198,6 +198,14 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
     lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
 
+    lv_obj_t *header = lv_label_create(cont);
+    lv_label_set_text(header, "存储管理");
+    lv_obj_set_style_text_font(header, fzlthb_30, 0);
+    lv_obj_set_style_text_opa(header, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(header, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align_to(header, back_btn, LV_ALIGN_OUT_RIGHT_MID, -8, 0);
+
     //格式化
     lv_obj_t *format = lv_btn_create(cont);
     lv_obj_set_size(format, 126, 60);

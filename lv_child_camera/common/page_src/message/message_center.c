@@ -125,7 +125,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_font(header, fzlthb_30, 0);
     lv_obj_set_style_text_opa(header, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_align_to(header, back_btn, LV_ALIGN_OUT_RIGHT_MID, -5, 0);
+    lv_obj_align_to(header, back_btn, LV_ALIGN_OUT_RIGHT_MID, -8, 0);
 
     //删除图标
     delete_icon = lv_img_create(cont);

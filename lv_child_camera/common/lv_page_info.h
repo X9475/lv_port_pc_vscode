@@ -44,6 +44,9 @@ typedef enum
     PAGE_FUNCTIONAL_MENU,               ///<< 菜单界面
     PAGE_FUNCTIONAL_MENU_SETTING,       ///<< 菜单设置界面
     PAGE_FUNCTIONAL_MORE_SETTINGS,      ///<< 更多设置
+    PAGE_FUNCTIONAL_SHOOT_SETTINGS,     ///<< 拍摄设置
+    PAGE_FUNCTIONAL_INDVID_SETTINGS,    ///<< 个性化设置
+    PAGE_FUNCTIONAL_EQUIP_SETTINGS,     ///<< 设备设置
     PAGE_FUNCTIONAL_ALBUM,              ///<< 相册初始界面
     PAGE_FUNCTIONAL_ALBUM_NONE,         ///<< 相册为空界面
     PAGE_FUNCTIONAL_ALBUM_SHARE,        ///<< 相册分享界面
@@ -86,6 +89,11 @@ typedef enum
     PAGE_FUNCTIONAL_FACTORY_RESTORE,    ///<< 恢复出厂设置
     PAGE_FUNCTIONAL_CERT_MASK,          ///<< 认证标志
     PAGE_FUNCTIONAL_SETTING_QRCODE,     ///<< 设置页二维码
+    PAGE_FUNCTIONAL_INDVID_KEY,         ///<< 自定义按键
+    PAGE_FUNCTIONAL_VOICE_CONTROL,      ///<< 语音控制开关
+    PAGE_FUNCTIONAL_AUXILIARY_CONTROL,  ///<< 辅助线开关
+    PAGE_FUNCTIONAL_DEVICE_VOLUME,      ///<< 设备音量
+    PAGE_FUNCTIONAL_DEVICE_BRIGHT,      ///<< 屏幕亮度
     PAGE_FUNCTIONAL_SCREENLOCK,         ///<< 锁屏界面
     PAGE_FUNCTIONAL_POWEROFF,           ///<< 关机界面
 

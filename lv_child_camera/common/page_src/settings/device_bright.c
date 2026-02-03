@@ -1,12 +1,14 @@
 #include "../lv_switch_interface.h"
 
-lv_subject_t hold_time_subject;
+lv_subject_t device_bright_subject;
 static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
 static lv_style_t screen_style;
-static lv_style_t style_roller;
-static lv_style_t style_select_roller;
+static lv_style_t main_style;
+static lv_style_t knob_style;
+static lv_style_t indicator_style;
+static lv_style_t label_style;
 
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
@@ -16,8 +18,6 @@ static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 static void page_back_event_cb(lv_event_t *e);
-static void *setting_single_roller_iterm_create(lv_obj_t *cont, const char *opts);
-static void setting_single_roller_event_cb(lv_event_t *e);
 
 //待跳转的页面种类
 static enum PAGE_EVENT_ENUM
@@ -26,17 +26,17 @@ static enum PAGE_EVENT_ENUM
     PAGE_SWITCH_BACK
 };
 
-static lv_page_info_t hold_time_page_info = {
-    .page_id = PAGE_FUNCTIONAL_HOLD_TIME,
+static lv_page_info_t device_bright_page_info = {
+    .page_id = PAGE_FUNCTIONAL_DEVICE_BRIGHT,
     .page = NULL,
     .reserved = NULL,
     .construct_cb = lv_page_construct,
     .destruct_cb = lv_page_destruct,
 };
 
-lv_page_info_pt lv_page_hold_time_info_get()
+lv_page_info_pt lv_page_device_bright_info_get()
 {
-    return &hold_time_page_info;
+    return &device_bright_page_info;
 }
 
 static void lv_page_construct(void *this)
@@ -54,17 +54,17 @@ static void lv_page_construct(void *this)
 
     //绘制当前页面
     lv_page_load(screen);
-    lv_page_type_set(TYPE_MENU_SETTING_THREE);
-
-    hold_time_page_info.page = screen;
+    device_bright_page_info.page = screen;
     return;
 }
 
 static void lv_page_destruct(void)
 {
+    lv_style_reset(&main_style);
+    lv_style_reset(&knob_style);
+    lv_style_reset(&indicator_style);
+    lv_style_reset(&label_style);
     lv_style_reset(&screen_style);
-    lv_style_reset(&style_roller);
-    lv_style_reset(&style_select_roller);
     lv_page_subject_deinit();
 }
 
@@ -78,41 +78,48 @@ static void lv_page_style_init()
     lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
     lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
 
-    //style_roller
-    lv_style_init(&style_roller);
-    lv_style_copy(&style_roller, &screen_style);
-    lv_style_set_border_width(&style_roller, 1);
-    lv_style_set_border_color(&style_roller, lv_color_hex(0x38383A));
-    lv_style_set_border_side(&style_roller, LV_BORDER_SIDE_TOP | LV_BORDER_SIDE_BOTTOM);
-    lv_style_set_text_align(&style_roller, LV_TEXT_ALIGN_CENTER);
-    lv_style_set_text_opa(&style_roller, LV_OPA_COVER);
-    lv_style_set_text_color(&style_roller, lv_color_hex(0x38383A));
-    lv_style_set_text_font(&style_roller, oswaldr_60);
-    lv_style_set_text_line_space(&style_roller, 15);
+    //main_style
+    lv_style_init(&main_style);
+    lv_style_set_radius(&main_style, 3);
+    lv_style_set_bg_color(&main_style, lv_color_hex(0xFFFFFF));
+    lv_style_set_bg_opa(&main_style, LV_OPA_20);
 
-    //style_select_roller
-    lv_style_init(&style_select_roller);
-    lv_style_copy(&style_select_roller, &screen_style);
-    lv_style_set_text_color(&style_select_roller, lv_color_hex(0XAFF99C));
-    lv_style_set_text_align(&style_select_roller, LV_TEXT_ALIGN_CENTER);
-    lv_style_set_text_font(&style_select_roller, oswaldr_70);
+    //knob_style
+    lv_style_init(&knob_style);
+    lv_style_set_radius(&knob_style, 2);
+    lv_style_set_bg_color(&knob_style, lv_color_hex(0xFFFFFF));
+    lv_style_set_bg_opa(&knob_style, LV_OPA_COVER);
+    lv_style_set_pad_all(&knob_style, 0);
+    lv_style_set_pad_top(&knob_style, 6);
+    lv_style_set_pad_bottom(&knob_style, 6);
+
+    //indicator_style
+    lv_style_init(&indicator_style);
+    lv_style_set_bg_color(&indicator_style, lv_color_hex(0xAFF99C));
+    lv_style_set_bg_opa(&indicator_style, LV_OPA_COVER);
+
+    //label_style
+    lv_style_init(&label_style);
+    lv_style_set_text_font(&label_style, fzlthr_20);
+    lv_style_set_text_color(&label_style, lv_color_hex(0xFFFFFF));
+    lv_style_set_text_opa(&label_style, LV_OPA_COVER);
+    lv_style_set_text_align(&label_style, LV_TEXT_ALIGN_CENTER);
 }
 
 static void lv_page_subject_init()
 {
-    lv_subject_init_int(&hold_time_subject, PAGE_SWITCH_NONE);
-    lv_subject_add_observer(&hold_time_subject, lv_switch_observer_cb, NULL);
+    lv_subject_init_int(&device_bright_subject, PAGE_SWITCH_NONE);
+    lv_subject_add_observer(&device_bright_subject, lv_switch_observer_cb, NULL);
     return;
 }
 
 static void lv_page_subject_deinit()
 {
-    lv_subject_deinit(&hold_time_subject);
+    lv_subject_deinit(&device_bright_subject);
 }
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    //返回按钮
     lv_obj_t *back_btn = lv_btn_create(cont);
     lv_obj_set_size(back_btn, 70, 70);
     lv_obj_set_style_shadow_width(back_btn, 0, 0);
@@ -126,57 +133,53 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_src(back, "../lv_port_pc_vscode/assert/icon/common_icon_back.png");
     lv_obj_align(back, LV_ALIGN_CENTER, 3, 0);
 
-    //文字
     lv_obj_t *header = lv_label_create(cont);
-    lv_label_set_text(header, "熄屏时间");
+    lv_label_set_text(header, "设备亮度");
     lv_obj_set_style_text_font(header, fzlthb_30, 0);
     lv_obj_set_style_text_opa(header, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(header, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align_to(header, back_btn, LV_ALIGN_OUT_RIGHT_MID, -8, 0);
 
-    lv_obj_t *roller = setting_single_roller_iterm_create(cont, "10s\n20s\n30s\n1min\n2min\n5min");
-    lv_obj_add_event_cb(roller, setting_single_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_t *contain = lv_obj_create(cont);
+    lv_obj_remove_style_all(contain);
+    lv_obj_set_size(contain, 422, 131);
+    lv_obj_set_style_radius(contain, 14, 0);
+    lv_obj_set_style_bg_opa(contain, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(contain, lv_color_hex(0x1F1F1F), 0);
+    lv_obj_clear_flag(contain, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_align(contain, LV_ALIGN_TOP_MID, 0, 140);
+
+    lv_obj_t *label = lv_label_create(contain);
+    lv_label_set_text(label, "屏幕亮度");
+    lv_obj_add_style(label, &label_style, LV_PART_MAIN);
+    lv_obj_align(label, LV_ALIGN_TOP_LEFT, 20, 26);
+
+    lv_obj_t *slider = lv_slider_create(contain);
+    lv_obj_remove_style_all(slider);
+    lv_obj_set_size(slider, 318, 8);
+    lv_slider_set_value(slider, 50, LV_ANIM_OFF);
+    lv_obj_add_style(slider, &main_style, LV_PART_MAIN);
+    lv_obj_add_style(slider, &knob_style, LV_PART_KNOB);
+    lv_obj_add_style(slider, &indicator_style, LV_PART_INDICATOR);
+    lv_obj_align(slider, LV_ALIGN_TOP_LEFT, 51, 88);
+
+    lv_obj_t *lbright = lv_label_create(contain);
+    lv_obj_add_style(lbright, &label_style, 0);
+    lv_label_set_text(lbright, "弱");
+    lv_obj_align(lbright, LV_ALIGN_BOTTOM_LEFT, 19, -26);
+
+    lv_obj_t *rbright = lv_label_create(contain);
+    lv_obj_add_style(rbright, &label_style, 0);
+    lv_label_set_text(rbright, "强");
+    lv_obj_align(rbright, LV_ALIGN_BOTTOM_RIGHT, -21, -26);
 
     return;
 }
 
 static void page_back_event_cb(lv_event_t *e)
 {
-    lv_subject_set_int(&hold_time_subject, PAGE_SWITCH_BACK);
-}
-
-static void *setting_single_roller_iterm_create(lv_obj_t *cont, const char *opts)
-{
-    lv_obj_t *roller = lv_roller_create(cont);
-
-    lv_roller_set_options(roller, opts, LV_ROLLER_MODE_NORMAL);
-    lv_roller_set_selected(roller, 1, LV_ANIM_OFF);
-    lv_roller_set_visible_row_count(roller, 3);
-    lv_obj_set_style_anim_duration(roller, 500, LV_PART_MAIN);
-
-    lv_obj_add_style(roller, &style_roller, LV_PART_MAIN);
-    lv_obj_add_style(roller, &style_select_roller, LV_PART_SELECTED);
-
-    lv_obj_set_size(roller, lv_pct(100), 240);
-    lv_obj_align(roller, LV_ALIGN_TOP_MID, 0, 105);
-
-    return roller;
-}
-
-static void setting_single_roller_event_cb(lv_event_t *e)
-{
-    static int32_t last_index = -1;
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t *obj = lv_event_get_target(e);
-
-    if(code == LV_EVENT_VALUE_CHANGED)
-    {
-        if (last_index != lv_roller_get_selected(obj))
-        {//选择项发生变化
-            last_index = lv_roller_get_selected(obj);
-            //TODO: 通知业务同步处理
-        }
-    }
+    lv_subject_set_int(&device_bright_subject, PAGE_SWITCH_BACK);
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
@@ -185,11 +188,11 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     int32_t page_event = lv_subject_get_int(subject);
     LV_LOG_INFO("[%s:%d] -- page switch event:%d", __FILE__, __LINE__, page_event);
     if (page_event == PAGE_SWITCH_NONE) return;//注意首次触发
-    
+
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
     lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
     LV_ASSERT_MALLOC(switch_page);
-    switch_page->old_page = &hold_time_page_info;
+    switch_page->old_page = &device_bright_page_info;
 
     switch (page_event)
     {

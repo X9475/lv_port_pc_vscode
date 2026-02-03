@@ -77,10 +77,11 @@ static enum PAGE_EVENT_ENUM
     PAGE_SWITCH_SHOOT,          //拍摄
     PAGE_SWITCH_AI_ANSWER,      //AI问答
     PAGE_SWITCH_VIDEO_CALL,     //视频通话
-    PAGE_SWITCH_MESSAGE_BOARD,  //留言板
-    PAGE_SWITCH_ALARM_CLOCK,    //闹钟提醒
+    // PAGE_SWITCH_MESSAGE_BOARD,  //留言板
+    // PAGE_SWITCH_ALARM_CLOCK,    //闹钟提醒
     PAGE_SWITCH_ALBUM,          //相册
     PAGE_SWITCH_MESSAGE_CENTER, //消息中心
+    PAGE_SWITCH_SETTINGS,       //设置
     PAGE_SWITCH_BACK            //返回
 };
 
@@ -445,6 +446,11 @@ static void anim_ready_cb(lv_anim_t *a)
         last_tabindex = 4;
         lv_subject_set_int(&menu_subject, PAGE_SWITCH_MESSAGE_CENTER);
     }
+    else if (index == 5) {
+        printf("进入设置\n");
+        last_tabindex = 5;
+        lv_subject_set_int(&menu_subject, PAGE_SWITCH_SETTINGS);
+    }
 }
 
 static void scroll_item_create(lv_obj_t *cont, const char *path, int index)
@@ -636,16 +642,20 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             switch_page->new_page = lv_page_message_center_get();
             break;
         case PAGE_SWITCH_ALBUM:
-            // lv_page_reserve_del();
+            lv_stack_push(&menu_page_info);
             switch_page->new_page = lv_page_album_get();
             break;
         case PAGE_SWITCH_SHOOT:
-            // lv_page_reserve_del();
+            lv_stack_push(&menu_page_info);
             switch_page->new_page = lv_page_shooting_photo_get();
             break;
         case PAGE_SWITCH_AI_ANSWER:
-            // lv_page_reserve_del();
+            lv_stack_push(&menu_page_info);
             switch_page->new_page = lv_page_aidialog_info_get();
+            break;
+        case PAGE_SWITCH_SETTINGS:
+            lv_stack_push(&menu_page_info);
+            switch_page->new_page = lv_page_settings_more_info_get();
             break;
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);

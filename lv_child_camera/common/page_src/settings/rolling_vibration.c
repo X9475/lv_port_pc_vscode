@@ -131,7 +131,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_font(header, fzlthb_30, 0);
     lv_obj_set_style_text_opa(header, LV_OPA_COVER, 0);
     lv_obj_set_style_text_color(header, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_align_to(header, back_btn, LV_ALIGN_OUT_RIGHT_MID, 0, 0);
+    lv_obj_align_to(header, back_btn, LV_ALIGN_OUT_RIGHT_MID, -8, 0);
 
     lv_obj_t *roller = setting_single_roller_iterm_create(cont, "开\n关");
     lv_obj_add_event_cb(roller, setting_single_roller_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
