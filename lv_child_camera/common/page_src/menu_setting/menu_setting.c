@@ -30,6 +30,7 @@ static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 static void bright_icon_click_event(lv_event_cb_t *e);
 static void lv_event_handler_code(lv_event_cb_t *e);
+static void lv_bottom_btn_event_cb(lv_event_cb_t *e);
 static void slider_press_event(lv_event_t *e);
 static void slider_release_event(lv_event_t *e);
 static void lv_menu_setting_slider_event(lv_event_cb_t *e);
@@ -197,7 +198,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_radius(audio, 50, 0);
     lv_obj_align(audio, LV_ALIGN_BOTTOM_LEFT, 40, -35);
     lv_obj_add_flag(audio, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(audio, lv_event_handler_code, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(audio, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_add_event_cb(audio, lv_bottom_btn_event_cb, LV_EVENT_RELEASED, NULL);
 
     lv_obj_t *audio_txt = lv_label_create(audio);
     lv_label_set_text(audio_txt, "音效");
@@ -211,7 +213,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_radius(screensaver, 50, 0);
     lv_obj_align(screensaver, LV_ALIGN_BOTTOM_MID, 0, -35);
     lv_obj_add_flag(screensaver, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(screensaver, lv_event_handler_code, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(screensaver, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_add_event_cb(screensaver, lv_bottom_btn_event_cb, LV_EVENT_RELEASED, NULL);
 
     lv_obj_t *screensaver_txt = lv_label_create(screensaver);
     lv_label_set_text(screensaver_txt, "屏保");
@@ -225,7 +228,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_radius(more, 50, 0);
     lv_obj_align(more, LV_ALIGN_BOTTOM_RIGHT, -40, -35);
     lv_obj_add_flag(more, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(more, lv_event_handler_code, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(more, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_add_event_cb(more, lv_bottom_btn_event_cb, LV_EVENT_RELEASED, NULL);
 
     lv_obj_t *more_txt = lv_label_create(more);
     lv_label_set_text(more_txt, "更多");
@@ -374,7 +378,23 @@ static void lv_event_handler_code(lv_event_cb_t *e)
         {//单次录像时长
             lv_subject_set_int(&menu_setting_subject, PAGE_SWITCH_SINGLE_RECORD);
         }
-        else if (obj == audio)
+    }
+}
+
+static void lv_bottom_btn_event_cb(lv_event_cb_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *obj = lv_event_get_target(e);
+
+    if (LV_EVENT_RELEASED == code)
+    {
+        lv_point_t point;
+        lv_indev_t *indev = lv_indev_get_act();
+        lv_indev_get_point(indev, &point);
+
+        if (point.y < 275 || point.y > 375) return;
+
+        if (obj == audio)
         {//音频
             lv_subject_set_int(&menu_setting_subject, PAGE_SWITCH_AUDIO_EFFECT);
         }

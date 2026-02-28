@@ -131,32 +131,21 @@ static void lv_page_load(lv_obj_t *cont)
 
     //设置隐形点击区域 LV_OPA_TRANSP
     lv_obj_t *click_area = lv_btn_create(cont);
-    lv_obj_set_size(click_area, 180, 180);
+    lv_obj_set_size(click_area, lv_pct(100), lv_pct(100));
     lv_obj_set_style_shadow_width(click_area, 0, 0);
-    lv_obj_set_style_radius(click_area, LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_clip_corner(click_area, true, 0);
-    lv_obj_add_flag(click_area, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_align_to(click_area, arc, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_bg_opa(click_area, LV_OPA_TRANSP, 0);
+    lv_obj_align(click_area, LV_ALIGN_CENTER, 0, 0);
     lv_obj_add_event_cb(click_area, long_pressed_event_cb, LV_EVENT_LONG_PRESSED, arc);
     lv_obj_add_event_cb(click_area, long_pressed_event_cb, LV_EVENT_RELEASED, arc);
 
     //文字说明
-    lv_obj_t *tip1_label = lv_label_create(cont);
-    lv_label_set_text(tip1_label, "长按一下");
-    lv_obj_set_style_text_opa(tip1_label, LV_OPA_90, 0);
-    lv_obj_set_style_text_font(tip1_label, fzlthr_34, 0);
-    lv_obj_set_style_text_color(tip1_label, lv_color_white(), 0);
-    lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 289);
-
-    lv_obj_t *tip2_label = lv_label_create(cont);
-    lv_label_set_text(tip2_label, "召唤你的专属搭子");
-    lv_obj_set_style_text_opa(tip2_label, LV_OPA_80, 0);
-    lv_obj_set_style_text_font(tip2_label, fzlthr_26, 0);
-    lv_obj_set_style_text_color(tip2_label, lv_color_white(), 0);
-    lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(tip2_label, LV_ALIGN_TOP_MID, 0, 338);
+    lv_obj_t *label = lv_label_create(cont);
+    lv_label_set_text(label, "长按屏幕召唤");
+    lv_obj_set_style_text_opa(label, LV_OPA_90, 0);
+    lv_obj_set_style_text_font(label, fzlthr_34, 0);
+    lv_obj_set_style_text_color(label, lv_color_white(), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 289);
 
     return;
 }

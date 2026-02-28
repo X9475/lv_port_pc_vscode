@@ -254,8 +254,6 @@ static int lv_gesture_diraction_judgement(lv_event_t *e)
         lv_point_t point;
         lv_indev_t *indev = lv_indev_get_act();
         lv_indev_get_point(indev, &point);
-        //左右边缘120范围内禁止响应
-        if (point.x < 120 || point.x > 382) return 0;
 
         touch_state.start_y = point.y;
         touch_state.start_time = lv_tick_get();
@@ -271,7 +269,7 @@ static int lv_gesture_diraction_judgement(lv_event_t *e)
         lv_indev_get_point(indev, &point);
         touch_state.end_y = point.y;
         //如果前一个没有按下，此处不处理
-        if (touch_state.is_pressed != true) return;
+        if (touch_state.is_pressed != true) return 0;
 
         printf("=======>2\n");
         //计算时间差和距离差
@@ -286,7 +284,7 @@ static int lv_gesture_diraction_judgement(lv_event_t *e)
         }
 
         lv_dir_t dir = (delta > 0) ? LV_DIR_BOTTOM : LV_DIR_TOP;
-        if ((dir == LV_DIR_BOTTOM && touch_state.start_y > 50) || (dir == LV_DIR_TOP && touch_state.start_y < 360))
+        if ((dir == LV_DIR_BOTTOM && touch_state.start_y > 50) || (dir == LV_DIR_TOP && touch_state.start_y < 250))
         {
             printf("start_y: %d\n", touch_state.start_y);
             return 0;

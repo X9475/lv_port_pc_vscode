@@ -87,12 +87,12 @@ static void lv_page_style_init()
 
     //knob_style
     lv_style_init(&knob_style);
-    lv_style_set_radius(&knob_style, 2);
+    lv_style_set_radius(&knob_style, 10);
     lv_style_set_bg_color(&knob_style, lv_color_hex(0xFFFFFF));
     lv_style_set_bg_opa(&knob_style, LV_OPA_COVER);
-    lv_style_set_pad_all(&knob_style, 0);
-    lv_style_set_pad_top(&knob_style, 8);
-    lv_style_set_pad_bottom(&knob_style, 8);
+    lv_style_set_pad_all(&knob_style, 10);
+    lv_style_set_pad_left(&knob_style, 16);
+    lv_style_set_pad_right(&knob_style, 16);
 
     //indicator_style
     lv_style_init(&indicator_style);
@@ -178,12 +178,12 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_t *lvolume = lv_label_create(contain);
     lv_obj_add_style(lvolume, &number_style, 0);
     lv_label_set_text(lvolume, "0");
-    lv_obj_align(lvolume, LV_ALIGN_BOTTOM_LEFT, 19, -28);
+    lv_obj_align_to(lvolume, slider, LV_ALIGN_OUT_LEFT_MID, -24, -2);
 
     lv_obj_t *rvolume = lv_label_create(contain);
     lv_obj_add_style(rvolume, &number_style, 0);
     lv_label_set_text(rvolume, "100");
-    lv_obj_align(rvolume, LV_ALIGN_BOTTOM_RIGHT, -21, -28);
+    lv_obj_align_to(rvolume, slider, LV_ALIGN_OUT_RIGHT_MID, 24, -2);
 
     return;
 }

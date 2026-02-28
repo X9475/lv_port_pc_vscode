@@ -580,21 +580,31 @@ static void scroll_item_event_cb(lv_event_t *e)
         int32_t y_center = lv_disp_get_ver_res(NULL) / 2;
         int32_t child_y_center = child_a.y1 + lv_area_get_height(&child_a) / 2;
         int32_t diff_y = child_y_center - y_center;
-        //计算距离中心的相对位置（-1到1）
-        float relative_pos = (float)diff_y / y_center;
+
+        int32_t r_height = lv_obj_get_height(cont);
+        uint32_t x_sqr = r_height * r_height - LV_ABS(diff_y) * LV_ABS(diff_y);
+        lv_sqrt_res_t res;
+        lv_sqrt(x_sqr, &res, 0x8000);
+        int32_t translate_x = r_height - res.i;
+
         //设置旋转中心为右侧边缘中心点
         lv_obj_set_style_transform_pivot_x(child, 502, 0);
         lv_obj_set_style_transform_pivot_y(child, 205, 0);
 
-        if (LV_ABS(diff_y) >= 5)
+        if (LV_ABS(diff_y) >= 50)
         {
             set_gray_app_style(child, &settings_list[i]);
-            int32_t translate_x = (int32_t)(LV_ABS(relative_pos) * 30);
-            int32_t angle = relative_pos * -80;
-            if (diff_y >= 0) translate_x = translate_x + 25;
-
-             lv_obj_set_style_translate_x(child, translate_x, 0);
-            lv_obj_set_style_transform_rotation(child, angle, LV_PART_MAIN);
+            int32_t angle = -(diff_y) / 2;
+            if (diff_y < 0)
+            {
+                lv_obj_set_style_translate_x(child, translate_x, 0);
+                lv_obj_set_style_transform_rotation(child, angle, LV_PART_MAIN);
+            }
+            else
+            {
+                lv_obj_set_style_translate_x(child, translate_x + 25, 0);
+                lv_obj_set_style_transform_rotation(child, angle, LV_PART_MAIN);
+            }
         }
         else
         {
@@ -635,6 +645,11 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();
+            if (switch_page->new_page->page_id == PAGE_FUNCTIONAL_MENU_SETTING)
+            {
+                switch_page->new_page = lv_stack_pop();
+                lv_page_type_set(TYPE_FUNCTIONAL);
+            }
             break;
         default:
             LV_LOG_WARN("page switch event:%d invaild", page_event);

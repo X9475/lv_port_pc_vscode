@@ -192,6 +192,11 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
     {
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();
+            if (switch_page->new_page->page_id == PAGE_FUNCTIONAL_MENU_SETTING)
+            {
+                switch_page->new_page = lv_stack_pop();
+                lv_page_type_set(TYPE_FUNCTIONAL);
+            }
             break;
         default:
             LV_LOG_WARN("[%s:%d] -- page switch event:%d invaild", __FILE__, __LINE__, page_event);
