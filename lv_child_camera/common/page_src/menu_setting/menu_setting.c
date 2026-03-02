@@ -261,7 +261,7 @@ static void lv_page_load(lv_obj_t *cont)
     volume_slider = lv_slider_create(cont);
     lv_obj_set_size(volume_slider, 82, 228);
     lv_slider_set_range(volume_slider, 0, 100);
-    lv_slider_set_value(volume_slider, 20, LV_ANIM_OFF);
+    lv_slider_set_value(volume_slider, 60, LV_ANIM_OFF);
     lv_obj_add_style(volume_slider, &style_main, LV_PART_MAIN);
     lv_obj_add_style(volume_slider, &style_indicator, LV_PART_INDICATOR);
     lv_obj_add_style(volume_slider, &style_knob, LV_PART_KNOB);
@@ -272,8 +272,8 @@ static void lv_page_load(lv_obj_t *cont)
 
     lv_obj_t *volume_icon = lv_img_create(volume_slider);
     lv_img_set_src(volume_icon, "../lv_port_pc_vscode/assert/icon/icon_volume.png");
-    lv_img_set_zoom(volume_icon, 128);
-    lv_obj_align(volume_icon, LV_ALIGN_BOTTOM_MID, 0, 10);
+    lv_img_set_zoom(volume_icon, 384);
+    lv_obj_align(volume_icon, LV_ALIGN_BOTTOM_MID, 0, -20);
 
     return;
 }
