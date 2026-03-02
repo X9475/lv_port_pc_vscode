@@ -158,6 +158,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_t *slider = lv_slider_create(contain);
     // lv_obj_remove_style_all(slider);
     lv_obj_set_size(slider, 318, 8);
+    lv_obj_set_ext_click_area(slider, 35);//扩展35像素的触摸区域
     lv_slider_set_value(slider, 50, LV_ANIM_OFF);
     lv_obj_add_style(slider, &main_style, LV_PART_MAIN);
     lv_obj_add_style(slider, &knob_style, LV_PART_KNOB);

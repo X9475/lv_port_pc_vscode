@@ -132,6 +132,7 @@ static void lv_page_style_init()
 
     //style_knob
     lv_style_init(&style_knob);
+    lv_style_set_radius(&style_knob, 0);
     lv_style_set_bg_opa(&style_knob, LV_OPA_TRANSP);
 }
 
@@ -260,6 +261,7 @@ static void lv_page_load(lv_obj_t *cont)
     //音量滑动条
     volume_slider = lv_slider_create(cont);
     lv_obj_set_size(volume_slider, 82, 228);
+    lv_obj_set_ext_click_area(volume_slider, 35);//扩展35像素的触摸区域
     lv_slider_set_range(volume_slider, 0, 100);
     lv_slider_set_value(volume_slider, 60, LV_ANIM_OFF);
     lv_obj_add_style(volume_slider, &style_main, LV_PART_MAIN);
