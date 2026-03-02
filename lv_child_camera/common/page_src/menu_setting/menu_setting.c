@@ -254,7 +254,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_zoom(bright_icon, 128);
     lv_obj_align(bright_icon, LV_ALIGN_BOTTOM_MID, 0, 10);
     lv_obj_add_flag(bright_icon, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(bright_icon, bright_icon_click_event, LV_EVENT_CLICKED, NULL);
+    lv_obj_add_flag(bright_icon, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_add_event_cb(bright_icon, bright_icon_click_event, LV_EVENT_RELEASED, NULL);
 
     //音量滑动条
     volume_slider = lv_slider_create(cont);
@@ -316,15 +317,29 @@ static void bright_icon_click_event(lv_event_cb_t *e)
     static bool auto_bright_flag = false;
     lv_obj_t *bright_icon = lv_event_get_target(e);
 
-    if (!auto_bright_flag)
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if (LV_EVENT_RELEASED == code)
     {
-        lv_img_set_src(bright_icon, "../lv_port_pc_vscode/assert/icon/icon_bright.png");
-        auto_bright_flag = true;
-    }
-    else
-    {
-        lv_img_set_src(bright_icon, "../lv_port_pc_vscode/assert/icon/set_icon_auto_light.png");
-        auto_bright_flag = false;
+        //阻止事件冒泡到父容器
+        lv_event_stop_bubbling(e);
+
+        lv_point_t point;
+        lv_indev_t *indev = lv_indev_get_act();
+        lv_indev_get_point(indev, &point);
+
+        if (point.y < 197 || point.y > 253) return;
+
+        if (!auto_bright_flag)
+        {
+            lv_img_set_src(bright_icon, "../lv_port_pc_vscode/assert/icon/icon_bright.png");
+            auto_bright_flag = true;
+        }
+        else
+        {
+            lv_img_set_src(bright_icon, "../lv_port_pc_vscode/assert/icon/set_icon_auto_light.png");
+            auto_bright_flag = false;
+        }
     }
 }
 

@@ -223,6 +223,11 @@ static void lv_page_subject_deinit()
 
 static void lv_page_load(lv_obj_t *cont)
 {
+    //静态背景
+    lv_obj_t *backimg = lv_img_create(cont);
+    lv_img_set_src(backimg, "../lv_port_pc_vscode/assert/icon/menu_backimg.png");
+    lv_obj_align(backimg, LV_ALIGN_CENTER, 0, 0);
+
     //滚动区域
     lv_obj_t *cont_col = lv_obj_create(cont);
     lv_obj_set_size(cont_col, lv_pct(100), 325);
@@ -231,6 +236,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_flex_flow(cont_col, LV_FLEX_FLOW_ROW);
     // lv_obj_set_style_border_color(cont_col, lv_color_white(), 0);
     // lv_obj_set_style_border_width(cont_col, 1, 0);
+    lv_obj_set_style_bg_opa(cont_col, LV_OPA_TRANSP, 0);
     lv_obj_set_scrollbar_mode(cont_col, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_scroll_snap_x(cont_col, LV_SCROLL_SNAP_CENTER);
     lv_obj_align(cont_col, LV_ALIGN_TOP_MID, 0, 55);

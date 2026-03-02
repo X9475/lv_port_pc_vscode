@@ -41,7 +41,7 @@ void lv_main()
 
     if (lv_dev_stage_get() == LV_PAGE_STAGE_ADDING)
     {//添加流程阶段
-        switch_page->new_page = lv_page_device_bright_info_get();
+        switch_page->new_page = lv_page_menu_info_get();
         // switch_page->new_page = lv_page_about_camera_info_get();
         // switch_page->new_page = lv_page_shooting_photo_get();
         // switch_page->new_page = lv_page_album_get();
