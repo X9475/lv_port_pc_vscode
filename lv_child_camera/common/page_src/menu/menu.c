@@ -45,8 +45,10 @@ static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 static void scroll_item_event_cb(lv_event_t *e);
+static void scroll_end_item_event_cb(lv_event_t *e);
 static void scroll_item_create(lv_obj_t *cont, const char *path, int index);
 static void scroll_item_click_cb(lv_event_t *e);
+static void lv_scale_align_to_nearest_tick(lv_obj_t *scale, int *angle);
 static lv_obj_t *rotate_disc_draw(lv_obj_t *cont);
 
 //test旋钮转动菜单
@@ -241,6 +243,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_scroll_snap_x(cont_col, LV_SCROLL_SNAP_CENTER);
     lv_obj_align(cont_col, LV_ALIGN_TOP_MID, 0, 55);
     lv_obj_add_event_cb(cont_col, scroll_item_event_cb, LV_EVENT_SCROLL, NULL);
+    lv_obj_add_event_cb(cont_col, scroll_end_item_event_cb, LV_EVENT_SCROLL_END, NULL);
 
     //圆盘刻度
     rotate_scale = rotate_disc_draw(cont);
@@ -311,7 +314,7 @@ static void* input_thread(void* arg)
                     }
 
                     //获取当前中间项目索引
-                    lv_obj_t *cont_col = lv_obj_get_child(menu_page_info.page, 0);
+                    lv_obj_t *cont_col = lv_obj_get_child(menu_page_info.page, 1);
                     for (int i = 0; i < lv_obj_get_child_cnt(cont_col); i++)
                     {
                         lv_obj_t *child = lv_obj_get_child(cont_col, i);
@@ -371,7 +374,7 @@ static void async_rotate_cb(void *cmd)
         g_rotate_ctl_s.index = current_index;
     }
 
-    lv_obj_t *cont_col = lv_obj_get_child(menu_page_info.page, 0);
+    lv_obj_t *cont_col = lv_obj_get_child(menu_page_info.page, 1);
     lv_obj_scroll_to_view(lv_obj_get_child(cont_col, current_index), LV_ANIM_OFF);
 
     if (rotate_flag)
@@ -383,12 +386,12 @@ static void async_rotate_cb(void *cmd)
             lv_anim_init(&a_rotate);
             lv_anim_set_var(&a_rotate, rotate_scale);
             lv_anim_set_exec_cb(&a_rotate, (lv_anim_exec_xcb_t)lv_scale_set_rotation);
-            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle - 10);
+            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle - 18);
             lv_anim_set_time(&a_rotate, 500);
             lv_anim_set_path_cb(&a_rotate, lv_anim_path_ease_out);
             lv_anim_set_ready_cb(&a_rotate, rotate_anim_ready_cb);
             lv_anim_start(&a_rotate);
-            g_rotate_ctrl.angle -= 10;
+            g_rotate_ctrl.angle -= 18;
         }
         else
         {
@@ -397,12 +400,12 @@ static void async_rotate_cb(void *cmd)
             lv_anim_init(&a_rotate);
             lv_anim_set_var(&a_rotate, rotate_scale);
             lv_anim_set_exec_cb(&a_rotate, (lv_anim_exec_xcb_t)lv_scale_set_rotation);
-            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle + 10);
+            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle + 18);
             lv_anim_set_time(&a_rotate, 500);
             lv_anim_set_path_cb(&a_rotate, lv_anim_path_ease_out);
             lv_anim_set_ready_cb(&a_rotate, rotate_anim_ready_cb);
             lv_anim_start(&a_rotate);
-            g_rotate_ctrl.angle += 10;
+            g_rotate_ctrl.angle += 18;
         }
     }
     lv_mutex_unlock(&mutex);
@@ -547,6 +550,22 @@ static lv_obj_t *rotate_disc_draw(lv_obj_t *cont)
     return scale;
 }
 
+static void lv_scale_align_to_nearest_tick(lv_obj_t *scale, int *angle)
+{
+    const float tick_interval = 9.0f;
+
+    //计算最接近的刻度角度
+    int nearest_angle = tick_interval * round(*angle / tick_interval);
+
+    //确保角度在合理范围内
+    if (nearest_angle < -180) nearest_angle += 360;
+    if (nearest_angle > 180) nearest_angle -= 360;
+
+    *angle = nearest_angle;
+    lv_scale_set_rotation(scale, nearest_angle);
+    return;
+}
+
 static void set_indicator_light(int i)
 {
     if ((i % 3) == 0) {
@@ -556,6 +575,13 @@ static void set_indicator_light(int i)
     } else if ((i % 3) == 2) {
         lv_img_set_src(indicator, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_purple.png");
     }
+}
+
+static void scroll_end_item_event_cb(lv_event_t *e)
+{
+    if (!lv_obj_is_valid(rotate_scale)) return;
+
+    lv_scale_align_to_nearest_tick(rotate_scale, &g_rotate_ctrl.angle);
 }
 
 static void scroll_item_event_cb(lv_event_t *e)
