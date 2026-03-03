@@ -7,13 +7,16 @@ lv_subject_t settings_more_subject;
 static lv_switch_page_pt switch_page;
 
 static lv_obj_t *screen = NULL;
-static lv_obj_t *indicator = NULL;
 static lv_obj_t *rotate_scale = NULL;
+static lv_obj_t *canvas = NULL;
 static lv_style_t screen_style;
 static lv_style_t right_style;
 static lv_style_t main_style;
 static lv_style_t iterms_style;
 static lv_style_t indicator_style;
+static lv_layer_t layer;
+static lv_vector_path_t *indicator_path = NULL;
+static lv_vector_dsc_t *vector_dsc = NULL;
 
 typedef struct
 {
@@ -29,6 +32,12 @@ typedef struct
     uint32_t last_ycoord;//上一次的y坐标
 } rotate_ctrl_t;
 static rotate_ctrl_t g_rotate_ctrl = {0};
+//指示器颜色列表
+static lv_color_t indicator_color_list[] = {
+    {0xF8, 0xAE, 0x94},
+    {0x9C, 0xF9, 0xAF},
+    {0xF8, 0x94, 0xCE}
+};
 
 typedef struct
 {
@@ -58,6 +67,8 @@ static void scroll_item_click_cb(lv_event_t *e);
 static void lv_scale_align_to_nearest_tick(lv_obj_t *scale, int *angle);
 static void page_back_event_cb(lv_event_t *e);
 static lv_obj_t *rotate_disc_draw(lv_obj_t *cont);
+static void vector_graphics_init(lv_obj_t *canvas);
+static void change_indicator_color(lv_color_t color);
 
 //test旋钮转动菜单
 typedef struct {
@@ -130,6 +141,12 @@ static void lv_page_construct(void *this)
 
 static void lv_page_destruct(void)
 {
+    if (indicator_path) lv_vector_path_delete(indicator_path);
+    indicator_path = NULL;
+    
+    if (vector_dsc) lv_vector_dsc_delete(vector_dsc);
+    vector_dsc = NULL;
+
     lv_style_reset(&main_style);
     lv_style_reset(&iterms_style);
     lv_style_reset(&indicator_style);
@@ -223,10 +240,6 @@ static void lv_page_load(lv_obj_t *cont)
 
     //圆盘刻度
     rotate_scale = rotate_disc_draw(cont);
-    //指示灯
-    indicator = lv_img_create(cont);
-    lv_img_set_src(indicator, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_blue.png");
-    lv_obj_align_to(indicator, cont, LV_ALIGN_RIGHT_MID, -36, 0);
 
     for (uint8_t i = 0; i < SETTINS_APP; i++)
     {
@@ -246,6 +259,14 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_size(right_mask, 40, lv_pct(100));
     lv_obj_add_style(right_mask, &right_style, 0);
     lv_obj_align(right_mask, LV_ALIGN_RIGHT_MID, 0, 0);
+
+    //绘制画布内容
+    LV_DRAW_BUF_DEFINE_STATIC(draw_buf, 28, 14, LV_COLOR_FORMAT_ARGB8888);
+    LV_DRAW_BUF_INIT_STATIC(draw_buf);
+    canvas = lv_canvas_create(cont);
+    lv_canvas_set_draw_buf(canvas, &draw_buf);
+    lv_obj_align(canvas, LV_ALIGN_RIGHT_MID, -38, 0);
+    vector_graphics_init(canvas);
 
     //起线程获取指令 test
     pthread_t tid;
@@ -512,6 +533,39 @@ static void lv_scale_align_to_nearest_tick(lv_obj_t *scale, int *angle)
     return;
 }
 
+static void vector_graphics_init(lv_obj_t *canvas)
+{
+    lv_canvas_init_layer(canvas, &layer);
+    vector_dsc = lv_vector_dsc_create(&layer);
+
+    lv_fpoint_t pts[] = {{0, 7}, {14, 0}, {28, 7}, {14, 14}};
+    indicator_path = lv_vector_path_create(LV_VECTOR_PATH_QUALITY_MEDIUM);
+    lv_vector_path_move_to(indicator_path, &pts[0]);
+    lv_vector_path_line_to(indicator_path, &pts[1]);
+    lv_vector_path_line_to(indicator_path, &pts[2]);
+    lv_vector_path_line_to(indicator_path, &pts[3]);
+    lv_vector_path_close(indicator_path);
+
+    lv_vector_dsc_set_fill_color(vector_dsc, indicator_color_list[last_tabindex]);
+    lv_vector_dsc_add_path(vector_dsc, indicator_path);
+    lv_draw_vector(vector_dsc);
+    lv_canvas_finish_layer(canvas, &layer);
+    return;
+}
+
+static void change_indicator_color(lv_color_t color)
+{
+    if (NULL == vector_dsc || NULL == canvas) return;
+
+    //去除画布颜色残余
+    lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
+
+    lv_vector_dsc_set_fill_color(vector_dsc, color);
+    lv_vector_dsc_add_path(vector_dsc, indicator_path);
+    lv_draw_vector(vector_dsc);
+    lv_canvas_finish_layer(canvas, &layer);
+}
+
 static void set_color_app_style(int i, lv_obj_t *obj, list_info_t *iterm_ptr)
 {
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
@@ -551,17 +605,6 @@ static void set_gray_app_style(lv_obj_t *obj, list_info_t *iterm_ptr)
     lv_obj_t *label = lv_obj_get_child(obj, 2);
     lv_obj_set_style_text_opa(label, LV_OPA_60, 0);
     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
-}
-
-static void set_indicator_light(int i)
-{
-    if ((i % 3) == 0) {
-        lv_img_set_src(indicator, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_blue.png");
-    } else if ((i % 3) == 1) {
-        lv_img_set_src(indicator, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_green.png");
-    } else if ((i % 3) == 2) {
-        lv_img_set_src(indicator, "../lv_port_pc_vscode/assert/icon/photograph_icon_guide_purple.png");
-    }
 }
 
 static void scroll_end_item_event_cb(lv_event_t *e)
@@ -638,7 +681,7 @@ static void scroll_item_event_cb(lv_event_t *e)
             lv_obj_set_style_translate_x(child, 0, 0);
             lv_obj_set_style_transform_rotation(child, 0, LV_PART_MAIN);
             set_color_app_style(i, child, &settings_list[i]);
-            set_indicator_light(i);
+            change_indicator_color(indicator_color_list[i]);
         }
     }
 }

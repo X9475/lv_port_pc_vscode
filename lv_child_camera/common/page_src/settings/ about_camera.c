@@ -178,10 +178,9 @@ static void lv_page_load(lv_obj_t *cont)
 
     //产品图
     lv_obj_t *image = lv_img_create(cont);
-    lv_obj_set_size(image, 240, 272);
-    lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/product_illustration.png");
-    lv_img_set_zoom(image, 128);
-    lv_obj_align(image, LV_ALIGN_TOP_LEFT, 262, 89);
+    lv_obj_set_size(image, 240, 350);
+    lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/product_red.png");
+    lv_obj_align(image, LV_ALIGN_TOP_LEFT, 262, 40);
 
     lv_obj_t *mask = lv_obj_create(cont);
     lv_obj_remove_style_all(mask);
