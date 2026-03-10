@@ -648,9 +648,9 @@ static void scroll_item_event_cb(lv_event_t *e)
     if (!g_rotate_ctl_s.knob_rotate)
     {
         if (g_rotate_ctrl.rotate_dir == 2)
-            g_rotate_ctrl.angle = g_rotate_ctrl.angle - 2;
-        else if (g_rotate_ctrl.rotate_dir == 1)
             g_rotate_ctrl.angle = g_rotate_ctrl.angle + 2;
+        else if (g_rotate_ctrl.rotate_dir == 1)
+            g_rotate_ctrl.angle = g_rotate_ctrl.angle - 2;
 
         if (LV_ABS(g_rotate_ctrl.angle) != 2) {//排除首次角度变动
             lv_scale_set_rotation(rotate_scale, g_rotate_ctrl.angle);

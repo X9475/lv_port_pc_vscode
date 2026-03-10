@@ -375,12 +375,12 @@ static void async_rotate_cb(void *cmd)
             lv_anim_init(&a_rotate);
             lv_anim_set_var(&a_rotate, rotate_scale);
             lv_anim_set_exec_cb(&a_rotate, (lv_anim_exec_xcb_t)lv_scale_set_rotation);
-            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle - 18);
+            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle + 18);
             lv_anim_set_time(&a_rotate, 500);
             lv_anim_set_path_cb(&a_rotate, lv_anim_path_ease_out);
             lv_anim_set_ready_cb(&a_rotate, rotate_anim_ready_cb);
             lv_anim_start(&a_rotate);
-            g_rotate_ctrl.angle -= 18;
+            g_rotate_ctrl.angle += 18;
         }
         else
         {
@@ -389,12 +389,12 @@ static void async_rotate_cb(void *cmd)
             lv_anim_init(&a_rotate);
             lv_anim_set_var(&a_rotate, rotate_scale);
             lv_anim_set_exec_cb(&a_rotate, (lv_anim_exec_xcb_t)lv_scale_set_rotation);
-            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle + 18);
+            lv_anim_set_values(&a_rotate, g_rotate_ctrl.angle, g_rotate_ctrl.angle - 18);
             lv_anim_set_time(&a_rotate, 500);
             lv_anim_set_path_cb(&a_rotate, lv_anim_path_ease_out);
             lv_anim_set_ready_cb(&a_rotate, rotate_anim_ready_cb);
             lv_anim_start(&a_rotate);
-            g_rotate_ctrl.angle += 18;
+            g_rotate_ctrl.angle -= 18;
         }
     }
 }
