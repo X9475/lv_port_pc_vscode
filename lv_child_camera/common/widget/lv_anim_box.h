@@ -30,6 +30,7 @@ typedef union
         lv_anim_t anim;
         lv_obj_t **screen;
         int direction;
+        int type;
         int32_t duration;
     } slide;
     //缩放动画参数
@@ -55,8 +56,11 @@ typedef struct
     bool is_animating;
 } trans_manager_t, *trans_manager_pt;
 
+//淡入淡出执行函数
 void lv_transition_anim_fade_param_set(lv_anim_params_pt params, lv_obj_t **screen, int32_t duration);
-void lv_transition_anim_slide_param_set(lv_anim_params_pt params, lv_obj_t **screen, int32_t duration, int dir);
+//滑动执行函数
+void lv_transition_anim_slide_param_set(lv_anim_params_pt params, lv_obj_t **screen, int32_t duration, int type, int dir);
+//缩放执行函数
 void lv_transition_anim_scale_param_set(lv_anim_params_pt params, lv_obj_t **screen, int32_t duration);
 
 //动画时间轴创建执行

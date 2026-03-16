@@ -798,6 +798,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
                         &switch_page->anim_transt.new_params,
                         &switch_page->new_page->page,
                         100,
+                        TYPE_FUNC,
                         LV_DIR_RIGHT);
             break;
 

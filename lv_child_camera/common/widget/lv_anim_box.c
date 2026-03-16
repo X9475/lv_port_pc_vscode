@@ -64,11 +64,25 @@ static lv_anim_t *create_slide_transition(lv_anim_params_t *param, bool is_new)
             anim_cb = lv_anim_box_slide_x_exec;
             break;
         case LV_DIR_TOP:
-            start = 0; end = -lv_disp_get_ver_res(NULL);
+            if (param->slide.type == TYPE_FUNC)
+            {
+                start = lv_disp_get_ver_res(NULL); end = 0;
+            }
+            else if (param->slide.type == TYPE_MENUSET)
+            {
+                start = 0; end = -lv_disp_get_ver_res(NULL);
+            }
             anim_cb = lv_anim_box_slide_y_exec;
             break;
         case LV_DIR_BOTTOM:
-            start = -lv_disp_get_ver_res(NULL); end = 0;
+            if (param->slide.type == TYPE_FUNC)
+            {
+                start = -lv_disp_get_ver_res(NULL); end = 0;
+            }
+            else if (param->slide.type == TYPE_MENU)
+            {
+                start = 0; end = lv_disp_get_ver_res(NULL);
+            }
             anim_cb = lv_anim_box_slide_y_exec;
             break;
         default:
@@ -171,10 +185,11 @@ void lv_transition_anim_fade_param_set(lv_anim_params_pt params, lv_obj_t **scre
     params->fade.duration = duration;
 }
 
-void lv_transition_anim_slide_param_set(lv_anim_params_pt params, lv_obj_t **screen, int32_t duration, int dir)
+void lv_transition_anim_slide_param_set(lv_anim_params_pt params, lv_obj_t **screen, int32_t duration, int type, int dir)
 {
     params->slide.screen = screen;
     params->slide.duration = duration;
+    params->slide.type = type;
     params->slide.direction = dir;
 }
 

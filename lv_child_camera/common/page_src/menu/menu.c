@@ -30,7 +30,7 @@ static rotate_ctrl_t g_rotate_ctrl = {0};
 //指示器颜色列表
 static lv_color_t indicator_color_list[] = {
     {0x9C, 0x9C, 0xF9},
-    {0x65, 0xDD, 0xFC},
+    {0xD9, 0x74, 0x00},
     {0xF5, 0xF9, 0x9C},
     {0x9C, 0xF9, 0xAF},
     {0xF8, 0xAE, 0x94},
@@ -171,6 +171,7 @@ static void lv_page_style_init()
     lv_style_set_pad_all(&screen_style, 0);
     lv_style_set_border_width(&screen_style, 0);
     lv_style_set_bg_color(&screen_style, lv_color_hex(0x000000));
+    lv_style_set_radius(&screen_style, 20);
     lv_style_set_bg_opa(&screen_style, LV_OPA_COVER);
 
     static lv_grad_dsc_t grad0;
@@ -248,6 +249,7 @@ static void lv_page_load(lv_obj_t *cont)
     //静态背景
     lv_obj_t *backimg = lv_img_create(cont);
     lv_img_set_src(backimg, "../lv_port_pc_vscode/assert/icon/menu_backimg.png");
+    lv_obj_set_style_radius(backimg, 20, 0);
     lv_obj_align(backimg, LV_ALIGN_CENTER, 0, 0);
 
     //滚动区域

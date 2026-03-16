@@ -48,8 +48,6 @@ static void lv_page_construct(void *this)
 
     cur_page = (lv_page_info_t *)this;
     lv_page_load(screen, cur_page);
-    lv_page_type_set(TYPE_MENU_SETTING_THREE);
-
     cur_page->page = screen;
     return;
 }

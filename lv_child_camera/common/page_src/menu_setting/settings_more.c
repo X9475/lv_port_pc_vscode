@@ -717,7 +717,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             if (switch_page->new_page->page_id == PAGE_FUNCTIONAL_MENU_SETTING)
             {
                 switch_page->new_page = lv_stack_pop();
-                lv_page_type_set(TYPE_FUNCTIONAL);
+                lv_page_type_set(TYPE_FUNC);
             }
             break;
         default:

@@ -214,7 +214,7 @@ static void lv_page_load(lv_obj_t *cont)
         lv_obj_align_to(capacity, sdcard, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
     }
 
-    if (screenlock_style != 2 && screenlock_style != 3 && screenlock_style != 4)
+    if (screenlock_style != 3 && screenlock_style != 4)
     {
         week = lv_label_create(status_bar);
         lv_obj_set_size(week, 44, 22);
@@ -225,14 +225,22 @@ static void lv_page_load(lv_obj_t *cont)
         lv_obj_align(week, LV_ALIGN_TOP_RIGHT, -30, 25);
     }
 
-    if (screenlock_style == 3 || screenlock_style == 4)
+    if (screenlock_style == 2 || screenlock_style == 3 || screenlock_style == 4)
     {
         date = lv_label_create(status_bar);
-        lv_obj_set_style_text_font(date, oswaldr_20, 0);
         lv_obj_set_style_text_opa(date, LV_OPA_TRANSP, 0);
         lv_obj_set_style_text_color(date, lv_color_hex(0xFFFFFF), 0);
         lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
-        lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -45, 76);
+        if (screenlock_style == 2)
+        {
+            lv_obj_set_style_text_font(date, oswaldr_36, 0);
+            lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -30, 47);
+        }
+        else
+        {
+            lv_obj_set_style_text_font(date, oswaldr_20, 0);
+            lv_obj_align(date, LV_ALIGN_TOP_RIGHT, -45, 76);
+        }
     }
 
     times = lv_label_create(cont);
@@ -302,7 +310,7 @@ static void lv_async_time_calcula()
     int month = time_info->tm_mon + 1;
     int day = time_info->tm_mday;
 
-    if (screenlock_style != 2 && screenlock_style != 3 && screenlock_style != 4)
+    if (screenlock_style != 3 && screenlock_style != 4)
     {
         const char *week_text[] = {"周日", "周一", "周二", "周三", "周四", "周五", "周六"};
         int week_index = time_info->tm_wday;//tm_wday 范围是 0-6（0=周日）
@@ -310,7 +318,7 @@ static void lv_async_time_calcula()
         lv_obj_set_style_text_opa(week, LV_OPA_COVER, 0);
     }
 
-    if (screenlock_style == 3 || screenlock_style == 4)
+    if (screenlock_style == 2 || screenlock_style == 3 || screenlock_style == 4)
     {
         char date_text[10];
         snprintf(date_text, sizeof(date_text), "%02d | %02d", month, day);
