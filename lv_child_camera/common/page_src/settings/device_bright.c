@@ -86,12 +86,12 @@ static void lv_page_style_init()
 
     //knob_style
     lv_style_init(&knob_style);
-    lv_style_set_radius(&knob_style, 10);
+    lv_style_set_radius(&knob_style, 5);
     lv_style_set_bg_color(&knob_style, lv_color_hex(0xFFFFFF));
     lv_style_set_bg_opa(&knob_style, LV_OPA_COVER);
-    lv_style_set_pad_all(&knob_style, 10);
-    lv_style_set_pad_left(&knob_style, 16);
-    lv_style_set_pad_right(&knob_style, 16);
+    lv_style_set_pad_all(&knob_style, 5);
+    lv_style_set_pad_left(&knob_style, 10);
+    lv_style_set_pad_right(&knob_style, 10);
 
     //indicator_style
     lv_style_init(&indicator_style);
@@ -168,12 +168,12 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_t *lbright = lv_label_create(contain);
     lv_obj_add_style(lbright, &label_style, 0);
     lv_label_set_text(lbright, "弱");
-    lv_obj_align_to(lbright, slider, LV_ALIGN_OUT_LEFT_MID, -24, 0);
+    lv_obj_align_to(lbright, slider, LV_ALIGN_OUT_LEFT_MID, -16, 0);
 
     lv_obj_t *rbright = lv_label_create(contain);
     lv_obj_add_style(rbright, &label_style, 0);
     lv_label_set_text(rbright, "强");
-    lv_obj_align_to(rbright, slider, LV_ALIGN_OUT_RIGHT_MID, 24, 0);
+    lv_obj_align_to(rbright, slider, LV_ALIGN_OUT_RIGHT_MID, 16, 0);
 
     return;
 }
