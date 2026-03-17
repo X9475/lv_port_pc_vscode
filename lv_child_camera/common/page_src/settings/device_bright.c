@@ -9,6 +9,7 @@ static lv_style_t main_style;
 static lv_style_t knob_style;
 static lv_style_t indicator_style;
 static lv_style_t label_style;
+static bool auto_brightness = false;
 
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
@@ -17,6 +18,7 @@ static void lv_page_subject_init();
 static void lv_page_subject_deinit();
 static void lv_page_load(lv_obj_t *cont);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
+static void lv_event_handler_code(lv_event_cb_t *e);
 static void page_back_event_cb(lv_event_t *e);
 
 //待跳转的页面种类
@@ -155,10 +157,24 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_style(label, &label_style, LV_PART_MAIN);
     lv_obj_align(label, LV_ALIGN_TOP_LEFT, 20, 26);
 
+    lv_obj_t *icon_auto = lv_img_create(contain);
+    lv_obj_set_size(icon_auto, 60, 60);
+    if (!auto_brightness)
+    {
+        lv_img_set_src(icon_auto, "../lv_port_pc_vscode/assert/icon/icon_auto_brightness_off.png");
+    }
+    else
+    {
+        lv_img_set_src(icon_auto, "../lv_port_pc_vscode/assert/icon/icon_auto_brightness_on.png");
+    }
+    lv_obj_align(icon_auto, LV_ALIGN_TOP_RIGHT, -10, 10);
+    lv_obj_add_flag(icon_auto, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(icon_auto, lv_event_handler_code, LV_EVENT_CLICKED, NULL);
+
     lv_obj_t *slider = lv_slider_create(contain);
     // lv_obj_remove_style_all(slider);
     lv_obj_set_size(slider, 318, 8);
-    lv_obj_set_ext_click_area(slider, 35);//扩展35像素的触摸区域
+    lv_obj_set_ext_click_area(slider, 28);//扩展28像素的触摸区域
     lv_slider_set_value(slider, 50, LV_ANIM_OFF);
     lv_obj_add_style(slider, &main_style, LV_PART_MAIN);
     lv_obj_add_style(slider, &knob_style, LV_PART_KNOB);
@@ -176,6 +192,25 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align_to(rbright, slider, LV_ALIGN_OUT_RIGHT_MID, 16, 0);
 
     return;
+}
+
+static void lv_event_handler_code(lv_event_cb_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *obj = lv_event_get_target(e);
+
+    if (LV_EVENT_CLICKED == code)
+    {
+        if (!auto_brightness)
+        {
+            lv_img_set_src(obj, "../lv_port_pc_vscode/assert/icon/icon_auto_brightness_off.png");
+        }
+        else
+        {
+            lv_img_set_src(obj, "../lv_port_pc_vscode/assert/icon/icon_auto_brightness_on.png");
+        }
+        auto_brightness = !auto_brightness;
+    } 
 }
 
 static void page_back_event_cb(lv_event_t *e)
