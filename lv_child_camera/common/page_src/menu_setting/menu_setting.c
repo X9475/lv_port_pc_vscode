@@ -294,23 +294,42 @@ static void slider_release_event(lv_event_t *e)
     lv_obj_add_flag(parent, LV_OBJ_FLAG_GESTURE_BUBBLE);
 }
 
+#define MAX_RANGE    100  // 滑块显示的最大值
+#define INPUT_MAX    70   // 用户实际需要滑动的最大值（超过70就按100处理）
+#define ACC_RATIO    0.6f
+#define EXP_BASE     8.0f // 指数底数
+
 static void lv_menu_setting_slider_event(lv_event_cb_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *slider = lv_event_get_target(e);
 
-    if (LV_EVENT_VALUE_CHANGED == code)
+    if (code == LV_EVENT_VALUE_CHANGED)
     {
-        int32_t value = lv_slider_get_value(slider);
-        //发送到UI事件处理消息队列给dsp接口设置
-        if (slider == volume_slider)
+        int32_t raw_val = lv_slider_get_value(slider);
+        ///1.前置压缩映射 (0~70 -> 0~100)
+        float input_ratio = (float)raw_val / INPUT_MAX;
+        int32_t compressed_val = (int32_t)(input_ratio * MAX_RANGE);
+
+        ///2.指数加速
+        int32_t threshold = (int32_t)(MAX_RANGE * ACC_RATIO);
+        int32_t mapped_val = compressed_val;
+
+        ///3.后40%区域：指数加速
+        if (compressed_val > threshold)
         {
-            printf("===> volume_slider value: %d\n", value);
+            float input_range = (float)(MAX_RANGE - threshold);
+            float progress = (float)(compressed_val - threshold) / input_range;
+            //归一化, [0, 1]
+            float exp_raw = powf(EXP_BASE, progress);
+            float normalized = (exp_raw - 1.0f) / (EXP_BASE - 1.0f);
+
+            mapped_val = (int32_t)(threshold + (normalized * (MAX_RANGE - threshold)));
         }
-        else if (slider == bright_slider)
-        {
-            printf("===> bright_slider value: %d\n", value);
-        }
+
+        ///3.边界保护
+        mapped_val = LV_CLAMP(10, mapped_val, MAX_RANGE);
+        lv_slider_set_value(slider, mapped_val, LV_ANIM_OFF);
     }
 }
 

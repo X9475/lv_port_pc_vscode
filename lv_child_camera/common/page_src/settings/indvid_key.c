@@ -99,7 +99,7 @@ static void lv_page_subject_deinit()
 static void lv_page_load(lv_obj_t *cont)
 {
     lv_obj_t *contain = lv_obj_create(cont);
-    lv_obj_set_size(contain, lv_pct(100), 365);
+    lv_obj_set_size(contain, lv_pct(100), 420);
     lv_obj_add_style(contain, &screen_style, 0);
     lv_obj_set_style_bg_opa(contain, LV_OPA_TRANSP, 0);
     // lv_obj_set_style_border_width(contain, 1, 0);

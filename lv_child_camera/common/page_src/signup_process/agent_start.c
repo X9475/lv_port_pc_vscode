@@ -116,9 +116,8 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(agent_bg, LV_ALIGN_CENTER, 0, 0);
 
     lv_obj_t *slider_bg = lv_img_create(cont);
-    lv_img_set_src(slider_bg, "../lv_port_pc_vscode/assert/icon/welcome_slider_bar.png");
-    lv_img_set_zoom(slider_bg, 128);
-    lv_obj_align(slider_bg, LV_ALIGN_TOP_MID, 0, 240);
+    lv_img_set_src(slider_bg, "../lv_port_pc_vscode/assert/icon/welcome_slider.png");
+    lv_obj_align(slider_bg, LV_ALIGN_TOP_MID, 0, 290);
 
     //创建滑动条
     lv_obj_t *slider = lv_slider_create(slider_bg);

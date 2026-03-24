@@ -289,7 +289,21 @@ static void storage_manage_event_cb(lv_event_t *e)
     {
         int value = lv_slider_get_value(slider);
         lv_obj_set_size(background, 442 - (442 * value / 100), 203);
-        lv_obj_set_x(line, (442 * value / 100) + 30);
+        int32_t line_x = (442 * value / 100) + 30;
+        lv_obj_set_x(line, line_x);
+
+        if (line_x >= 56 && line_x <= 449)
+        {
+            if (lv_obj_has_flag(line, LV_OBJ_FLAG_HIDDEN)) {
+                lv_obj_clear_flag(line, LV_OBJ_FLAG_HIDDEN);
+            }
+        }
+        else
+        {
+            if (!lv_obj_has_flag(line, LV_OBJ_FLAG_HIDDEN)) {
+                lv_obj_add_flag(line, LV_OBJ_FLAG_HIDDEN);
+            }
+        }
     }
 }
 
