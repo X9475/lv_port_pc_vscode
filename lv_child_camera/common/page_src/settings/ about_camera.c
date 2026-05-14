@@ -149,30 +149,43 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(label1, LV_ALIGN_TOP_LEFT, 28, 82);
 
     lv_obj_t *label2 = lv_label_create(cont);
-    lv_obj_set_size(label2, 158, 37);
-    lv_label_set_text(label2, "设备版本号");
+    lv_obj_set_size(label2, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_label_set_text(label2, "设备序列号");
     lv_obj_add_style(label2, &label2_style, 0);
-    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 65, 171);
+    lv_obj_align(label2, LV_ALIGN_TOP_LEFT, 65, 160);
 
     lv_obj_t *label3 = lv_label_create(cont);
-    lv_obj_set_size(label3, 134, 37);
-    lv_label_set_text(label3, "设备型号");
-    lv_obj_add_style(label3, &label2_style, 0);
-    lv_obj_align(label3, LV_ALIGN_TOP_LEFT, 65, 256);
+    lv_obj_set_size(label3, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_label_set_long_mode(label3, LV_LABEL_LONG_SCROLL);
+    lv_label_set_text(label3, "BH9106121");
+    lv_obj_add_style(label3, &label3_style, 0);
+    lv_obj_align(label3, LV_ALIGN_TOP_LEFT, 65, 192);
 
     lv_obj_t *label4 = lv_label_create(cont);
-    lv_obj_set_size(label4, 184, 30);
-    lv_label_set_long_mode(label4, LV_LABEL_LONG_SCROLL);
-    lv_label_set_text(label4, "V2.0 build 11111111111");
-    lv_obj_add_style(label4, &label3_style, 0);
-    lv_obj_align(label4, LV_ALIGN_TOP_LEFT, 65, 208);
+    lv_obj_set_size(label4, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_label_set_text(label4, "设备版本号");
+    lv_obj_add_style(label4, &label2_style, 0);
+    lv_obj_align(label4, LV_ALIGN_TOP_LEFT, 65, 235);
 
     lv_obj_t *label5 = lv_label_create(cont);
-    lv_obj_set_size(label5, 184, 30);
+    lv_obj_set_size(label5, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
     lv_label_set_long_mode(label5, LV_LABEL_LONG_SCROLL);
-    lv_label_set_text(label5, "V2.0 build 11111111111");
+    lv_label_set_text(label5, "V5.4.0 build 260513");
     lv_obj_add_style(label5, &label3_style, 0);
-    lv_obj_align(label5, LV_ALIGN_TOP_LEFT, 65, 293);
+    lv_obj_align(label5, LV_ALIGN_TOP_LEFT, 65, 267);
+
+    lv_obj_t *label6 = lv_label_create(cont);
+    lv_obj_set_size(label6, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_label_set_text(label6, "验证码");
+    lv_obj_add_style(label6, &label2_style, 0);
+    lv_obj_align(label6, LV_ALIGN_TOP_LEFT, 65, 310);
+
+    lv_obj_t *label7 = lv_label_create(cont);
+    lv_obj_set_size(label7, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_label_set_long_mode(label7, LV_LABEL_LONG_SCROLL);
+    lv_label_set_text(label7, "VUKFCC");
+    lv_obj_add_style(label7, &label3_style, 0);
+    lv_obj_align(label7, LV_ALIGN_TOP_LEFT, 65, 342);
 
     //产品图
     lv_obj_t *image = lv_img_create(cont);
@@ -194,13 +207,13 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_bg_color(btn, lv_color_hex(0xAFF99C), 0);
     lv_obj_set_style_shadow_opa(btn, LV_OPA_TRANSP, 0);
 
-    lv_obj_t *label6 = lv_label_create(btn);
-    lv_label_set_text(label6, "新版本");
-    lv_obj_set_style_text_opa(label6, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(label6, fzlthr_26, 0);
-    lv_obj_set_style_text_color(label6, lv_color_hex(0x000000), 0);
-    lv_obj_set_style_text_align(label6, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(label6, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_t *label8 = lv_label_create(btn);
+    lv_label_set_text(label8, "新版本");
+    lv_obj_set_style_text_opa(label8, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(label8, fzlthr_26, 0);
+    lv_obj_set_style_text_color(label8, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_align(label8, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label8, LV_ALIGN_CENTER, 0, 0);
 
     return;
 }
