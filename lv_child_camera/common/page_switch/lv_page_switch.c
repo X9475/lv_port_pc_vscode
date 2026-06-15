@@ -11,7 +11,7 @@ extern lv_page_info_pt lv_page_menu_setting_info_get();
 extern lv_page_info_pt lv_page_menu_info_get();
 
 //记录当前显示的页面信息
-static lv_page_info_current_t g_current_page_info = {PAGE_NONE, NULL};
+static lv_page_info_current_t g_current_page_info = {PAGE_FUNCTIONAL_NONE, NULL};
 
 //不添加屏幕手势过滤列表
 static uint32_t gesture_disable_list[] = {

@@ -212,13 +212,10 @@ extern lv_subject_t shooting_video_param_subject;
 /***************************Ai对话功能*************************************/
 
 lv_page_info_pt lv_page_aidialog_info_get();
-extern lv_subject_t aidialog_adj_param_subject;
+extern lv_subject_t aidialog_subject;
 
-lv_page_info_pt lv_page_choosepic_param_get();
-extern lv_subject_t choosepic_adj_param_subject;
-
-lv_page_info_pt lv_page_callstate_param_get();
-extern lv_subject_t callstate_param_subject;
+lv_page_info_pt lv_page_aiphone_get();
+extern lv_subject_t aiphone_subject;
 
 lv_page_info_pt lv_page_message_center_get();
 extern lv_subject_t message_center_subject;

@@ -141,18 +141,9 @@ typedef enum
     PAGE_TOAST_USB_CONNECT_CABLE,       ///<< 请使用手机数据线进行连接
     PAGE_TOAST_CONFIRM,                 ///<< toast确认
 
-    //aivoice
-    PAGE_AIVOICE_NONE,                  
-    PAGE_AIVOICE_DIALOG,                ///<< AI对话
-    PAGE_PHOTO_SELETE,                  ///<< 照片选择
-    PAGE_CALL_STATUS,                   ///<< 通话状态
-    PAGE_AIVOICE_CONNECTING,            ///<< 连接中
-    PAGE_AIVOICE_CONNECTED,             ///<< 连接成功
-    PAGE_AIVOICE_LISTENING,             ///<< 听到声音
-    PAGE_AIVOICE_ANSWER_QUESTION,       ///<< 通话回复问题
-    PAGE_AIVOICE_CALL_MUTED,            ///<< 静音
-
-    PAGE_NONE
+    PAGE_FUNCTIONAL_AIDIALOG,           ///<< AI对话
+    PAGE_FUNCTIONAL_AIPHONE,            ///<< AI打电话
+    PAGE_FUNCTIONAL_AIRECORD,           ///<< AI记录
 } LV_PAGE_ENUM;
 
 /// @brief 页面信息结构体
