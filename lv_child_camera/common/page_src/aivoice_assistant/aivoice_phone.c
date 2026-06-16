@@ -4,6 +4,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+typedef void (* handle_cb)(void);
+
+typedef struct {
+    lv_obj_t *msgbox;
+    handle_cb event_cb;
+} msg_box_info_t, *msg_box_info_pt;
+static msg_box_info_t msg_box_info[2] = {0};
+static void lv_msg_box_event_cb(lv_event_t *e);
+
 lv_subject_t aiphone_subject;
 static lv_switch_page_pt switch_page;
 
@@ -252,33 +261,29 @@ static void aivoice_status_update_timer(lv_timer_t *timer)
     }
 }
 
-static void message_box_event_cb(lv_event_t *e)
+static void message_box_event_cb(void)
 {
-    int index = (int)(intptr_t)lv_event_get_user_data(e);
-    lv_obj_clean(top_screen);
-
-    if (index == 1)
-    {
-        //1、关闭相关业务处理
-        
-        lv_subject_set_int(&aiphone_subject, PAGE_SWITCH_BACK);
-    }
+    lv_subject_set_int(&aiphone_subject, PAGE_SWITCH_BACK);
 }
 
-static void message_box_customized(const char *text, lv_event_cb_t event_cb)
+static void message_box_customized(lv_obj_t *cont, const char *text, handle_cb event_cb)
 {
-    lv_obj_t *blocker = lv_obj_create(top_screen);
-    lv_obj_set_size(blocker, lv_pct(100), lv_pct(100));
-    lv_obj_set_style_bg_color(blocker, lv_color_black(), 0);
-    lv_obj_set_style_bg_opa(blocker, LV_OPA_80, 0);
-    lv_obj_set_style_pad_all(blocker, 0, 0);
-    lv_obj_set_style_border_width(blocker, 0, 0);
-    lv_obj_set_style_shadow_width(blocker, 0, 0);
-    lv_obj_clear_flag(blocker, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_center(blocker);
+    lv_memset(msg_box_info, 0, sizeof(msg_box_info));
+
+    lv_obj_t *msg_obj = lv_obj_create(cont);
+    lv_obj_set_size(msg_obj, lv_pct(100), lv_pct(100));
+    lv_obj_set_style_bg_color(msg_obj, lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(msg_obj, LV_OPA_80, 0);
+    lv_obj_set_style_pad_all(msg_obj, 0, 0);
+    lv_obj_set_style_border_width(msg_obj, 0, 0);
+    lv_obj_add_flag(msg_obj, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_move_foreground(msg_obj);
+    lv_obj_center(msg_obj);
 
     //设置文字到主菜单
-    lv_obj_t *label = lv_label_create(blocker);
+    lv_obj_t *label = lv_label_create(msg_obj);
     lv_obj_set_size(label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
     lv_label_set_text(label, text);
     lv_obj_set_style_text_opa(label, LV_OPA_90, 0);
@@ -286,7 +291,7 @@ static void message_box_customized(const char *text, lv_event_cb_t event_cb)
     lv_obj_set_style_text_color(label, lv_color_hex(0XFFFFFF), 0);
     lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 145);
 
-    lv_obj_t *cancel_btn = lv_obj_create(blocker);
+    lv_obj_t *cancel_btn = lv_obj_create(msg_obj);
     lv_obj_set_size(cancel_btn, 148, 70);
     lv_obj_set_style_radius(cancel_btn, 51, 0);
     lv_obj_set_style_bg_opa(cancel_btn, LV_OPA_COVER, 0);
@@ -294,14 +299,17 @@ static void message_box_customized(const char *text, lv_event_cb_t event_cb)
     lv_obj_set_style_border_width(cancel_btn, 0, 0);
     lv_obj_clear_flag(cancel_btn, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_align(cancel_btn, LV_ALIGN_TOP_LEFT, 78, 310);
-    lv_obj_add_event_cb(cancel_btn, event_cb, LV_EVENT_CLICKED, (void *)(intptr_t)0);
+
+    msg_box_info[0].msgbox = msg_obj;
+    msg_box_info[0].event_cb = NULL;
+    lv_obj_add_event_cb(cancel_btn, lv_msg_box_event_cb, LV_EVENT_CLICKED, &msg_box_info[0]);
 
     lv_obj_t *cancel = lv_img_create(cancel_btn);
     lv_img_set_src(cancel, "../lv_port_pc_vscode/assert/icon/common_icon_cancel_button.png");
     lv_obj_set_size(cancel, 50, 50);
     lv_obj_align(cancel, LV_ALIGN_CENTER, 0, 0);
 
-    lv_obj_t *confirm_btn = lv_obj_create(blocker);
+    lv_obj_t *confirm_btn = lv_obj_create(msg_obj);
     lv_obj_set_size(confirm_btn, 148, 70);
     lv_obj_set_style_radius(confirm_btn, 51, 0);
     lv_obj_set_style_opa(confirm_btn, LV_OPA_COVER, 0);
@@ -309,12 +317,37 @@ static void message_box_customized(const char *text, lv_event_cb_t event_cb)
     lv_obj_set_style_border_width(confirm_btn, 0, 0);
     lv_obj_clear_flag(confirm_btn, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_align_to(confirm_btn, cancel_btn, LV_ALIGN_OUT_RIGHT_MID, 50, 0);
-    lv_obj_add_event_cb(confirm_btn, event_cb, LV_EVENT_CLICKED, (void *)(intptr_t)1);
+
+    msg_box_info[1].msgbox = msg_obj;
+    msg_box_info[1].event_cb = event_cb;
+    lv_obj_add_event_cb(confirm_btn, lv_msg_box_event_cb, LV_EVENT_CLICKED, &msg_box_info[1]);
 
     lv_obj_t *confirm = lv_img_create(confirm_btn);
     lv_img_set_src(confirm, "../lv_port_pc_vscode/assert/icon/common_icon_ok_button.png");
     lv_obj_set_size(confirm, 50, 50);
     lv_obj_align(confirm, LV_ALIGN_CENTER, 0, 0);
+    return;
+}
+
+static void lv_msg_box_event_cb(lv_event_t *e)
+{
+    msg_box_info_t *msg_info = lv_event_get_user_data(e);
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if (LV_EVENT_CLICKED == code)
+    {
+        if (msg_info->msgbox && lv_obj_is_valid(msg_info->msgbox))
+        {
+            lv_obj_del(msg_info->msgbox);
+            msg_info->msgbox = NULL;
+        }
+
+        if (msg_info->event_cb)
+        {
+            msg_info->event_cb();
+            LV_LOG_WARN("msg box confirm btn clicked");
+        }
+    }
 }
 
 static void hangup_click_event_cb(lv_event_t *e)
@@ -322,7 +355,7 @@ static void hangup_click_event_cb(lv_event_t *e)
     //先判断是否已经接通
 
     //二次确认是否挂断
-    message_box_customized("确定挂断当前通话吗？", message_box_event_cb);
+    message_box_customized(screen, "确定挂断当前通话吗？", message_box_event_cb);
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
