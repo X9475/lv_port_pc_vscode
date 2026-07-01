@@ -23,6 +23,11 @@ static void confirm_btn_click_event_cb(lv_event_t *e);
 static void lv_switch_select_checkbox_event(lv_event_t *e);
 static void retry_btn_click_event_cb(lv_event_t *e);
 
+static void lv_abnorml_printer_working(lv_obj_t *cont);
+static void lv_abnorml_printer_charging(lv_obj_t *cont);
+static void lv_abnorml_printer_upload(lv_obj_t *cont);
+static void lv_abnorml_printer_execute(lv_obj_t *cont);
+
 static void lv_page_style_init()
 {
     lv_style_init(&screen_style);
@@ -100,6 +105,18 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             lv_abnorml_network_exception(cont);
             break;
         case PAGE_ABNORMAL_RETRY:
+            break;
+        case PAGE_ABNORMAL_PRINTER_WORKING:
+            lv_abnorml_printer_working(cont);
+            break;
+        case PAGE_ABNORMAL_PRINTER_CHARGING:
+            lv_abnorml_printer_charging(cont);
+            break;
+        case PAGE_ABNORMAL_PRINTER_UPLOAD:
+            lv_abnorml_printer_upload(cont);
+            break;
+        case PAGE_ABNORMAL_PRINTER_EXECUTE:
+            lv_abnorml_printer_execute(cont);
             break;
         case PAGE_ABNORMAL_CONFIRM:
             lv_page_style_deinit();
@@ -462,6 +479,129 @@ static void lv_abnorml_usb_flash_mode(lv_obj_t *cont)
     lv_obj_align(tip_label, LV_ALIGN_TOP_MID, 0, 290);
 
     return;
+}
+
+static void lv_abnorml_printer_working(lv_obj_t *cont)
+{
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "../lv_port_pc_vscode/assert/icon/storage.png");
+    lv_img_set_zoom(photo, 128);
+    lv_obj_set_size(photo, 380, 210);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 25);
+
+    //文字提示：打印机正在工作中，请稍后再试
+    lv_obj_t *tip1_label = lv_label_create(cont);
+    lv_label_set_text(tip1_label, "打印机正在工作中，请稍后再试");
+    lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip1_label, fzlthr_26, 0);
+    lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 245);
+
+    //知道了
+    lv_obj_t *btn = lv_btn_create(cont);
+    lv_obj_set_size(btn, 209, 70);
+    lv_obj_align(btn, LV_ALIGN_TOP_MID, 0, 312);
+    lv_obj_set_style_radius(btn, 51, 0);
+    lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_set_style_shadow_width(btn, 0, 0);
+    lv_obj_add_event_cb(btn, btn_click_event_cb, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t *tip2_label = lv_label_create(btn);
+    lv_label_set_text(tip2_label, "知道了");
+    lv_obj_set_style_text_opa(tip2_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip2_label, fzlthr_30, 0);
+    lv_obj_set_style_text_color(tip2_label, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip2_label, LV_ALIGN_CENTER, 0, 0);
+}
+
+static void lv_abnorml_printer_charging(lv_obj_t *cont)
+{
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "../lv_port_pc_vscode/assert/icon/battery_20.png");
+    lv_img_set_zoom(photo, 128);
+    lv_obj_set_size(photo, 380, 210);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 25);
+
+    //文字提示：打印机正在充电中，请稍后再试
+    lv_obj_t *tip1_label = lv_label_create(cont);
+    lv_label_set_text(tip1_label, "打印机正在充电中，请稍后再试");
+    lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip1_label, fzlthr_26, 0);
+    lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 245);
+
+    //知道了
+    lv_obj_t *btn = lv_btn_create(cont);
+    lv_obj_set_size(btn, 209, 70);
+    lv_obj_align(btn, LV_ALIGN_TOP_MID, 0, 312);
+    lv_obj_set_style_radius(btn, 51, 0);
+    lv_obj_set_style_bg_opa(btn, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_set_style_shadow_width(btn, 0, 0);
+    lv_obj_add_event_cb(btn, btn_click_event_cb, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t *tip2_label = lv_label_create(btn);
+    lv_label_set_text(tip2_label, "知道了");
+    lv_obj_set_style_text_opa(tip2_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip2_label, fzlthr_30, 0);
+    lv_obj_set_style_text_color(tip2_label, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip2_label, LV_ALIGN_CENTER, 0, 0);
+}
+
+static void lv_abnorml_printer_upload(lv_obj_t *cont)
+{
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "../lv_port_pc_vscode/assert/icon/printer_upload.png");
+    lv_obj_set_size(photo, 380, 210);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 60);
+
+    lv_obj_t *tip1_label = lv_label_create(cont);
+    lv_label_set_text(tip1_label, "图片发送中...");
+    lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip1_label, fzlthr_30, 0);
+    lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 286);
+
+    //文字提示：请不要抽出相纸或关掉设备
+    lv_obj_t *tip2_label = lv_label_create(cont);
+    lv_label_set_text(tip2_label, "请不要抽出相纸或关掉设备");
+    lv_obj_set_style_text_opa(tip2_label, LV_OPA_60, 0);
+    lv_obj_set_style_text_font(tip2_label, fzlthr_24, 0);
+    lv_obj_set_style_text_color(tip2_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip2_label, LV_ALIGN_TOP_MID, 0, 331);
+}
+
+static void lv_abnorml_printer_execute(lv_obj_t *cont)
+{
+    lv_obj_t *photo = lv_img_create(cont);
+    lv_img_set_src(photo, "../lv_port_pc_vscode/assert/icon/printer_execute.png");
+    lv_obj_set_size(photo, 380, 300);
+    lv_img_set_zoom(photo, 128);
+    lv_obj_align(photo, LV_ALIGN_TOP_MID, 0, 0);
+
+    lv_obj_t *tip1_label = lv_label_create(cont);
+    lv_label_set_text(tip1_label, "打印中...");
+    lv_obj_set_style_text_opa(tip1_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(tip1_label, fzlthr_30, 0);
+    lv_obj_set_style_text_color(tip1_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(tip1_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip1_label, LV_ALIGN_TOP_MID, 0, 286);
+
+    //文字提示：请不要抽出相纸或关掉设备
+    lv_obj_t *tip2_label = lv_label_create(cont);
+    lv_label_set_text(tip2_label, "请不要抽出相纸或关掉设备");
+    lv_obj_set_style_text_opa(tip2_label, LV_OPA_60, 0);
+    lv_obj_set_style_text_font(tip2_label, fzlthr_24, 0);
+    lv_obj_set_style_text_color(tip2_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(tip2_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(tip2_label, LV_ALIGN_TOP_MID, 0, 331);
 }
 
 static void lv_abnorml_network_exception(lv_obj_t *cont)

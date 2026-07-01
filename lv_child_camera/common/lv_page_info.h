@@ -109,6 +109,10 @@ typedef enum
     PAGE_ABNORMAL_USB_FLASH_MODE,       ///<< U盘模式中
     PAGE_ABNORMAL_NETWORK,              ///<< 网络异常
     PAGE_ABNORMAL_RETRY,                ///<< 重试
+    PAGE_ABNORMAL_PRINTER_WORKING,      ///<< 打印机正在工作
+    PAGE_ABNORMAL_PRINTER_CHARGING,     ///<< 打印机正在充电
+    PAGE_ABNORMAL_PRINTER_UPLOAD,       ///<< 打印机图片上传中
+    PAGE_ABNORMAL_PRINTER_EXECUTE,      ///<< 打印机执行
     PAGE_ABNORMAL_CONFIRM,              ///<< 异常确认
 
     //toast
@@ -144,6 +148,9 @@ typedef enum
     PAGE_FUNCTIONAL_AIDIALOG,           ///<< AI对话
     PAGE_FUNCTIONAL_AIPHONE,            ///<< AI打电话
     PAGE_FUNCTIONAL_AIRECORD,           ///<< AI记录
+
+    PAGE_FUNCTIONAL_PTR_CONNECT,        ///<< 打印机连接
+    PAGE_FUNCTIONAL_PTR_PREVIEW,        ///<< 打印机预览
 } LV_PAGE_ENUM;
 
 /// @brief 页面信息结构体

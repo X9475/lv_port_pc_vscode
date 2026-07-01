@@ -184,6 +184,13 @@ lv_page_info_pt lv_page_album_four_grid_get();
 extern lv_subject_t  album_delete_subject;
 lv_page_info_pt lv_page_album_delete_get();
 
+/***************************打印机功能*************************************/
+extern lv_subject_t ptr_conn_subject;
+lv_page_info_pt lv_page_printer_conn_get();
+
+extern lv_subject_t ptr_pre_subject;
+lv_page_info_pt lv_page_printer_preview_get();
+
 /***************************拍摄功能*************************************/
 extern lv_subject_t shooting_photo_subject;
 lv_page_info_pt lv_page_shooting_photo_get();
