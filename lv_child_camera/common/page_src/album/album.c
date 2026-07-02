@@ -70,6 +70,7 @@ typedef enum
     ICON_SHARE,
     ICON_STOP,
     ICON_INFO,
+    ICON_PRINTER,
     ICON_INTELL
 } icon_type_t;
 
@@ -296,12 +297,30 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_flag(cont, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(cont, screen_click_event, LV_EVENT_CLICKED, NULL);
 
-    lv_obj_t * buttom_line = lv_obj_create(cont);
-    lv_obj_set_size(buttom_line, 6, 50);
-    lv_obj_set_style_radius(buttom_line, 4, 0);
-    lv_obj_set_style_bg_color(buttom_line, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
-    lv_obj_align(buttom_line, LV_ALIGN_TOP_LEFT, 475, 183); 
-    lv_obj_set_style_opa(buttom_line, LV_OPA_COVER, 0);
+    // lv_obj_t * buttom_line = lv_obj_create(cont);
+    // lv_obj_set_size(buttom_line, 6, 50);
+    // lv_obj_set_style_radius(buttom_line, 4, 0);
+    // lv_obj_set_style_bg_color(buttom_line, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
+    // lv_obj_align(buttom_line, LV_ALIGN_TOP_LEFT, 475, 183); 
+    // lv_obj_set_style_opa(buttom_line, LV_OPA_COVER, 0);
+
+    lv_obj_t *printer_icon = lv_img_create(cont);
+    lv_obj_set_size(printer_icon, 40, 40);
+    lv_img_set_src(printer_icon, "../lv_port_pc_vscode/assert/icon/album_printer.png");
+    lv_img_set_zoom(printer_icon, 128);
+    lv_obj_align(printer_icon, LV_ALIGN_RIGHT_MID, -30, 0);
+    lv_obj_add_flag(printer_icon, LV_OBJ_FLAG_CLICKABLE);
+    // lv_obj_add_event_cb(printer_icon, printer_icon_click_cb, LV_EVENT_CLICKED, (void *)ICON_PRINTER);
+
+    lv_obj_t *side_icon = lv_img_create(cont);
+    lv_img_set_src(side_icon, "../lv_port_pc_vscode/assert/icon/side_back.png");
+    lv_img_set_zoom(side_icon, 128);
+    lv_obj_align(side_icon, LV_ALIGN_RIGHT_MID, 19, 0);
+
+    lv_obj_t *arrow_key = lv_img_create(side_icon);
+    lv_img_set_src(arrow_key, "../lv_port_pc_vscode/assert/icon/pulldown.png");
+    lv_img_set_zoom(arrow_key, 128);
+    lv_obj_align(arrow_key, LV_ALIGN_RIGHT_MID, 0, 0);
 
     // 创建底部矩形渐变框
     lv_obj_t *down_indicator_area = lv_obj_create(cont);

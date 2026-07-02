@@ -143,7 +143,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_flag(minor_label, LV_OBJ_FLAG_HIDDEN);
 
     // search_printer_failed();
-    confirm_connect_with_printer("CPP-25680");
+    // confirm_connect_with_printer("CPP-25680");
 
     //通知重新扫描，每1.5秒扫描一次，共10次
     search_sec = BT_SEARCH_TIME;
@@ -171,8 +171,9 @@ static void countdown_timer_cb(lv_timer_t *timer)
     else if (search_sec < 0)
     {
         search_sec = BT_SEARCH_TIME;
-        lv_timer_del(timer);
+        lv_timer_pause(timer);
         //检查是否有设备被发现
+        search_printer_failed();
 
         if (NULL != lv_obj_get_parent(major_label))
         {

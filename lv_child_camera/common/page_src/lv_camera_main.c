@@ -41,7 +41,7 @@ void lv_main()
 
     if (lv_dev_stage_get() == LV_PAGE_STAGE_ADDING)
     {//添加流程阶段
-        switch_page->new_page = lv_page_printer_preview_get();
+        switch_page->new_page = lv_page_album_get();
         // switch_page->new_page = lv_page_about_camera_info_get();
         // switch_page->new_page = lv_page_shooting_photo_get();
         // switch_page->new_page = lv_page_album_get();
@@ -53,6 +53,6 @@ void lv_main()
 
     lv_subject_set_pointer(&switch_subject, switch_page);
 
-    lv_subject_set_int(&anormal_subject, PAGE_ABNORMAL_PRINTER_EXECUTE);
+    // lv_subject_set_int(&anormal_subject, PAGE_ABNORMAL_PRINTER_EXECUTE);
     return;
 }
