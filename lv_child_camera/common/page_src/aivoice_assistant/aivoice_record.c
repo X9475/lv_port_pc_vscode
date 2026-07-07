@@ -143,12 +143,18 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_align(label_one, LV_ALIGN_LEFT_MID, 80, 15);
     lv_obj_add_flag(label_one, LV_OBJ_FLAG_HIDDEN);
 
-    lv_obj_t *calender = lv_img_create(title_cont_one);
+    lv_obj_t *calender_btn = lv_btn_create(title_cont_one);
+    lv_obj_set_size(calender_btn, 50, 50);
+    lv_obj_set_style_shadow_width(calender_btn, 0, 0);
+    lv_obj_set_style_bg_opa(calender_btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(calender_btn, 0, 0);
+    lv_obj_align(calender_btn, LV_ALIGN_TOP_RIGHT, -35, 20);
+    lv_obj_add_event_cb(calender_btn, calender_button_click_cb, LV_EVENT_CLICKED, label_one);
+
+    lv_obj_t *calender = lv_img_create(calender_btn);
     lv_obj_set_size(calender, 40, 40);
     lv_img_set_src(calender, "../lv_port_pc_vscode/assert/icon/calender_unselect.png");
-    lv_obj_align(calender, LV_ALIGN_TOP_RIGHT, -30, 25);
-    lv_obj_add_flag(calender, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_event_cb(calender, calender_button_click_cb, LV_EVENT_CLICKED, back_btn);
+    lv_obj_align(calender, LV_ALIGN_CENTER, 0, 0);
 
     /*************标题2*************/
     title_cont_two = lv_obj_create(cont);
@@ -167,10 +173,18 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_set_style_text_align(label_two, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label_two, LV_ALIGN_BOTTOM_LEFT, 40, 0);
 
-    lv_obj_t *trash = lv_img_create(title_cont_two);
+    lv_obj_t *trash_btn = lv_btn_create(title_cont_two);
+    lv_obj_set_size(trash_btn, 50, 50);
+    lv_obj_set_style_shadow_width(trash_btn, 0, 0);
+    lv_obj_set_style_bg_opa(trash_btn, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(trash_btn, 0, 0);
+    lv_obj_align(trash_btn, LV_ALIGN_TOP_RIGHT, -35, 20);
+    // lv_obj_add_event_cb(trash_btn, trash_button_click_cb, LV_EVENT_CLICKED, trash_btn);
+
+    lv_obj_t *trash = lv_img_create(trash_btn);
     lv_obj_set_size(trash, 40, 40);
     lv_img_set_src(trash, "../lv_port_pc_vscode/assert/icon/photograph_icon_trash_filled.png");
-    lv_obj_align(trash, LV_ALIGN_TOP_RIGHT, -40, 25);
+    lv_obj_align(trash, LV_ALIGN_CENTER, 0, 0);
 
     //创建记录列表
     airecord_page = airecord_list_create();
@@ -186,10 +200,10 @@ static void page_back_event_cb(lv_event_t *e)
         calender_page = NULL;
 
         lv_obj_t *label_one = lv_obj_get_child(title_cont_one, 1);
-        lv_obj_t *calender = lv_obj_get_child(title_cont_one, 2);
+        lv_obj_t *calender_btn = lv_obj_get_child(title_cont_one, 2);
 
         lv_obj_add_flag(label_one, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_clear_flag(calender, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(calender_btn, LV_OBJ_FLAG_HIDDEN);
         
         bool is_select = false;
         for (int i = 0; i < sizeof(g_calender_info)/sizeof(g_calender_info[0]); i++)
@@ -203,11 +217,11 @@ static void page_back_event_cb(lv_event_t *e)
 
         if (is_select)
         {
-            lv_img_set_src(calender, "../lv_port_pc_vscode/assert/icon/calender_select.png");
+            lv_img_set_src(lv_obj_get_child(calender_btn, 0), "../lv_port_pc_vscode/assert/icon/calender_select.png");
         }
         else
         {
-            lv_img_set_src(calender, "../lv_port_pc_vscode/assert/icon/calender_unselect.png");
+            lv_img_set_src(lv_obj_get_child(calender_btn, 0), "../lv_port_pc_vscode/assert/icon/calender_unselect.png");
         }
 
         //显示记录列表
@@ -221,12 +235,11 @@ static void page_back_event_cb(lv_event_t *e)
 
 static  void calender_button_click_cb(lv_event_t *e)
 {
-    // lv_obj_t *calender = lv_event_get_target(e);
-    lv_obj_t *label_one = lv_obj_get_child(title_cont_one, 1);
-    lv_obj_t *calender = lv_obj_get_child(title_cont_one, 2);
+    lv_obj_t *label_one = lv_event_get_user_data(e);
+    lv_obj_t *calender_btn = lv_event_get_target(e);
 
     lv_obj_clear_flag(label_one, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(calender, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(calender_btn, LV_OBJ_FLAG_HIDDEN);
 
     //隐藏记录列表
     lv_obj_add_flag(airecord_page, LV_OBJ_FLAG_HIDDEN);
