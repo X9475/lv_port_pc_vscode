@@ -224,6 +224,9 @@ extern lv_subject_t aidialog_subject;
 lv_page_info_pt lv_page_aiphone_get();
 extern lv_subject_t aiphone_subject;
 
+lv_page_info_pt lv_page_airecord_get();
+extern lv_subject_t airecord_subject;
+
 lv_page_info_pt lv_page_message_center_get();
 extern lv_subject_t message_center_subject;
 

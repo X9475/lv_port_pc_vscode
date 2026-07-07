@@ -2,7 +2,8 @@
 
 #define BT_SEARCH_TIME    6 //搜索倒计时时长
 #define BT_REFRESH_TIME   10 //刷新倒计时时长
-
+#define BT_CONNECT_TIME   10 //连接超时时时长
+    
 typedef void (* handle_cb)(void);
 typedef struct {
     lv_obj_t *msgbox;
@@ -22,6 +23,7 @@ static lv_style_t screen_style;
 
 static int search_sec = BT_SEARCH_TIME;
 static int refresh_sec = BT_REFRESH_TIME;
+static int connct_sec = BT_CONNECT_TIME;
 static int search_num = 3;//发现设备的数量
 
 static void lv_page_construct(void *this);
@@ -36,10 +38,15 @@ static void page_back_event_cb(lv_event_t *e);
 
 //展示搜索到的设备列表
 lv_obj_t *create_device_discovery_page(lv_obj_t *parent);
+static void confirm_connect_with_printer(const char *device_name);
+static void search_printer_failed();
+static void printer_is_connecting();
+static void printer_connect_failed();
 
 static enum
 {
-    BT_SEARCH_NO_RESULT = 0,//搜索失败
+    BT_SEARCH_FAILED = 0,   //搜索失败
+    BT_CONNECT_FAILED,      //连接失败
     BT_CONNECT_CONFIRM,     //建立连接确认
 };
 
@@ -143,7 +150,9 @@ static void lv_page_load(lv_obj_t *cont)
     lv_obj_add_flag(minor_label, LV_OBJ_FLAG_HIDDEN);
 
     // search_printer_failed();
+    // printer_connect_failed();
     // confirm_connect_with_printer("CPP-25680");
+    // printer_is_connecting();
 
     //通知重新扫描，每1.5秒扫描一次，共10次
     search_sec = BT_SEARCH_TIME;
@@ -173,7 +182,7 @@ static void countdown_timer_cb(lv_timer_t *timer)
         search_sec = BT_SEARCH_TIME;
         lv_timer_pause(timer);
         //检查是否有设备被发现
-        search_printer_failed();
+        // search_printer_failed();
 
         if (NULL != lv_obj_get_parent(major_label))
         {
@@ -344,7 +353,10 @@ static void msgbox_button_click_event(lv_event_t *e)
     int index = (int)(intptr_t)lv_obj_get_user_data(msg_obj);
     switch (index)
     {
-        case BT_SEARCH_NO_RESULT://重试
+        case BT_SEARCH_FAILED://重试
+            printf("retry\n");
+            break;
+        case BT_CONNECT_FAILED://重试
             printf("retry\n");
             break;
         case BT_CONNECT_CONFIRM://连接确认
@@ -365,7 +377,7 @@ static void msgbox_button_click_event(lv_event_t *e)
 }
 
 //未搜索到打印机
-void search_printer_failed()
+static void search_printer_failed()
 {
     lv_obj_t *msg_obj = lv_obj_create(screen);
     lv_obj_set_size(msg_obj, lv_pct(100), lv_pct(100));
@@ -378,7 +390,7 @@ void search_printer_failed()
     lv_obj_move_foreground(msg_obj);
     lv_obj_center(msg_obj);
 
-    int32_t index = BT_SEARCH_NO_RESULT;
+    int32_t index = BT_SEARCH_FAILED;
     lv_obj_set_user_data(msg_obj, (void *)(intptr_t)index);
 
     lv_obj_t *msg_img = lv_img_create(msg_obj);
@@ -424,7 +436,7 @@ void search_printer_failed()
 }
 
 //确定是否建立连接
-void confirm_connect_with_printer(const char *device_name)
+static void confirm_connect_with_printer(const char *device_name)
 {
     lv_obj_t *msg_obj = lv_obj_create(screen);
     lv_obj_set_size(msg_obj, lv_pct(100), lv_pct(100));
@@ -497,6 +509,105 @@ void confirm_connect_with_printer(const char *device_name)
     lv_obj_set_style_text_color(msg_label2, lv_color_hex(0xEBEBF5), 0);
     lv_obj_set_style_text_align(msg_label2, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(msg_label2, LV_ALIGN_TOP_MID, 0, 241);
+}
+
+static void connecting_timer_cb(lv_timer_t *timer)
+{
+    lv_obj_t *msg_obj = lv_timer_get_user_data(timer);
+    lv_obj_t *msg_label = lv_obj_get_child(msg_obj, 0);
+
+    if (NULL == msg_label || !lv_obj_is_valid(msg_label)) return;
+    lv_label_set_text_fmt(msg_label, "连接中（%ds）...", connct_sec--);
+
+    if (connct_sec < 0)
+    {
+        connct_sec = BT_CONNECT_TIME;
+        lv_timer_pause(timer);
+        lv_obj_del(msg_obj);
+    }
+}
+
+//建立连接中
+static void printer_is_connecting()
+{
+    lv_obj_t *msg_obj = lv_obj_create(screen);
+    lv_obj_set_size(msg_obj, lv_pct(100), lv_pct(100));
+    lv_obj_set_style_bg_color(msg_obj, lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(msg_obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_pad_all(msg_obj, 0, 0);
+    lv_obj_set_style_border_width(msg_obj, 0, 0);
+    lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_move_foreground(msg_obj);
+    lv_obj_center(msg_obj);
+
+    lv_obj_t *msg_label = lv_label_create(msg_obj);
+    lv_obj_set_size(msg_label, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_style_text_opa(msg_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(msg_label, fzlthr_30, 0);
+    lv_obj_set_style_text_color(msg_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(msg_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(msg_label, LV_ALIGN_TOP_MID, 0, 280);
+
+    lv_obj_t *msg_img = lv_img_create(msg_obj);
+    lv_obj_set_size(msg_img, 310, 190);
+    lv_img_set_src(msg_img, "../lv_port_pc_vscode/assert/icon/printer_connecting.png");
+    lv_obj_align(msg_img, LV_ALIGN_TOP_MID, 0, 60);
+
+    connct_sec = BT_CONNECT_TIME;
+    lv_timer_t *conn_timer = lv_timer_create(connecting_timer_cb, 1000, msg_obj);
+    lv_timer_ready(conn_timer);
+}
+
+//连接失败
+static void printer_connect_failed()
+{
+    lv_obj_t *msg_obj = lv_obj_create(screen);
+    lv_obj_set_size(msg_obj, lv_pct(100), lv_pct(100));
+    lv_obj_set_style_bg_color(msg_obj, lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(msg_obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_pad_all(msg_obj, 0, 0);
+    lv_obj_set_style_border_width(msg_obj, 0, 0);
+    lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_move_foreground(msg_obj);
+    lv_obj_center(msg_obj);
+
+    int32_t index = BT_CONNECT_FAILED;
+    lv_obj_set_user_data(msg_obj, (void *)(intptr_t)index);
+
+    lv_obj_t *msg_img = lv_img_create(msg_obj);
+    lv_obj_set_size(msg_img, 200, 200);
+    lv_img_set_src(msg_img, "../lv_port_pc_vscode/assert/icon/fail_2x.png");
+    lv_img_set_zoom(msg_img, 128);
+    lv_obj_align(msg_img, LV_ALIGN_TOP_MID, 0, 45);
+
+    lv_obj_t *msg_label = lv_label_create(msg_obj);
+    lv_label_set_text(msg_label, "连接失败");
+    lv_obj_set_style_text_opa(msg_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(msg_label, fzlthr_26, 0);
+    lv_obj_set_style_text_color(msg_label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(msg_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(msg_label, LV_ALIGN_TOP_MID, 0, 257);
+
+    lv_obj_t *msg_btn = lv_obj_create(msg_obj);
+    lv_obj_set_size(msg_btn, 148, 70);
+    lv_obj_set_style_radius(msg_btn, 51, 0);
+    lv_obj_set_style_bg_opa(msg_btn, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_color(msg_btn, lv_color_hex(0xAFF99C), 0);
+    lv_obj_set_style_border_width(msg_btn, 0, 0);
+    lv_obj_align(msg_btn, LV_ALIGN_TOP_MID, 0, 320);
+    lv_obj_clear_flag(msg_btn, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_event_cb(msg_btn, msgbox_button_click_event, LV_EVENT_CLICKED, msg_obj);
+
+    lv_obj_t *btn_label = lv_label_create(msg_btn);
+    lv_label_set_text(btn_label, "重试");
+    lv_obj_set_style_text_opa(btn_label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_font(btn_label, fzlthr_30, 0);
+    lv_obj_set_style_text_color(btn_label, lv_color_hex(0x000000), 0);
+    lv_obj_set_style_text_align(btn_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(btn_label, LV_ALIGN_CENTER, 0, 0);
+    return;
 }
 
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
