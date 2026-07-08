@@ -965,8 +965,6 @@ static void airecord_popup_destroy(void)
  */
 static void airecord_popup_click_blank_cb(lv_event_t *e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    if (code != LV_EVENT_CLICKED) return;
     if (g_popup == NULL) return;
 
     lv_obj_t *target = lv_event_get_target(e);
@@ -1045,49 +1043,56 @@ static void airecord_popup_create(lv_obj_t *anchor_bubble)
     /* 自定义绘制：圆角矩形 + 底部箭头 */
     lv_obj_add_event_cb(g_popup, airecord_popup_draw_event, LV_EVENT_DRAW_MAIN, NULL);
 
-    /* ---- 两个按钮容器（并列，各占一半） ---- */
-    lv_coord_t btn_w = POPUP_W / 2;
+    /* ---- 两列布局：图标 + 下方文字 ---- */
+    /* "删除" 容器（左侧） */
+    lv_obj_t *del_cont = lv_obj_create(g_popup);
+    lv_obj_remove_style_all(del_cont);
+    lv_obj_set_size(del_cont, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_clear_flag(del_cont, LV_OBJ_FLAG_SCROLLABLE);
+    /* 使用 Flex 布局让内部图标和文字垂直居中排列 */
+    lv_obj_set_flex_flow(del_cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(del_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_row(del_cont, 10, 0); /* 图标和文字的垂直间距设为 10 */
+    lv_obj_align(del_cont, LV_ALIGN_TOP_MID, -40, 20);
+    /* 将点击事件和可点击属性绑定在整个容器上 */
+    lv_obj_add_flag(del_cont, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(del_cont, airecord_popup_delete_cb, LV_EVENT_CLICKED, NULL);
 
-    /* "删除" 按钮（左侧） */
-    lv_obj_t *del_btn = lv_obj_create(g_popup);
-    lv_obj_remove_style_all(del_btn);
-    lv_obj_set_size(del_btn, btn_w, POPUP_H);
-    lv_obj_set_pos(del_btn, 0, 0);
-    lv_obj_set_style_bg_opa(del_btn, LV_OPA_TRANSP, 0);
-    lv_obj_add_flag(del_btn, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(del_btn, LV_OBJ_FLAG_SCROLLABLE);
+    /* 删除图标 */
+    lv_obj_t *del_icon = lv_img_create(del_cont);
+    lv_img_set_src(del_icon, "../lv_port_pc_vscode/assert/icon/popup_trash.png");
+    lv_obj_set_size(del_icon, 30, 30);
 
-    lv_obj_t *del_label = lv_label_create(del_btn);
+    /* 删除文字 */
+    lv_obj_t *del_label = lv_label_create(del_cont);
     lv_label_set_text(del_label, "删除");
-    lv_obj_set_style_text_color(del_label, lv_color_hex(0xFF5C5C), 0);
-    lv_obj_set_style_text_font(del_label, fzlthr_30, 0);
-    lv_obj_center(del_label);
-    lv_obj_add_event_cb(del_btn, airecord_popup_delete_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_set_style_text_color(del_label, lv_color_white(), 0);
+    lv_obj_set_style_text_font(del_label, fzlthr_22, 0);
 
-    /* 分隔线（垂直） */
-    lv_obj_t *line = lv_obj_create(g_popup);
-    lv_obj_remove_style_all(line);
-    lv_obj_set_size(line, 1, POPUP_H - 20);
-    lv_obj_set_pos(line, btn_w, 10);
-    lv_obj_set_style_bg_color(line, lv_color_hex(0x404040), 0);
-    lv_obj_set_style_bg_opa(line, LV_OPA_COVER, 0);
-    lv_obj_clear_flag(line, LV_OBJ_FLAG_SCROLLABLE);
 
-    /* "多选" 按钮（右侧） */
-    lv_obj_t *multi_btn = lv_obj_create(g_popup);
-    lv_obj_remove_style_all(multi_btn);
-    lv_obj_set_size(multi_btn, btn_w, POPUP_H);
-    lv_obj_set_pos(multi_btn, btn_w, 0);
-    lv_obj_set_style_bg_opa(multi_btn, LV_OPA_TRANSP, 0);
-    lv_obj_add_flag(multi_btn, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(multi_btn, LV_OBJ_FLAG_SCROLLABLE);
+    /* "多选" 容器（右侧） */
+    lv_obj_t *multi_cont = lv_obj_create(g_popup);
+    lv_obj_remove_style_all(multi_cont);
+    lv_obj_set_size(multi_cont, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_clear_flag(multi_cont, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_flex_flow(multi_cont, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(multi_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_row(multi_cont, 10, 0); /* 图标和文字的垂直间距设为 10 */
+    lv_obj_align(multi_cont, LV_ALIGN_TOP_MID, 40, 20);
+    /* 将点击事件和可点击属性绑定在整个容器上 */
+    lv_obj_add_flag(multi_cont, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(multi_cont, airecord_popup_multi_cb, LV_EVENT_CLICKED, NULL);
 
-    lv_obj_t *multi_label = lv_label_create(multi_btn);
+    /* 多选图标 */
+    lv_obj_t *multi_icon = lv_img_create(multi_cont);
+    lv_img_set_src(multi_icon, "../lv_port_pc_vscode/assert/icon/popup_multiple.png");
+    lv_obj_set_size(multi_icon, 30, 30);
+
+    /* 多选文字 */
+    lv_obj_t *multi_label = lv_label_create(multi_cont);
     lv_label_set_text(multi_label, "多选");
     lv_obj_set_style_text_color(multi_label, lv_color_white(), 0);
-    lv_obj_set_style_text_font(multi_label, fzlthr_30, 0);
-    lv_obj_center(multi_label);
-    lv_obj_add_event_cb(multi_btn, airecord_popup_multi_cb, LV_EVENT_CLICKED, NULL);
+    lv_obj_set_style_text_font(multi_label, fzlthr_22, 0);
 
     /* ---- 根据气泡位置定位弹窗 ---- */
     lv_obj_update_layout(anchor_bubble);
@@ -1116,6 +1121,9 @@ static void airecord_bubble_longpress_cb(lv_event_t *e)
 {
     lv_obj_t *bubble = lv_event_get_target(e);
     lv_obj_t *outer_row = lv_obj_get_parent(bubble);
+
+    /* 删除已有的弹窗 */
+    airecord_popup_destroy();
 
     /* 记录目标 */
     g_longpress_target_row = outer_row;
