@@ -67,6 +67,7 @@ typedef struct {
     lv_obj_t *row;                  // 行容器（包含勾选框 + 气泡）
     lv_obj_t *checkbox;             // 勾选框
     lv_obj_t *bubble;               // 气泡对象
+    lv_obj_t *time_divider;         // 该消息之前的时间分隔条（若无则为 NULL）
     airecord_msg_t msg_data;        // 消息数据副本
     bool checked;                   // 是否勾选
 } airecord_item_t;
@@ -91,6 +92,7 @@ static lv_obj_t *title_cont_one = NULL;
 static lv_obj_t *title_cont_two = NULL;
 static lv_obj_t *calender_page = NULL;
 static lv_obj_t *airecord_page = NULL;
+static lv_obj_t *atrecord_empty = NULL;
 static lv_style_t screen_style;
 
 /* 长按弹窗 */
@@ -102,9 +104,9 @@ static lv_obj_t *g_longpress_target_bubble = NULL;
 static void lv_page_construct(void *this);
 static void lv_page_destruct(void);
 static void lv_page_single_init(void);
-static void lv_page_style_init();
-static void lv_page_subject_init();
-static void lv_page_subject_deinit();
+static void lv_page_style_init(void);
+static void lv_page_subject_init(void);
+static void lv_page_subject_deinit(void);
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject);
 static void lv_page_load(lv_obj_t *cont);
 static void page_back_event_cb(lv_event_t *e);
@@ -113,11 +115,12 @@ static void trash_button_click_cb(lv_event_t *e);
 static void cancel_button_click_cb(lv_event_t *e);
 
 static lv_obj_t *airecord_list_create(lv_obj_t *parent);
-static lv_obj_t *calender_page_create();
+static lv_obj_t *calender_page_create(void);
 static lv_obj_t *airecord_text_bubble_create(lv_obj_t *parent, const char *text, bool is_question);
 static lv_obj_t *airecord_voice_bubble_create(lv_obj_t *parent, const char *voice_path, int duration, bool is_question);
 static lv_obj_t *airecord_image_bubble_create(lv_obj_t *parent, const char *image_path, bool is_question);
-static void airecord_add_time_divider_internal(uint64_t timestamp);
+static lv_obj_t *airecord_add_time_divider_internal(uint64_t timestamp);
+static lv_obj_t *airecord_is_empty(void);
 static void airecord_update_layout(void);
 static void airecord_checkbox_click_cb(lv_event_t *e);
 static void airecord_bubble_longpress_cb(lv_event_t *e);
@@ -127,17 +130,15 @@ static void airecord_popup_create(lv_obj_t *anchor_bubble);
 static void airecord_popup_destroy(void);
 static void airecord_popup_draw_event(lv_event_t *e);
 static void airecord_popup_click_blank_cb(lv_event_t *e);
-// static void airecord_is_empty();//空记录
 
-typedef struct
-{
-    char week[16];    //星期
-    uint32_t date;    //日期
-    bool is_exsit;    //是否存在
-    bool is_select;   //是否选择
+typedef struct {
+    char week[16];    // 星期
+    uint32_t date;    // 日期
+    bool is_exsit;    // 是否存在
+    bool is_select;   // 是否选择
 } calender_info_t;
 
-static const char *week_str[] = { "周天", "周一", "周二", "周三", "周四", "周五", "周六"};
+static const char *week_str[] = {"周天", "周一", "周二", "周三", "周四", "周五", "周六"};
 static calender_info_t g_calender_info[] = {
     {"周一", 21, false, false},
     {"周二", 22, true, false},
@@ -148,34 +149,31 @@ static calender_info_t g_calender_info[] = {
     {"周天", 27, true, true},
 };
 
-//待跳转的页面种类
-static enum PAGE_EVENT_ENUM
-{
+/* 待跳转的页面种类 */
+typedef enum {
     PAGE_SWITCH_NONE,
     PAGE_SWITCH_BACK
-};
+} page_event_enum_t;
 
 static lv_page_info_t airecord_page_info = {
     .page_id = PAGE_FUNCTIONAL_AIRECORD,
     .page = NULL,
     .reserved = NULL,
-    // .back_btn = &back_btn,
     .construct_cb = lv_page_construct,
     .destruct_cb = lv_page_destruct,
 };
 
-lv_page_info_pt lv_page_airecord_get()
+lv_page_info_pt lv_page_airecord_get(void)
 {
     return &airecord_page_info;
 }
 
 static void lv_page_construct(void *this)
 {
-    //样式初始化
+    LV_UNUSED(this);
+
     lv_page_style_init();
-    //主题初始化
     lv_page_subject_init();
-    //单次初始化
     lv_page_single_init();
 
     screen = lv_obj_create(act_screen);
@@ -184,9 +182,7 @@ static void lv_page_construct(void *this)
     lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(screen);
 
-    //绘制当前页面
     lv_page_load(screen);
-    return;
 }
 
 static void lv_page_destruct(void)
@@ -195,9 +191,8 @@ static void lv_page_destruct(void)
     lv_page_subject_deinit();
 }
 
-static void lv_page_style_init()
+static void lv_page_style_init(void)
 {
-    //screen_style
     lv_style_init(&screen_style);
     lv_style_set_radius(&screen_style, 0);
     lv_style_set_pad_all(&screen_style, 0);
@@ -210,27 +205,25 @@ static void lv_page_single_init(void)
 {
     static bool inited = false;
 
-    if (inited != true)
-    {
+    if (!inited) {
         inited = true;
     }
 }
 
-static void lv_page_subject_init()
+static void lv_page_subject_init(void)
 {
     lv_subject_init_int(&airecord_subject, PAGE_SWITCH_NONE);
     lv_subject_add_observer(&airecord_subject, lv_switch_observer_cb, NULL);
-    return;
 }
 
-static void lv_page_subject_deinit()
+static void lv_page_subject_deinit(void)
 {
     lv_subject_deinit(&airecord_subject);
 }
 
 static void lv_page_load(lv_obj_t *cont)
 {
-    /*************标题1*************/
+    /************* 标题1 *************/
     title_cont_one = lv_obj_create(cont);
     lv_obj_set_size(title_cont_one, lv_pct(100), 70);
     lv_obj_add_style(title_cont_one, &screen_style, 0);
@@ -274,7 +267,7 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_src(calender, "../lv_port_pc_vscode/assert/icon/calender_unselect.png");
     lv_obj_align(calender, LV_ALIGN_CENTER, 0, 0);
 
-    /*************标题2*************/
+    /************* 标题2 *************/
     title_cont_two = lv_obj_create(cont);
     lv_obj_set_size(title_cont_two, lv_pct(100), 70);
     lv_obj_add_style(title_cont_two, &screen_style, 0);
@@ -313,15 +306,15 @@ static void lv_page_load(lv_obj_t *cont)
     lv_img_set_src(trash, "../lv_port_pc_vscode/assert/icon/photograph_icon_trash_filled.png");
     lv_obj_align(trash, LV_ALIGN_CENTER, 0, 0);
 
-    //创建记录列表
+    /* 创建记录列表 */
     airecord_page = airecord_list_create(cont);
-    return;
 }
 
 static void page_back_event_cb(lv_event_t *e)
 {
-    if (NULL != calender_page)
-    {
+    LV_UNUSED(e);
+
+    if (calender_page != NULL) {
         lv_obj_del(calender_page);
         calender_page = NULL;
 
@@ -332,29 +325,29 @@ static void page_back_event_cb(lv_event_t *e)
         lv_obj_clear_flag(calender_btn, LV_OBJ_FLAG_HIDDEN);
 
         bool is_select = false;
-        for (int i = 0; i < sizeof(g_calender_info)/sizeof(g_calender_info[0]); i++)
-        {
-            if (g_calender_info[i].is_select)
-            {
+        for (int i = 0; i < (int)(sizeof(g_calender_info) / sizeof(g_calender_info[0])); i++) {
+            if (g_calender_info[i].is_select) {
                 is_select = true;
                 break;
             }
         }
 
-        if (is_select)
-        {
-            lv_img_set_src(lv_obj_get_child(calender_btn, 0), "../lv_port_pc_vscode/assert/icon/calender_select.png");
-        }
-        else
-        {
-            lv_img_set_src(lv_obj_get_child(calender_btn, 0), "../lv_port_pc_vscode/assert/icon/calender_unselect.png");
+        if (is_select) {
+            lv_img_set_src(lv_obj_get_child(calender_btn, 0),
+                           "../lv_port_pc_vscode/assert/icon/calender_select.png");
+        } else {
+            lv_img_set_src(lv_obj_get_child(calender_btn, 0),
+                           "../lv_port_pc_vscode/assert/icon/calender_unselect.png");
         }
 
-        //显示记录列表
+        /* 如果无记录，显示为空 */
+        if (airecord_item_count == 0) {
+            atrecord_empty = airecord_is_empty();
+        }
+
+        /* 显示记录列表 */
         lv_obj_clear_flag(airecord_page, LV_OBJ_FLAG_HIDDEN);
-    }
-    else
-    {
+    } else {
         lv_subject_set_int(&airecord_subject, PAGE_SWITCH_BACK);
     }
 }
@@ -364,7 +357,13 @@ static void airecord_delete_selected(void)
     /* 从后往前删除，避免索引变化 */
     for (int i = airecord_item_count - 1; i >= 0; i--) {
         if (airecord_items[i].checked && airecord_items[i].row) {
+            /* 先删除该消息对应的时间分隔条（如果有） */
+            if (airecord_items[i].time_divider) {
+                lv_obj_del(airecord_items[i].time_divider);
+                airecord_items[i].time_divider = NULL;
+            }
             lv_obj_del(airecord_items[i].row);
+
             /* 移动后续元素 */
             for (int j = i; j < airecord_item_count - 1; j++) {
                 airecord_items[j] = airecord_items[j + 1];
@@ -409,10 +408,14 @@ static void airecord_enter_delete_mode_internal(lv_obj_t *target_row)
 {
     g_delete_mode = true;
 
-    /* 显示所有勾选框 */
+    /* 显示所有勾选框，并移除气泡的 CLICKABLE 标志让点击穿透到 outer_row */
     for (int i = 0; i < airecord_item_count; i++) {
         if (airecord_items[i].checkbox) {
             lv_obj_clear_flag(airecord_items[i].checkbox, LV_OBJ_FLAG_HIDDEN);
+        }
+        /* 删除模式下不需要长按，移除 CLICKABLE 让点击冒泡到 outer_row */
+        if (airecord_items[i].bubble) {
+            lv_obj_clear_flag(airecord_items[i].bubble, LV_OBJ_FLAG_CLICKABLE);
         }
     }
 
@@ -433,39 +436,53 @@ static void airecord_enter_delete_mode_internal(lv_obj_t *target_row)
 static int airecord_get_selected_count(void)
 {
     int count = 0;
+
     for (int i = 0; i < airecord_item_count; i++) {
-        if (airecord_items[i].checked) count++;
+        if (airecord_items[i].checked) {
+            count++;
+        }
     }
     return count;
 }
 
 static void cancel_button_click_cb(lv_event_t *e)
 {
+    LV_UNUSED(e);
+
     /* 离开模式 */
     airecord_exit_delete_mode_internal();
 
     /* 更换标题栏内容 */
-    if (title_cont_one) lv_obj_clear_flag(title_cont_one, LV_OBJ_FLAG_HIDDEN);
-    if (title_cont_two) lv_obj_add_flag(title_cont_two, LV_OBJ_FLAG_HIDDEN);
+    if (title_cont_one) {
+        lv_obj_clear_flag(title_cont_one, LV_OBJ_FLAG_HIDDEN);
+    }
+    if (title_cont_two) {
+        lv_obj_add_flag(title_cont_two, LV_OBJ_FLAG_HIDDEN);
+    }
 }
 
 static void trash_button_click_cb(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
 
-    if (LV_EVENT_CLICKED == code)
-    {
-        if (g_delete_mode)
-        {
+    if (code == LV_EVENT_CLICKED) {
+        if (g_delete_mode) {
             /* 删除模式下点击：如果有选中项则删除，否则退出删除模式 */
-            if (airecord_get_selected_count() > 0)
-            {
+            if (airecord_get_selected_count() > 0) {
                 airecord_delete_selected();
             }
-            else
-            {
-                /* 离开删除模式 */
-                airecord_exit_delete_mode_internal();
+
+            /* 如果无记录，显示为空 */
+            if (airecord_item_count == 0) {
+                atrecord_empty = airecord_is_empty();
+            }
+
+            /* 更换标题栏内容 */
+            if (title_cont_one) {
+                lv_obj_clear_flag(title_cont_one, LV_OBJ_FLAG_HIDDEN);
+            }
+            if (title_cont_two) {
+                lv_obj_add_flag(title_cont_two, LV_OBJ_FLAG_HIDDEN);
             }
         } else {
             /* 普通模式：进入删除模式 */
@@ -482,10 +499,16 @@ static void calender_button_click_cb(lv_event_t *e)
     lv_obj_clear_flag(label_one, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(calender_btn, LV_OBJ_FLAG_HIDDEN);
 
-    //隐藏记录列表
+    /* 隐藏记录列表 */
     lv_obj_add_flag(airecord_page, LV_OBJ_FLAG_HIDDEN);
 
-    //绘制日期选择
+    printf("calender_button %p\n", atrecord_empty);
+    if (atrecord_empty != NULL) {
+        lv_obj_del(atrecord_empty);
+        atrecord_empty = NULL;
+    }
+
+    /* 绘制日期选择 */
     calender_page = calender_page_create();
 }
 
@@ -493,29 +516,22 @@ static void date_button_click_cb(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
 
-    lv_obj_t *cont = lv_event_get_user_data(e);
-    lv_obj_t *date_btn = lv_event_get_target(e);
+    if (code == LV_EVENT_CLICKED) {
+        lv_obj_t *cont = lv_event_get_user_data(e);
+        lv_obj_t *date_btn = lv_event_get_target(e);
 
-    if (LV_EVENT_CLICKED == code)
-    {
-        for (int i = 0; i < lv_obj_get_child_count(cont); i++)
-        {
+        for (int i = 0; i < lv_obj_get_child_count(cont); i++) {
             lv_obj_t *obj = lv_obj_get_child(cont, i);
-            if (obj == date_btn)
-            {
-                if (!g_calender_info[i].is_select)
-                {
+
+            if (obj == date_btn) {
+                if (!g_calender_info[i].is_select) {
                     g_calender_info[i].is_select = true;
                     lv_obj_set_style_border_width(obj, 3, 0);
-                }
-                else
-                {
+                } else {
                     g_calender_info[i].is_select = false;
                     lv_obj_set_style_border_width(obj, 0, 0);
                 }
-            }
-            else
-            {
+            } else {
                 g_calender_info[i].is_select = false;
                 lv_obj_set_style_border_width(obj, 0, 0);
             }
@@ -537,8 +553,7 @@ static void single_calender_create(lv_obj_t *cont, int index)
     lv_obj_add_flag(obj, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_event_cb(obj, date_button_click_cb, LV_EVENT_CLICKED, cont);
 
-    if (g_calender_info[index].is_select)
-    {
+    if (g_calender_info[index].is_select) {
         lv_obj_set_style_border_width(obj, 3, 0);
     }
 
@@ -551,8 +566,7 @@ static void single_calender_create(lv_obj_t *cont, int index)
     lv_obj_set_style_text_align(week, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(week, LV_ALIGN_TOP_MID, 0, 16);
 
-    if (index == (sizeof(g_calender_info)/sizeof(g_calender_info[0])-1))
-    {
+    if (index == (int)(sizeof(g_calender_info) / sizeof(g_calender_info[0]) - 1)) {
         lv_obj_t *date = lv_label_create(obj);
         lv_obj_set_size(date, 64, 42);
         lv_label_set_text(date, "今天");
@@ -561,10 +575,9 @@ static void single_calender_create(lv_obj_t *cont, int index)
         lv_obj_set_style_text_color(date, lv_color_hex(0xFFFFFF), 0);
         lv_obj_set_style_text_align(date, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_align(date, LV_ALIGN_TOP_MID, 0, 48);
-    }
-    else
-    {
+    } else {
         char date_str[16] = {0};
+
         snprintf(date_str, sizeof(date_str), "%d", g_calender_info[index].date);
         lv_obj_t *date = lv_label_create(obj);
         lv_obj_set_size(date, 49, 29);
@@ -576,9 +589,8 @@ static void single_calender_create(lv_obj_t *cont, int index)
         lv_obj_align(date, LV_ALIGN_TOP_MID, 0, 48);
     }
 
-    if (g_calender_info[index].is_exsit)
-    {
-        lv_obj_t *led  = lv_led_create(obj);
+    if (g_calender_info[index].is_exsit) {
+        lv_obj_t *led = lv_led_create(obj);
         lv_obj_set_size(led, 10, 10);
         lv_led_set_color(led, lv_color_hex(0xAFF99C));
         lv_led_set_brightness(led, LV_LED_BRIGHT_MAX);
@@ -589,26 +601,29 @@ static void single_calender_create(lv_obj_t *cont, int index)
     }
 }
 
-static void update_actual_date()
+static void update_actual_date(void)
 {
     time_t now;
-    time(&now);
-    struct tm *tm_now = localtime(&now);
+    struct tm *tm_now;
 
-    if (tm_now == NULL) return;
+    time(&now);
+    tm_now = localtime(&now);
+    if (tm_now == NULL) {
+        return;
+    }
+
     int current_weekday = tm_now->tm_wday;
 
-    //显示最近7天的数据（倒序：从当前往前推6天）
-    for (int i = 0; i < sizeof(g_calender_info)/sizeof(g_calender_info[0]); i++)
-    {
-        //倒序：i=0显示6天前，i=6显示今天
+    /* 显示最近7天的数据（倒序：从当前往前推6天） */
+    for (int i = 0; i < (int)(sizeof(g_calender_info) / sizeof(g_calender_info[0])); i++) {
+        /* 倒序：i=0显示6天前，i=6显示今天 */
         int days_ago = 6 - i;
+
         g_calender_info[i].date = tm_now->tm_mday - days_ago;
 
-        //计算对应的星期
+        /* 计算对应的星期 */
         int week_index = current_weekday - days_ago;
-        if (week_index < 0)
-        {
+        if (week_index < 0) {
             week_index += 7;
         }
 
@@ -616,12 +631,12 @@ static void update_actual_date()
     }
 }
 
-static lv_obj_t *calender_page_create()
+static lv_obj_t *calender_page_create(void)
 {
-    //更新实际的日期
+    /* 更新实际的日期 */
     update_actual_date();
 
-    //绘制日期选择页面
+    /* 绘制日期选择页面 */
     lv_obj_t *cont = lv_obj_create(screen);
     lv_obj_set_size(cont, 442, 340);
     lv_obj_add_style(cont, &screen_style, 0);
@@ -633,38 +648,42 @@ static lv_obj_t *calender_page_create()
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_move_background(cont);
 
-    for (int i = 0; i < 7; i++)
-    {
+    for (int i = 0; i < 7; i++) {
         single_calender_create(cont, i);
     }
 
     return cont;
 }
 
-// static void airecord_is_empty()
-// {
-//     lv_obj_t *msg_obj = lv_obj_create(screen);
-//     lv_obj_set_size(msg_obj, lv_pct(100), lv_pct(100));
-//     lv_obj_add_style(msg_obj, &screen_style, 0);
-//     lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_SCROLLABLE);
-//     lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_EVENT_BUBBLE);
-//     lv_obj_move_background(msg_obj);
-//     lv_obj_center(msg_obj);
+static lv_obj_t *airecord_is_empty(void)
+{
+    lv_obj_t *msg_obj = lv_obj_create(screen);
 
-//     lv_obj_t *image = lv_img_create(msg_obj);
-//     lv_obj_set_size(image, 380, 210);
-//     lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/empety_pic_photo.png");
-//     lv_obj_align(image, LV_ALIGN_TOP_MID, 0, 70);
+    lv_obj_set_size(msg_obj, lv_pct(100), lv_pct(100));
+    lv_obj_add_style(msg_obj, &screen_style, 0);
+    lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(msg_obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+    lv_obj_move_background(msg_obj);
+    lv_obj_center(msg_obj);
 
-//     lv_obj_t *label = lv_label_create(msg_obj);
-//     lv_obj_set_size(label, 422, 70);
-//     lv_label_set_text(label, "没发现任何的问答记录哦~\n快去找PIKA聊聊天吧");
-//     lv_obj_set_style_text_font(label, fzlthr_26, 0);
-//     lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
-//     lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
-//     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-//     lv_obj_align(label, LV_ALIGN_BOTTOM_MID, 0, -50);
-// }
+    lv_obj_t *image = lv_img_create(msg_obj);
+    lv_obj_set_size(image, 380, 210);
+    lv_img_set_src(image, "../lv_port_pc_vscode/assert/icon/empety_pic_photo.png");
+    lv_obj_align(image, LV_ALIGN_TOP_MID, 0, 70);
+
+    lv_obj_t *label = lv_label_create(msg_obj);
+    lv_obj_set_size(label, 422, 70);
+    lv_label_set_text(label, "没发现任何的问答记录哦~\n快去找PIKA聊聊天吧");
+    lv_obj_set_style_text_font(label, fzlthr_26, 0);
+    lv_obj_set_style_text_opa(label, LV_OPA_COVER, 0);
+    lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), 0);
+    lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label, LV_ALIGN_BOTTOM_MID, 0, -50);
+
+    printf("===========msg_obj = %p\n", msg_obj);
+
+    return msg_obj;
+}
 
 /**
  * 将时间戳格式化为 "6月34日 10:32" 格式
@@ -673,6 +692,7 @@ static void format_timestamp(uint64_t ts, char *buf, size_t buf_size)
 {
     time_t t = (time_t)ts;
     struct tm *tm_info = localtime(&t);
+
     if (tm_info) {
         snprintf(buf, buf_size, "%d月%d日 %02d:%02d",
                  tm_info->tm_mon + 1, tm_info->tm_mday,
@@ -744,6 +764,7 @@ static void airecord_bubble_draw_event(lv_event_t *e)
 static lv_obj_t *airecord_text_bubble_create(lv_obj_t *parent, const char *text, bool is_question)
 {
     lv_obj_t *bubble = lv_obj_create(parent);
+
     lv_obj_remove_style_all(bubble);
     lv_obj_clear_flag(bubble, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_user_data(bubble, (void *)(uintptr_t)is_question);
@@ -762,6 +783,7 @@ static lv_obj_t *airecord_text_bubble_create(lv_obj_t *parent, const char *text,
     lv_obj_t *label = lv_label_create(bubble);
     lv_label_set_text(label, text);
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
+
     /* label 内容区最大宽度 = 气泡最大宽度 - 左右 padding */
     lv_obj_set_width(label, LV_SIZE_CONTENT);
     lv_obj_set_style_max_width(label, AIRECORD_MAX_BUBBLE_W - AIRECORD_BUBBLE_PAD_H * 2, 0);
@@ -772,7 +794,6 @@ static lv_obj_t *airecord_text_bubble_create(lv_obj_t *parent, const char *text,
     lv_obj_update_layout(label);
 
     lv_coord_t w = lv_obj_get_width(label);
-    // lv_coord_t h = lv_obj_get_height(label);
 
     /* label 宽度受 max_width 限制，不会超过内容区上限 */
     w += AIRECORD_BUBBLE_PAD_H * 2;
@@ -794,6 +815,7 @@ static lv_obj_t *airecord_voice_bubble_create(lv_obj_t *parent, const char *voic
     LV_UNUSED(voice_path);
 
     lv_obj_t *bubble = lv_obj_create(parent);
+
     lv_obj_remove_style_all(bubble);
     lv_obj_clear_flag(bubble, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_user_data(bubble, (void *)(uintptr_t)is_question);
@@ -821,30 +843,34 @@ static lv_obj_t *airecord_voice_bubble_create(lv_obj_t *parent, const char *voic
 static lv_obj_t *airecord_image_bubble_create(lv_obj_t *parent, const char *image_path, bool is_question)
 {
     lv_obj_t *bubble = lv_obj_create(parent);
+
     lv_obj_remove_style_all(bubble);
     lv_obj_clear_flag(bubble, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_radius(bubble, 20, 0);
     lv_obj_set_style_clip_corner(bubble, true, 0);
     lv_obj_set_user_data(bubble, (void *)(uintptr_t)is_question);
     lv_obj_set_size(bubble, AIRECORD_IMAGE_W, AIRECORD_IMAGE_H);
-    // lv_obj_add_event_cb(bubble, airecord_bubble_draw_event, LV_EVENT_DRAW_MAIN, NULL);
 
-    lv_obj_t *img = lv_img_create(bubble); 
+    lv_obj_t *img = lv_img_create(bubble);
     lv_img_set_src(img, image_path);
-    lv_obj_set_size(img, AIRECORD_IMAGE_W, AIRECORD_IMAGE_H); 
-    lv_obj_center(img); // 在 bubble 内部居中
+    lv_obj_set_size(img, AIRECORD_IMAGE_W, AIRECORD_IMAGE_H);
+    lv_obj_center(img);
 
     return bubble;
 }
 
 /**
  * 添加时间分隔条，格式 "6月34日 10:32"
+ * 返回创建的 divider 对象，供后续删除时使用
  */
-static void airecord_add_time_divider_internal(uint64_t timestamp)
+static lv_obj_t *airecord_add_time_divider_internal(uint64_t timestamp)
 {
-    if (airecord_scroll_cont == NULL) return;
+    if (airecord_scroll_cont == NULL) {
+        return NULL;
+    }
 
     char time_str[64];
+
     format_timestamp(timestamp, time_str, sizeof(time_str));
 
     lv_obj_t *divider = lv_obj_create(airecord_scroll_cont);
@@ -861,6 +887,8 @@ static void airecord_add_time_divider_internal(uint64_t timestamp)
     lv_obj_set_style_text_opa(label, LV_OPA_60, 0);
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_center(label);
+
+    return divider;
 }
 
 /**
@@ -869,6 +897,7 @@ static void airecord_add_time_divider_internal(uint64_t timestamp)
 static lv_obj_t *airecord_checkbox_create(lv_obj_t *parent)
 {
     lv_obj_t *cb = lv_obj_create(parent);
+
     lv_obj_remove_style_all(cb);
     lv_obj_set_size(cb, CHECKBOX_SIZE, CHECKBOX_SIZE);
     lv_obj_set_style_radius(cb, LV_RADIUS_CIRCLE, 0);
@@ -897,10 +926,10 @@ static void airecord_popup_draw_event(lv_event_t *e)
     lv_obj_get_coords(obj, &area);
 
     lv_coord_t w = lv_area_get_width(&area);
-    // lv_coord_t h = lv_area_get_height(&area);
 
     /* 主体矩形区域（不含箭头） */
     lv_area_t rect_area;
+
     rect_area.x1 = area.x1;
     rect_area.x2 = area.x2;
     rect_area.y1 = area.y1;
@@ -908,6 +937,7 @@ static void airecord_popup_draw_event(lv_event_t *e)
 
     /* 1. 主体阴影 */
     lv_draw_box_shadow_dsc_t shadow_dsc;
+
     lv_draw_box_shadow_dsc_init(&shadow_dsc);
     shadow_dsc.color = lv_color_hex(0x000000);
     shadow_dsc.width = 20;
@@ -918,6 +948,7 @@ static void airecord_popup_draw_event(lv_event_t *e)
 
     /* 2. 绘制圆角矩形主体 */
     lv_draw_rect_dsc_t rect_dsc;
+
     lv_draw_rect_dsc_init(&rect_dsc);
     rect_dsc.bg_opa = LV_OPA_COVER;
     rect_dsc.bg_color = lv_color_hex(0x2C2C2E);
@@ -930,6 +961,7 @@ static void airecord_popup_draw_event(lv_event_t *e)
     lv_coord_t arrow_top_y = area.y2 - POPUP_ARROW_H;
 
     lv_draw_triangle_dsc_t tri_dsc;
+
     lv_draw_triangle_dsc_init(&tri_dsc);
     tri_dsc.color = lv_color_hex(0x2C2C2E);
     tri_dsc.opa = LV_OPA_COVER;
@@ -965,14 +997,18 @@ static void airecord_popup_destroy(void)
  */
 static void airecord_popup_click_blank_cb(lv_event_t *e)
 {
-    if (g_popup == NULL) return;
+    if (g_popup == NULL) {
+        return;
+    }
 
     lv_obj_t *target = lv_event_get_target(e);
 
     /* 如果点击的是弹窗本身或弹窗的子对象，不处理 */
     lv_obj_t *parent = target;
     while (parent) {
-        if (parent == g_popup) return;
+        if (parent == g_popup) {
+            return;
+        }
         parent = lv_obj_get_parent(parent);
     }
 
@@ -986,14 +1022,22 @@ static void airecord_popup_click_blank_cb(lv_event_t *e)
 static void airecord_popup_delete_cb(lv_event_t *e)
 {
     LV_UNUSED(e);
+
     lv_obj_t *target_row = g_longpress_target_row;
+
     airecord_popup_destroy();
 
     if (target_row) {
         /* 找到该行在数组中的索引 */
         for (int i = 0; i < airecord_item_count; i++) {
             if (airecord_items[i].row == target_row) {
+                /* 先删除该消息对应的时间分隔条（如果有） */
+                if (airecord_items[i].time_divider) {
+                    lv_obj_del(airecord_items[i].time_divider);
+                    airecord_items[i].time_divider = NULL;
+                }
                 lv_obj_del(airecord_items[i].row);
+
                 /* 移动后续元素 */
                 for (int j = i; j < airecord_item_count - 1; j++) {
                     airecord_items[j] = airecord_items[j + 1];
@@ -1002,6 +1046,11 @@ static void airecord_popup_delete_cb(lv_event_t *e)
                 break;
             }
         }
+    }
+
+    /* 如果无记录，显示为空 */
+    if (airecord_item_count == 0) {
+        atrecord_empty = airecord_is_empty();
     }
 
     /* 刷新布局以反映删除后的变化 */
@@ -1014,14 +1063,19 @@ static void airecord_popup_delete_cb(lv_event_t *e)
 static void airecord_popup_multi_cb(lv_event_t *e)
 {
     LV_UNUSED(e);
+
     airecord_popup_destroy();
 
     /* 进入删除模式但不自动勾选当前项 */
     airecord_enter_delete_mode_internal(NULL);
 
     /* 更换标题栏内容 */
-    if (title_cont_one) lv_obj_add_flag(title_cont_one, LV_OBJ_FLAG_HIDDEN);
-    if (title_cont_two) lv_obj_clear_flag(title_cont_two, LV_OBJ_FLAG_HIDDEN);
+    if (title_cont_one) {
+        lv_obj_add_flag(title_cont_one, LV_OBJ_FLAG_HIDDEN);
+    }
+    if (title_cont_two) {
+        lv_obj_clear_flag(title_cont_two, LV_OBJ_FLAG_HIDDEN);
+    }
 }
 
 /**
@@ -1031,7 +1085,9 @@ static void airecord_popup_multi_cb(lv_event_t *e)
  */
 static void airecord_popup_create(lv_obj_t *anchor_bubble)
 {
-    if (airecord_scroll_cont == NULL) return;
+    if (airecord_scroll_cont == NULL) {
+        return;
+    }
 
     /* 弹窗创建在滚动容器内，随滚动移动 */
     g_popup = lv_obj_create(airecord_scroll_cont);
@@ -1052,7 +1108,7 @@ static void airecord_popup_create(lv_obj_t *anchor_bubble)
     /* 使用 Flex 布局让内部图标和文字垂直居中排列 */
     lv_obj_set_flex_flow(del_cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(del_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_set_style_pad_row(del_cont, 10, 0); /* 图标和文字的垂直间距设为 10 */
+    lv_obj_set_style_pad_row(del_cont, 10, 0);
     lv_obj_align(del_cont, LV_ALIGN_TOP_MID, -40, 20);
     /* 将点击事件和可点击属性绑定在整个容器上 */
     lv_obj_add_flag(del_cont, LV_OBJ_FLAG_CLICKABLE);
@@ -1069,7 +1125,6 @@ static void airecord_popup_create(lv_obj_t *anchor_bubble)
     lv_obj_set_style_text_color(del_label, lv_color_white(), 0);
     lv_obj_set_style_text_font(del_label, fzlthr_22, 0);
 
-
     /* "多选" 容器（右侧） */
     lv_obj_t *multi_cont = lv_obj_create(g_popup);
     lv_obj_remove_style_all(multi_cont);
@@ -1077,7 +1132,7 @@ static void airecord_popup_create(lv_obj_t *anchor_bubble)
     lv_obj_clear_flag(multi_cont, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_flex_flow(multi_cont, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(multi_cont, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_set_style_pad_row(multi_cont, 10, 0); /* 图标和文字的垂直间距设为 10 */
+    lv_obj_set_style_pad_row(multi_cont, 10, 0);
     lv_obj_align(multi_cont, LV_ALIGN_TOP_MID, 40, 20);
     /* 将点击事件和可点击属性绑定在整个容器上 */
     lv_obj_add_flag(multi_cont, LV_OBJ_FLAG_CLICKABLE);
@@ -1106,13 +1161,20 @@ static void airecord_popup_create(lv_obj_t *anchor_bubble)
 
     /* 弹窗水平居中于气泡中间 */
     lv_coord_t popup_x = bubble_x + (bubble_w - POPUP_W) / 2;
-    if (popup_x < 0) popup_x = 0;
-    if (popup_x + POPUP_W > AIRECORD_SCROLL_W)
+
+    if (popup_x < 0) {
+        popup_x = 0;
+    }
+    if (popup_x + POPUP_W > AIRECORD_SCROLL_W) {
         popup_x = AIRECORD_SCROLL_W - POPUP_W;
+    }
 
     /* 弹窗在气泡上方 20px */
     lv_coord_t popup_y = bubble_y - POPUP_H - POPUP_ARROW_H - 20;
-    if (popup_y < 0) popup_y = 5;
+
+    if (popup_y < 0) {
+        popup_y = 5;
+    }
 
     lv_obj_set_pos(g_popup, popup_x, popup_y);
 }
@@ -1137,7 +1199,7 @@ static void airecord_bubble_longpress_cb(lv_event_t *e)
         lv_obj_scroll_to_view(g_popup, LV_ANIM_ON);
     }
 
-    /* 在 scroll_cont 上添加点击空白关闭弹窗的监听（弹窗创建在 scroll_cont 内，事件可正确冒泡） */
+    /* 在 scroll_cont 上添加点击空白关闭弹窗的监听 */
     lv_obj_add_event_cb(airecord_scroll_cont, airecord_popup_click_blank_cb, LV_EVENT_CLICKED, NULL);
 }
 
@@ -1145,12 +1207,16 @@ static void airecord_exit_delete_mode_internal(void)
 {
     g_delete_mode = false;
 
-    /* 隐藏所有勾选框，清除选中状态 */
+    /* 隐藏所有勾选框，清除选中状态，恢复气泡的 CLICKABLE 标志 */
     for (int i = 0; i < airecord_item_count; i++) {
         if (airecord_items[i].checkbox) {
             lv_obj_add_flag(airecord_items[i].checkbox, LV_OBJ_FLAG_HIDDEN);
             airecord_items[i].checked = false;
             airecord_checkbox_set_checked(airecord_items[i].checkbox, false);
+        }
+        /* 恢复气泡的 CLICKABLE 标志，让长按弹窗重新生效 */
+        if (airecord_items[i].bubble) {
+            lv_obj_add_flag(airecord_items[i].bubble, LV_OBJ_FLAG_CLICKABLE);
         }
     }
 
@@ -1180,7 +1246,10 @@ static void airecord_update_layout(void)
 {
     for (int i = 0; i < airecord_item_count; i++) {
         airecord_item_t *item = &airecord_items[i];
-        if (item->row == NULL || item->bubble == NULL) continue;
+
+        if (item->row == NULL || item->bubble == NULL) {
+            continue;
+        }
 
         if (item->msg_data.is_question) {
             /* 问题靠右，贴着容器最右侧 */
@@ -1188,6 +1257,7 @@ static void airecord_update_layout(void)
         } else {
             /* 智能体回复靠左，删除模式时距离勾选框 20px，否则贴左侧 */
             lv_coord_t shift = g_delete_mode ? (CHECKBOX_SIZE + 20 + 10) : 0;
+
             lv_obj_align(item->bubble, LV_ALIGN_TOP_LEFT, shift, 0);
         }
 
@@ -1205,6 +1275,7 @@ static void airecord_msg_row_click_cb(lv_event_t *e)
     if (code == LV_EVENT_CLICKED && g_delete_mode) {
         /* 点击行容器，如果已选中则取消选中，否则选中 */
         lv_obj_t *row = lv_event_get_target(e);
+
         for (int i = 0; i < airecord_item_count; i++) {
             if (airecord_items[i].row == row) {
                 airecord_items[i].checked = !airecord_items[i].checked;
@@ -1217,14 +1288,19 @@ static void airecord_msg_row_click_cb(lv_event_t *e)
 
 static void airecord_msg_add(airecord_msg_t *msg)
 {
-    if (airecord_scroll_cont == NULL) return;
+    if (airecord_scroll_cont == NULL) {
+        return;
+    }
 
     /* 检查是否需要插入时间分隔 */
+    lv_obj_t *new_divider = NULL;
+
     if (airecord_item_count > 0) {
         uint64_t prev_ts = airecord_items[airecord_item_count - 1].msg_data.timestamp;
+
         if (msg->timestamp > prev_ts &&
             (msg->timestamp - prev_ts) >= TIME_DIVIDER_THRESHOLD) {
-            airecord_add_time_divider_internal(msg->timestamp);
+            new_divider = airecord_add_time_divider_internal(msg->timestamp);
         }
     }
 
@@ -1232,15 +1308,20 @@ static void airecord_msg_add(airecord_msg_t *msg)
     if (airecord_item_count >= airecord_item_capacity) {
         int new_cap = airecord_item_capacity == 0 ? 32 : airecord_item_capacity * 2;
         airecord_item_t *new_items = realloc(airecord_items, new_cap * sizeof(airecord_item_t));
-        if (NULL == new_items) return;
+
+        if (new_items == NULL) {
+            return;
+        }
         airecord_items = new_items;
         airecord_item_capacity = new_cap;
     }
 
     airecord_item_t *item = &airecord_items[airecord_item_count];
+
     memset(item, 0, sizeof(airecord_item_t));
     item->msg_data = *msg;
     item->checked = false;
+    item->time_divider = new_divider;
 
     /* ---- 创建外层行容器（包含勾选框 + 气泡） ---- */
     lv_obj_t *outer_row = lv_obj_create(airecord_scroll_cont);
@@ -1255,6 +1336,7 @@ static void airecord_msg_add(airecord_msg_t *msg)
 
     /* ---- 创建勾选框 ---- */
     lv_obj_t *cb = airecord_checkbox_create(outer_row);
+
     lv_obj_align(cb, LV_ALIGN_LEFT_MID, 10, 0);
     item->checkbox = cb;
 
@@ -1282,6 +1364,7 @@ static void airecord_msg_add(airecord_msg_t *msg)
 
         lv_obj_update_layout(bubble);
         lv_coord_t h = lv_obj_get_height(bubble) + 16;
+
         lv_obj_set_height(outer_row, h);
 
         if (msg->is_question) {
@@ -1307,7 +1390,7 @@ static lv_obj_t *airecord_list_create(lv_obj_t *parent)
     airecord_scroll_cont = lv_obj_create(parent);
     lv_obj_set_size(airecord_scroll_cont, AIRECORD_SCROLL_W, AIRECORD_SCROLL_H);
     lv_obj_set_style_radius(airecord_scroll_cont, 0, 0);
-    lv_obj_set_style_bg_opa(airecord_scroll_cont, LV_OPA_COVER, 0);
+    lv_obj_set_style_bg_opa(airecord_scroll_cont, LV_OPA_TRANSP, 0);
     lv_obj_set_style_bg_color(airecord_scroll_cont, lv_color_hex(0x000000), 0);
     lv_obj_set_style_border_width(airecord_scroll_cont, 0, 0);
     lv_obj_set_style_pad_all(airecord_scroll_cont, 0, 0);
@@ -1338,17 +1421,20 @@ static lv_obj_t *airecord_list_create(lv_obj_t *parent)
 static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject)
 {
     LV_UNUSED(observer);
+
     int32_t page_event = lv_subject_get_int(subject);
-    // GUI_LOG(KEY_WARN,"page switch event:%d\n", page_event);
-    if (page_event == PAGE_SWITCH_NONE) return;//注意首次触发
-    
+
+    /* 注意首次触发 */
+    if (page_event == PAGE_SWITCH_NONE) {
+        return;
+    }
+
     switch_page = (lv_switch_page_pt)lv_malloc(sizeof(lv_switch_page_t));
     lv_memset(switch_page, 0, sizeof(lv_switch_page_t));
     LV_ASSERT_MALLOC(switch_page);
     switch_page->old_page = &airecord_page_info;
 
-    switch (page_event)
-    {
+    switch (page_event) {
         case PAGE_SWITCH_BACK:
             switch_page->new_page = lv_stack_pop();
             break;
@@ -1357,7 +1443,7 @@ static void lv_switch_observer_cb(lv_observer_t *observer, lv_subject_t *subject
             break;
     }
 
-    if (NULL == switch_page->new_page) {
+    if (switch_page->new_page == NULL) {
         lv_free(switch_page);
         return;
     }
