@@ -42,6 +42,13 @@
 /* 超过5分钟(300秒)插入时间分隔 */
 #define TIME_DIVIDER_THRESHOLD      300
 
+/* 动态数组容量管理 */
+#define AIRECORD_CAP_INITIAL        32          /* 初始容量 */
+#define AIRECORD_CAP_GROW_FACTOR    2           /* 扩容倍数 */
+#define AIRECORD_CAP_SHRINK_RATIO   4           /* 缩容阈值：count < capacity / 4 时触发 */
+#define AIRECORD_CAP_SHRINK_FACTOR  2           /* 缩容除数：capacity /= 2 */
+#define AIRECORD_CAP_MIN            32          /* 最小容量 */
+
 /* ========== 数据结构 ========== */
 
 /* 对话消息类型 */
@@ -121,6 +128,7 @@ static lv_obj_t *airecord_voice_bubble_create(lv_obj_t *parent, const char *voic
 static lv_obj_t *airecord_image_bubble_create(lv_obj_t *parent, const char *image_path, bool is_question);
 static lv_obj_t *airecord_add_time_divider_internal(uint64_t timestamp);
 static lv_obj_t *airecord_is_empty(void);
+static void airecord_shrink_capacity(void);
 static void airecord_update_layout(void);
 static void airecord_checkbox_click_cb(lv_event_t *e);
 static void airecord_bubble_longpress_cb(lv_event_t *e);
@@ -183,12 +191,26 @@ static void lv_page_construct(void *this)
     lv_obj_center(screen);
 
     lv_page_load(screen);
+    airecord_page_info.page = screen;
 }
 
 static void lv_page_destruct(void)
 {
     lv_style_reset(&screen_style);
     lv_page_subject_deinit();
+
+    /* 释放动态数组，避免页面切换后重新进入时访问到已销毁的 lvgl 对象指针 */
+    if (airecord_items) {
+        free(airecord_items);
+        airecord_items = NULL;
+    }
+
+    airecord_item_count = 0;
+    airecord_item_capacity = 0;
+    g_delete_mode = false;
+    g_popup = NULL;
+    g_longpress_target_row = NULL;
+    g_longpress_target_bubble = NULL;
 }
 
 static void lv_page_style_init(void)
@@ -352,6 +374,28 @@ static void page_back_event_cb(lv_event_t *e)
     }
 }
 
+/**
+ * 缩容动态数组：当实际数量远小于容量时，缩小数组节省内存
+ * 注意：必须在所有 lvgl 对象操作完成之后调用，避免与 tlsf 分配器冲突
+ */
+static void airecord_shrink_capacity(void)
+{
+    if (airecord_item_capacity > AIRECORD_CAP_MIN &&
+        airecord_item_count < airecord_item_capacity / AIRECORD_CAP_SHRINK_RATIO) {
+        int new_cap = airecord_item_capacity / AIRECORD_CAP_SHRINK_FACTOR;
+        if (new_cap < AIRECORD_CAP_MIN) {
+            new_cap = AIRECORD_CAP_MIN;
+        }
+        if (new_cap >= airecord_item_count) {
+            airecord_item_t *new_items = realloc(airecord_items, new_cap * sizeof(airecord_item_t));
+            if (new_items) {
+                airecord_items = new_items;
+                airecord_item_capacity = new_cap;
+            }
+        }
+    }
+}
+
 static void airecord_delete_selected(void)
 {
     /* 从后往前删除，避免索引变化 */
@@ -365,12 +409,17 @@ static void airecord_delete_selected(void)
             lv_obj_del(airecord_items[i].row);
 
             /* 移动后续元素 */
-            for (int j = i; j < airecord_item_count - 1; j++) {
-                airecord_items[j] = airecord_items[j + 1];
+            int move_count = airecord_item_count - i - 1;
+            if (move_count > 0) {
+                memmove(&airecord_items[i], &airecord_items[i + 1],
+                        move_count * sizeof(airecord_item_t));
             }
             airecord_item_count--;
         }
     }
+
+    /* 缩容必须在所有 lvgl 操作之后进行 */
+    airecord_shrink_capacity();
 
     airecord_exit_delete_mode_internal();
 }
@@ -1039,8 +1088,10 @@ static void airecord_popup_delete_cb(lv_event_t *e)
                 lv_obj_del(airecord_items[i].row);
 
                 /* 移动后续元素 */
-                for (int j = i; j < airecord_item_count - 1; j++) {
-                    airecord_items[j] = airecord_items[j + 1];
+                int move_count = airecord_item_count - i - 1;
+                if (move_count > 0) {
+                    memmove(&airecord_items[i], &airecord_items[i + 1],
+                            move_count * sizeof(airecord_item_t));
                 }
                 airecord_item_count--;
                 break;
@@ -1055,6 +1106,9 @@ static void airecord_popup_delete_cb(lv_event_t *e)
 
     /* 刷新布局以反映删除后的变化 */
     airecord_update_layout();
+
+    /* 缩容必须在所有 lvgl 操作之后进行，避免与 tlsf 分配器冲突 */
+    airecord_shrink_capacity();
 }
 
 /**
@@ -1306,7 +1360,9 @@ static void airecord_msg_add(airecord_msg_t *msg)
 
     /* 扩展动态数组 */
     if (airecord_item_count >= airecord_item_capacity) {
-        int new_cap = airecord_item_capacity == 0 ? 32 : airecord_item_capacity * 2;
+        int new_cap = airecord_item_capacity == 0
+                      ? AIRECORD_CAP_INITIAL
+                      : airecord_item_capacity * AIRECORD_CAP_GROW_FACTOR;
         airecord_item_t *new_items = realloc(airecord_items, new_cap * sizeof(airecord_item_t));
 
         if (new_items == NULL) {
@@ -1385,6 +1441,12 @@ static void airecord_msg_add(airecord_msg_t *msg)
 static lv_obj_t *airecord_list_create(lv_obj_t *parent)
 {
     airecord_parent = parent;
+
+    /* 重置动态数组状态，确保页面重新进入时从干净状态开始 */
+    airecord_item_count = 0;
+    airecord_item_capacity = 0;
+    airecord_items = NULL;
+    g_delete_mode = false;
 
     /* 创建消息滚动容器 */
     airecord_scroll_cont = lv_obj_create(parent);

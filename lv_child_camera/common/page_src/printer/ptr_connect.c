@@ -225,6 +225,15 @@ static void scan_device_item_create(lv_obj_t *cont, int32_t index)
     lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(label, LV_ALIGN_LEFT_MID, 115, 0);
 
+    lv_obj_t *save = lv_label_create(btn);
+    lv_label_set_text(save, "已保存设备");
+    lv_obj_set_size(save, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_style_text_opa(save, LV_OPA_60, 0);
+    lv_obj_set_style_text_color(save, lv_color_hex(0xEBEBF5), 0);
+    lv_obj_set_style_text_font(save, fzlthr_16, 0);
+    lv_obj_set_style_text_align(save, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(save, LV_ALIGN_RIGHT_MID, -35, 0);
+
     lv_obj_t *image = lv_img_create(btn);
     lv_obj_set_size(image, 80, 80);
     lv_img_set_zoom(image, 128);
