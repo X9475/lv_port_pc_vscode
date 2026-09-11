@@ -122,12 +122,12 @@ static void lv_page_load(lv_obj_t *cont)
 
     //边框显示按钮
     lv_obj_t *border_btn = lv_btn_create(cont);
-    lv_obj_set_size(border_btn, 50, 50);
+    lv_obj_set_size(border_btn, 60, 60);
     lv_obj_set_style_radius(border_btn, 0, 0);
     lv_obj_set_style_shadow_width(border_btn, 0, 0);
     lv_obj_set_style_bg_opa(border_btn, LV_OPA_TRANSP, 0);
     lv_obj_add_event_cb(border_btn, border_btn_click_cb, LV_EVENT_CLICKED, backdrop);
-    lv_obj_align(border_btn, LV_ALIGN_TOP_RIGHT, -100, 20);
+    lv_obj_align(border_btn, LV_ALIGN_TOP_RIGHT, -130, 10);
 
     lv_obj_t *border_icon = lv_img_create(border_btn);
     lv_obj_set_size(border_icon, 50, 50);
@@ -137,12 +137,12 @@ static void lv_page_load(lv_obj_t *cont)
 
     //旋转按钮
     lv_obj_t *rotate_btn = lv_btn_create(cont);
-    lv_obj_set_size(rotate_btn, 50, 50);
+    lv_obj_set_size(rotate_btn, 60, 60);
     lv_obj_set_style_radius(rotate_btn, 0, 0);
     lv_obj_set_style_shadow_width(rotate_btn, 0, 0);
     lv_obj_set_style_bg_opa(rotate_btn, LV_OPA_TRANSP, 0);
     lv_obj_add_event_cb(rotate_btn, rotate_btn_click_cb, LV_EVENT_CLICKED, backdrop);
-    lv_obj_align(rotate_btn, LV_ALIGN_TOP_RIGHT, -30, 20);
+    lv_obj_align(rotate_btn, LV_ALIGN_TOP_RIGHT, -60, 10);
 
     lv_obj_t *rotate_icon = lv_img_create(rotate_btn);
     lv_obj_set_size(rotate_icon, 50, 50);
